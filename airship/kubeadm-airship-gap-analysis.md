@@ -317,3 +317,4 @@ Although it is is possible to specify different registry:tag for each control pl
 
 # To do Items
 - Verify that sha256 can be used to do docker operations. [Jira](https://airship.atlassian.net/browse/AIR-147)
+- Investigate providing encryption key and more certificates to kubeadm. [Jira](https://airship.atlassian.net/browse/AIR-142)
