@@ -87,16 +87,13 @@ localAPIEndpoint:
 nodeRegistration:
   criSocket: /var/run/dockershim.sock
   name: kind-control-plane
-  taints:
-  - effect: NoSchedule
-    key: node-role.kubernetes.io/master
 ---
 .
 .
 .
 ```
 
-Weather to put the flags in the kubeadm or kubelet configuration needs further study. However, the pause image is configurable.
+Whether to put the flags in the kubeadm or kubelet configuration needs further study. However, the pause image is configurable.
 
 For building a pause container, please refer to [build pause containers](https://github.com/kubernetes/kubernetes/tree/master/build/pause)
 
