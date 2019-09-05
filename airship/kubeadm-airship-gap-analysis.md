@@ -98,7 +98,7 @@ nodeRegistration:
 
 Weather to put the flags in the kubeadm or kubelet configuration needs further study. However, the pause image is configurable.
 
-For building a pause container, please refer to [build puause containers]
+For building a pause container, please refer to [build pause containers](https://github.com/kubernetes/kubernetes/tree/master/build/pause)
 
 # To do Items
 - Verify that sha256 can be used to do docker operations. [Jira](https://airship.atlassian.net/browse/AIR-147)
