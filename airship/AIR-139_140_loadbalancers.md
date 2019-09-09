@@ -11,6 +11,7 @@ Jira Issues:
 ## Introduction
 
 **The problem:**
+<<<<<<< HEAD
 
 Given a set of control plane nodes (masters) and a load balancer, we would like to configure the load balancer automatically. In this context, configuration means adding a rule on the load balancer for a specific master.
 
@@ -28,6 +29,24 @@ LB -----> |  M2
 
 Define parameters for comparing different load balancers and choose suitable ones for different use cases. Any human intervention should END before the machines boot. i.e. We have an LB, masters and nothing else. With the information provided in their respective cloud-init, the machines should be able to do the LB setup.
 
+=======
+Given a set of control plane nodes (masters) and a load balancer, we would like to configure the load balancer automatically. In this context, configuration means adding a rule on the load balancer for a specific master.
+
+Topology:
+
+```
+          |  M1
+          | 
+LB -----> |  M2
+          |
+          |  M3
+```
+
+**The task:**
+
+Define parameters for comparing different load balancers and choose suitable ones for different use cases. Any human intervention should END before the machines boot. i.e. We have an LB, masters and nothing else. With the information given in cloud-init, the machines should be able to do the setup.
+
+>>>>>>> 84ad4fb0f40802c8c1f18c6313360fa2753915af
 **Parameters**
 
  **responsibility:** Who is responsible configuring the load balancer
@@ -42,7 +61,11 @@ Define parameters for comparing different load balancers and choose suitable one
        III. After each master is down
 
 Notes:
+<<<<<<< HEAD
 There are some corner cases that are ignored for now and should be studied further at implementation phase. For example:
+=======
+There are some corner cases that are ignored now and should be handled at implementation phase. \
+>>>>>>> 84ad4fb0f40802c8c1f18c6313360fa2753915af
 
 - Case (I) above does not work in a dhcp environment
 - Case (II) above does not work if the LB boots after the masters
@@ -102,7 +125,6 @@ Before going further we need to make the following assumptions.
 - Masters are created with the knowledge of how to reach the LB 
 
 Responsibility and Timing:
-
 The LB learns about routes on the masters from each master. Configuring which networks the masters should advertise is a topic for further study.
 
 - Before booting the machines:
