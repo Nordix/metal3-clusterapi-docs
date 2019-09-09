@@ -26,7 +26,7 @@ LB -----> |  M2
 
 **The task:**
 
-Define parameters for comparing different load balancers and choose suitable ones for different use cases. Any human intervention should END before the machines boot. i.e. We have an LB, masters and nothing else. With the information provided in their respective cloud-init, the machines should be able to do the LB setup.
+Define parameters for comparing different load balancers and choose suitable ones for different use cases. Any human intervention should END before the machines boot. i.e. We have an LB, masters and nothing else. With the information given in cloud-init, the machines should be able to do the setup.
 
 **Parameters**
 
@@ -42,6 +42,7 @@ Define parameters for comparing different load balancers and choose suitable one
        III. After each master is down
 
 Notes:
+
 There are some corner cases that are ignored for now and should be studied further at implementation phase. For example:
 
 - Case (I) above does not work in a dhcp environment
