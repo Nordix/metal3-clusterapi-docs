@@ -2,7 +2,7 @@
 
 ---
 
-# Load Balancers
+# Autoconfiguration of Load Balancers
 
 Jira Issues: 
 - [metallb](https://airship.atlassian.net/browse/AIR-5)
@@ -10,43 +10,114 @@ Jira Issues:
 
 ## Introduction
 
-There are multiple alternatives for HA setup. Time wise, Some are setup before a kubernetes cluster is created, while other need the target cluster in place. Based on the following criteria, an assessment was done to determine their usability with kubeadm.
+**The problem:**
 
-1. Can we have static information that can be used in certificates
-2. Can we have all required information before creating the cluster
-3. Can new control plane nodes join dynamically
-4. Can clusters survive control plane node removal
+Given a set of control plane nodes (masters) and a load balancer, we would like to configure the load balancer automatically. In this context, configuration means adding a rule on the load balancer for a specific master.
 
+Topology:
 
+```
+          |  M1
+          | 
+LB -----> |  M2
+          |
+          |  M3
+```
 
-## HA options
+**The task:**
 
-### Keepalived
-- Each node will have its own ip and one common IP among them which is static.
-- The common IP (VIP) and each node’s IP can be used in certificates
-- Each joining node can join the “keepalived group” much like the original nodes then configures kubeadm to use the VIP as a cluster IP.
-- Node removal does not cause total failure of the cluster, but downtime if the node had the VIP
+Define parameters for comparing different load balancers and choose suitable ones for different use cases. Any human intervention should END before the machines boot. i.e. We have an LB, masters and nothing else. With the information given in cloud-init, the machines should be able to do the setup.
 
-### BGP VIP with Calico
-As we know it now, both BGP and Calico components run inside kubernetes. And, those components that run each node (controllers, workers) run as pods. Given these issues, we do not have an answer for the following
+**Parameters**
 
-- Kubeadm does not get any relevant static information from BGP and Calico as they are setup after the cluster is created.
-- Once there is a cluster, then BGP-Calico setup can be done regardless of how the cluster was created
+ **responsibility:** Who is responsible configuring the load balancer
+
+        A. The master machine
+        B. The load balancer itself
+
+**Timiming:** When is an entry for a master machine in the LB created/deleted:
+
+        II. After each master boots and runs init or join
+       III. After each master is down
+
+Notes:
+
+There are some corner cases that are ignored for now and should be studied further at implementation phase. For example:
+
+- Case (II) above does not work if the LB boots after the masters
+
+## Load Balancer options
 
 ### External Load Balancers
+Based on the parameters we defined earlier, taking nginx as an example, we can state the following.
 
-An external Load balancer is a component that resides outside of a kubernetes cluster such that
-- It has a static address that can be used in creating certificates
-- Before adding a control plane node, the LB needs to be configured to route traffic to the new node
-- A new control plane can join dynamically but can NOT be used unless an entry is created in the LB for it.
-- A removal of a control plane node can cause issues unless the corresponding entry is removed from the LB before the removal starts
+Responsibility and Timing:
 
-### HA proxy in each machine
-This does NOT require an existing kubernetes cluster, But there are two issues that need to be considered.
-- The setup does not serve external users as a single entry point or else we need one more external LB abstracting them.
-- There are more LBs to keep in sync with.
+For all time instances give above, Nginx is a passive entity and cannot configure itself.
 
-Having multiple LBs has its own problem. The certificate we generate should include all nodes IPs. Now suppose the cert is used in admin.conf for running kubectl.
-- To which nodes does kubectl point to ?
-- What happens when one of the nodes is removed and replaced by a new one ?  (the new node’s IP/hostname is not included in the certificate, which fails mutual authentication between the client and api-server)
+- After each master boots and runs init or join:
+Nginx is a passive entity and cannot configure the rule itself.
 
+- After each master is down:
+This resembles health check and nginx can remove the rule after some time
+
+**Therefore**, masters should be responsible for adding a rule on the LB during their boot. However, there is no clear solution for removing a rule as a master's graceful shutdown is not guaranteed.
+
+### Keepalived
+
+In this case, we have three masters, each with its own IP and one VIP shared among them. At any given moment in time, the VIP is associated with one of the masters.
+
+Responsibility and Timing:
+
+It is not possible to assign responsibility to the "LB" as there is just a VIP that floats among the masters, but for the timing, we can consider the following. 
+
+- After each master boots and runs init or join:
+All masters know the VIP before boot via the keepalived configuration file and no need to configure anything.
+
+- After each master is down:
+One of the remaining masters takes the VIP.
+
+**Therefore**, masters are responsible for configuring the "LB"
+
+### BGP
+
+Before going further we need to make the following assumptions.
+
+- There is NO kubernetes cluster.
+- BGP router runs in the LB and speakers live in each master
+- We refer to the router as LB since it is the only process in the LB.
+- Masters are created with the knowledge of how to reach the LB 
+
+Responsibility and Timing:
+The LB learns about routes on the masters from each master. Configuring which networks the masters should advertise is a topic for further study.
+
+- After each master boots and runs init or join:
+Masters should NOT advertize routes before they run init or join.
+
+- After each master is down: 
+LB should be able to detect a master's absence and remove the corresponding rule.
+
+**Therefore**, both masters and LB are responsible for creating the maintaining the setup.
+
+### Open questions and future works
+
+Choosing the best LBs for specific uses is open question and requires further discussion in the community. We give priority for options that are (being) used in production.
+
+Any solution we choose should be easily implemented as cloud-init so that machines are boot in ANY order and the LB is setup successfully.
+
+## Open Questions
+
+1. Who creates the load balancer ?
+With cluster-api, we can create the masters, but there is no way to crate the load balancer.
+- Should one of the masters spawn a load balancer ?
+- Should an external controller, script or the ephemeral node create the load balancer ?
+
+2. who is responsible for creating the rules after each master run init or join ?
+- Each master creates its own rule ?
+- Should an external controller, script or the ephemeral node create the load balancer ?
+
+
+2. who is responsible for deleting the rules after each master leaves or dies ungracefully ?
+- Each master deletes its own rule ?
+- The load balancer itself after timeout ?
+- Should an external controller, script or the ephemeral node create the load balancer ?

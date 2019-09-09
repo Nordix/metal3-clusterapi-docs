@@ -3,7 +3,7 @@ The purpose of this document is for studying the limitations of kubeadm in accom
 
 # Tasks
 - [x] [Rotate certificates](AIR-138_kubeadm-rotating-ca.md)
-- [x] [Study Load balancer options](AIR-139_140_loadbalancers.md)
+- [x] [LB autosetup](AIR-139_140_loadbalancers.md)
 - [x] [Configure container run for a cluster](AIR-141_runtimeclass.md)
 - [x] [Pass encryption key and more certs to kubeadm](AIR-142_enrypt-data-at-rest_and_provide-more-certs.md)
 
