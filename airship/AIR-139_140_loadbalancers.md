@@ -107,17 +107,17 @@ Any solution we choose should be easily implemented as cloud-init so that machin
 
 ## Open Questions
 
-1. Who creates the load balancer ?
+1. Who creates/removes the load balancer ?
 With cluster-api, we can create the masters, but there is no way to crate the load balancer.
 - Should one of the masters spawn a load balancer ?
 - Should an external controller, script or the ephemeral node create the load balancer ?
 
 2. who is responsible for creating the rules after each master run init or join ?
 - Each master creates its own rule ?
-- Should an external controller, script or the ephemeral node create the load balancer ?
+- Should an external controller, script or the ephemeral node create a rule for itself ?
 
 
 2. who is responsible for deleting the rules after each master leaves or dies ungracefully ?
-- Each master deletes its own rule ?
+- Each master deletes its own rule ? not possible if the master dies ungracefully.
+- Should an external controller, script or the ephemeral node delete the rules ?
 - The load balancer itself after timeout ?
-- Should an external controller, script or the ephemeral node create the load balancer ?
