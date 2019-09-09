@@ -4,13 +4,10 @@
 
 # Pause container image configuration
 
+**key objectives**: configure what pause image to use before manifest files are generated.
+
 Jira Issues:
 - [Pause container selection](https://airship.atlassian.net/browse/AIR-148)
-
-**Summary:**
-
-Question: Can we set specific pause image before static pod manifest generation.
-Answer: Yes
 
 
 The ```--pod-infra-container-image``` can be used to set specific pause container image.
@@ -73,5 +70,3 @@ nodeRegistration:
 Whether to put the flags in the kubeadm or kubelet configuration needs further study. However, the pause image is configurable.
 
 For building a pause container, please refer to [build pause containers](https://github.com/kubernetes/kubernetes/tree/master/build/pause)
-
-

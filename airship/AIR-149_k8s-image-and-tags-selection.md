@@ -3,6 +3,9 @@
 ---
 
 # Override k8s image registry and tag
+
+**Key objectives**: configure what registry and tag to use for kubernetes control plane components.
+
 Jira Issues:
 - [Override K8s registry and tag](https://airship.atlassian.net/browse/AIR-149)
 
