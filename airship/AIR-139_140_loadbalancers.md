@@ -37,15 +37,13 @@ Define parameters for comparing different load balancers and choose suitable one
 
 **Timiming:** When is an entry for a master machine in the LB created/deleted:
 
-         I. Before booting the machines
-        II. After each master boots
+        II. After each master boots and runs init or join
        III. After each master is down
 
 Notes:
 
 There are some corner cases that are ignored for now and should be studied further at implementation phase. For example:
 
-- Case (I) above does not work in a dhcp environment
 - Case (II) above does not work if the LB boots after the masters
 
 ## Load Balancer options
@@ -57,14 +55,11 @@ Responsibility and Timing:
 
 For all time instances give above, Nginx is a passive entity and cannot configure itself.
 
-- Before booting the machines:
-This is possible if the masters have static addresses.
-
-- After each master boots:
-This is not possible as nginx is a passive entity.
+- After each master boots and runs init or join:
+Nginx is a passive entity and cannot configure the rule itself.
 
 - After each master is down:
-This resembles health check and is not applicable as we could have a different meaning for what unhealthy masters is. But, this could be discussed further during implementation phase.
+This resembles health check and nginx can remove the rule after some time
 
 **Therefore**, masters should be responsible for adding a rule on the LB during their boot. However, there is no clear solution for removing a rule as a master's graceful shutdown is not guaranteed.
 
@@ -76,11 +71,8 @@ Responsibility and Timing:
 
 It is not possible to assign responsibility to the "LB" as there is just a VIP that floats among the masters, but for the timing, we can consider the following. 
 
-- Before booting the machines:
-All masters know the VIP before boot via the keepalived configuration file.
-
-- After each master boots:
-The same reasoning as above applies.
+- After each master boots and runs init or join:
+All masters know the VIP before boot via the keepalived configuration file and no need to configure anything.
 
 - After each master is down:
 One of the remaining masters takes the VIP.
@@ -99,19 +91,33 @@ Before going further we need to make the following assumptions.
 Responsibility and Timing:
 The LB learns about routes on the masters from each master. Configuring which networks the masters should advertise is a topic for further study.
 
-- Before booting the machines:
-This is not possible as the setup requires active BGP components
-
-- After each master boots: 
-The same reasoning as above applies.
+- After each master boots and runs init or join:
+Masters should NOT advertize routes before they run init or join.
 
 - After each master is down: 
-This is much like asking, if a master is down, when does the LB become aware of it and delete the corresponding rule ? This requires configuring the LB to health check frequently enough to detect such failures. This requires further study.
+LB should be able to detect a master's absence and remove the corresponding rule.
 
 **Therefore**, both masters and LB are responsible for creating the maintaining the setup.
 
-### The best LB and the future works
+### Open questions and future works
 
 Choosing the best LBs for specific uses is open question and requires further discussion in the community. We give priority for options that are (being) used in production.
 
 Any solution we choose should be easily implemented as cloud-init so that machines are boot in ANY order and the LB is setup successfully.
+
+## Open Questions
+
+1. Who creates the load balancer ?
+With cluster-api, we can create the masters, but there is no way to crate the load balancer.
+- Should one of the masters spawn a load balancer ?
+- Should an external controller, script or the ephemeral node create the load balancer ?
+
+2. who is responsible for creating the rules after each master run init or join ?
+- Each master creates its own rule ?
+- Should an external controller, script or the ephemeral node create the load balancer ?
+
+
+2. who is responsible for deleting the rules after each master leaves or dies ungracefully ?
+- Each master deletes its own rule ?
+- The load balancer itself after timeout ?
+- Should an external controller, script or the ephemeral node create the load balancer ?
