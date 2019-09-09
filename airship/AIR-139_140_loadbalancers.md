@@ -102,7 +102,6 @@ Before going further we need to make the following assumptions.
 - Masters are created with the knowledge of how to reach the LB 
 
 Responsibility and Timing:
-
 The LB learns about routes on the masters from each master. Configuring which networks the masters should advertise is a topic for further study.
 
 - Before booting the machines:
