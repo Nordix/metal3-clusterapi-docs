@@ -10,35 +10,35 @@ Jira Issues:
 - [Override K8s registry and tag](https://airship.atlassian.net/browse/AIR-149)
 
 We would like to control which registry or/and tag are used when running kubeadm init and join. 
-We can specify both options as described in the following two resources.
+We can specify both options as described below.
 
 **Configuration file:**
-The **tag** information can set in kubeadm configuration file. 
+The **tag** and **registry** information can set in kubeadm configuration file. 
 
 ```
+---
 apiServer:
-  certSANs:
-  - localhost
+  timeoutForControlPlane: 4m0s
 apiVersion: kubeadm.k8s.io/v1beta2
-clusterName: kind
-controllerManager:
-  extraArgs:
-    enable-hostpath-provisioner: "true"
+certificatesDir: /etc/kubernetes/pki
+clusterName: kubernetes
+controllerManager: {}
+dns:
+  type: CoreDNS
+etcd:
+  local:
+    dataDir: /var/lib/etcd
+imageRepository: k8s.gcr.io
 kind: ClusterConfiguration
-kubernetesVersion: v1.15.1 <----
-metadata:
-  name: config
-name: config
+kubernetesVersion: v1.14.0
 networking:
-  podSubnet: 192.168.0.0/16
+  dnsDomain: cluster.local
+  serviceSubnet: 10.96.0.0/12
+scheduler: {}
+
 ```
-
-Both **tag** and **registry** can be overridden on the command line as described here
-
-**Command line:**
-As described in [kubeadm init phase control-plane](https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-init-phase/#cmd-phase-control-plane), we can specify the image for all or part of the control plane components. 
-
 
 **Notes:**
 
-Although it is is possible to specify different registry:tag for each control plane component, we do not use any use case for it. Therefore, if one specifies a registry:tag, then that applies for all control plane components.
+- It is possible to set the regisry. However, the tag remains the same as the kubernetes version.
+- Although it is is possible to specify different registry:tag for each control plane component, we do not use any use case for it. Therefore, if one specifies a registry:tag, then that applies for all control plane components.
