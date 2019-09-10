@@ -10,8 +10,9 @@ Jira Issues:
 - [Pause container selection](https://airship.atlassian.net/browse/AIR-148)
 
 
-The ```--pod-infra-container-image``` can be used to set specific pause container image.
+In order to set the registry of pause container, independent of k8s control plane components, one can use the following command line argument. BUt, we do not consider such cases.
 
+The ```--pod-infra-container-image``` can be used to set specific pause container image.
 
 The output shown below is from a running kubelet.
 
@@ -29,7 +30,8 @@ kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf \
 .
 .
 ```
-Also relevant is the following
+
+After kubeadm init runs, the values is set in the following file.
 ```
 root@kind-control-plane:~# cat /var/lib/kubelet/kubeadm-flags.env 
 
@@ -38,35 +40,7 @@ KUBELET_KUBEADM_ARGS="--cgroup-driver=cgroupfs
 --pod-infra-container-image=k8s.gcr.io/pause:3.1"
 ```
 
-Kubeadm have some default values for both init and join processes. However, there does not seem to be any flag related to the pause container. 
-
-A similar information can be found in ```/var/lib/kubelet/config.yaml```
-
-```bash
-root@kind-control-plane:~# kubeadm config print init-defaults --component-configs 
-KubeletConfiguration
-apiVersion: kubeadm.k8s.io/v1beta2
-bootstrapTokens:
-- groups:
-  - system:bootstrappers:kubeadm:default-node-token
-  token: abcdef.0123456789abcdef
-  ttl: 24h0m0s
-  usages:
-  - signing
-  - authentication
-kind: InitConfiguration
-localAPIEndpoint:
-  advertiseAddress: 1.2.3.4
-  bindPort: 6443
-nodeRegistration:
-  criSocket: /var/run/dockershim.sock
-  name: kind-control-plane
----
-.
-.
-.
-```
-
-Whether to put the flags in the kubeadm or kubelet configuration needs further study. However, the pause image is configurable.
-
-For building a pause container, please refer to [build pause containers](https://github.com/kubernetes/kubernetes/tree/master/build/pause)
+Notes:
+- We can set the registry for the pause container. However, the tag is hard coded to 3.1 in kubeadm constants.
+- The registry is set via the registry of kubernetes control plane components.
+- For building a pause container, please refer to [build pause containers](https://github.com/kubernetes/kubernetes/tree/master/build/pause)
