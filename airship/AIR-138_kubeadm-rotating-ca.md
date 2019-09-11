@@ -41,7 +41,42 @@ In case of HA cluster, the certificate renewal has to be done separately on each
 
 The validity of the certificates can be set while generating CSRs. 
 
-In Kubeadm there are options to renew/rotate certificate automatically and manually. Kubadm does automatic renewal of all certificates during control plane upgrade (We haven’t checked if it works as expected since we are more focused on manual certificate renewal). The manual certificate renewal/rotation is performed as described in previous comments. The ```renew``` command in alpha phase allows to renew the following certificates
+In Kubeadm there are options to renew/rotate certificate automatically and manually. 
+
+### Automatic Certificate Renewal 
+Kubadm does automatic renewal of all certificates during control plane upgrade. Our experiment findings with this use case is as follows:
+1. Test case: Upgrading cluster from version: 1.14.0 to 1.15.0
+2. During the upgrader process kubeadm renews the following certificates:
+
+```
+apiserver-etcd-client.crt
+apiserver-kubelet-client.crt
+apiserver.crt
+front-proxy-client.crt
+Certificates in:
+    admin.conf
+    controller-manager.conf
+    scheduler.conf
+```
+Following certificates are not renewed:
+
+```
+ca.crt
+front-proxy-ca.crt
+ca.crt
+etcd:-
+    ca.crt
+    healthcheck-client.crt
+    peer.crt
+    server.crt
+Certificates in:
+    kubelet.conf
+```
+3. There is no downtime in service
+
+### Manual Certificate Renewal
+
+The manual certificate renewal/rotation is performed as described in previous comments. The ```renew``` command in alpha phase allows to renew the following certificates
 
 ```bash
 admin.conf               
@@ -55,6 +90,13 @@ etcd-server
 front-proxy-client      
 scheduler.conf
 ```
+The same set of observations apply here as stated in [Automatic Certificate Renewal](#Automatic%20Certificate%20Renewal) 
+
+## Key observations
+1. Only client certificate is renewed. 
+2. Even if the CA certificate is soon expiring kubeadm do not renew it automatically. CA rotation has to be done manually.
+3. During the client certificate renewals there is no downtime in service.
+4. The whole process of CA rotation need more experiments to conclude on service downtime.
 
 ## Note 
 A new component [kubernetes operator](https://github.com/kubernetes/kubeadm/issues/1698) is proposed to control configuration changes, and upgrades in a systematic fashion. It will possibly include a few of the concerns mentioned here i.e. enable support for cluster lifecycle activities like certificate rotation, client certificate renewal and other related activities in kubeadm. It would be important to keep an eye on these activities and suggest relevant changes required for airship.
