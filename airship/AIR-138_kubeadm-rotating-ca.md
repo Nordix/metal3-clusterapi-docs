@@ -90,7 +90,7 @@ etcd-server
 front-proxy-client      
 scheduler.conf
 ```
-The same set of observations apply here as stated in [Automatic Certificate Renewal](#Automatic%20Certificate%20Renewal) 
+The same set of observations apply here as stated in [Automatic Certificate Renewal](###Automatic%20Certificate%20Renewal) 
 
 ## Key observations
 1. Only client certificate is renewed. 
