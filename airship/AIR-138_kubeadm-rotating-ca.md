@@ -3,6 +3,9 @@
 ---
 
 # CA rotation with kubeadm
+**Key objectives**: 
+Investigate certificate renewal and CA rotation capabilities of Kubeadm. 
+
 Jira Issues:
 - [CA rotation](https://airship.atlassian.net/browse/AIR-138)
 
@@ -39,14 +42,14 @@ In case of HA cluster, the certificate renewal has to be done separately on each
 
 ## Control over certificate validity and rotation
 
-The validity of the certificates can be set while generating CSRs. 
+The validity of the certificates can be set while generating certificate signing requests (CSRs). 
 
-In Kubeadm there are options to renew/rotate certificate automatically and manually. 
+In Kubeadm there are options to renew/rotate certificates automatically and manually. 
 
 ### Automatic Certificate Renewal 
 Kubadm does automatic renewal of all certificates during control plane upgrade. Our experiment findings with this use case is as follows:
 1. Test case: Upgrading cluster from version: 1.14.0 to 1.15.0
-2. During the upgrader process kubeadm renews the following certificates:
+    During the upgrade process kubeadm renews the following certificates:
 
 ```
 apiserver-etcd-client.crt
@@ -72,11 +75,11 @@ etcd:-
 Certificates in:
     kubelet.conf
 ```
-3. There is no downtime in service
+3. There is no downtime in accessing user workload service.
 
 ### Manual Certificate Renewal
 
-The manual certificate renewal/rotation is performed as described in previous comments. The ```renew``` command in alpha phase allows to renew the following certificates
+The manual certificate renewal/rotation is performed as described in previous comments. The ```renew``` command in alpha phase allows renewing the following certificates
 
 ```bash
 admin.conf               
@@ -94,7 +97,7 @@ The same set of observations apply here as stated in [Automatic Certificate Rene
 
 ## Key observations
 1. Only client certificate is renewed. 
-2. Even if the CA certificate is soon expiring kubeadm do not renew it automatically. CA rotation has to be done manually.
+2. Even if the CA certificate is soon expiring kubeadm does not renew it automatically. CA rotation has to be done manually.
 3. During the client certificate renewals there is no downtime in service.
 4. The whole process of CA rotation need more experiments to conclude on service downtime.
 
