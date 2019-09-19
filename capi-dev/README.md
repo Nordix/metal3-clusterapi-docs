@@ -66,3 +66,6 @@ tilt up
 ``` 
 
 This command should build all three containers namely CAPI, CABPK and CAPD. You can explore the logs for each of these repositories or rather docker containers separately in tilt gui which runs as soon as you run the ```tilt up``` command. That's it. Your dev-env should be up and running. As mentioned earlier, tilt watches for any changes in the code on those three repositories and it starts building the containers all over again as soon as you save your changes. 
+
+## Note
+In case CAPD fails to provision a machine and you do not see any control-plane container created for the target cluster, possibly it is related to docker version. For now, the test environment is not working with docker version **19.03.0**. Roll back the docker to a previous version to see if the problem persists. An example working docker version is **18.09.8**. In any case, checking CAPD logs and kubelet logs inside the kind cluster will be helpful. 
