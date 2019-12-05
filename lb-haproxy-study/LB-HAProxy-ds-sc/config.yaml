@@ -1,0 +1,13 @@
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+certificateKey: CHANGE_CERT_KEY
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+kubernetesVersion: stable
+controlPlaneEndpoint: "CHANGE_ME:6443"
+networking:
+  podSubnet: 10.224.0.0/16
+apiServer:
+  extraArgs:
+    advertise-address: CHANGE_ME

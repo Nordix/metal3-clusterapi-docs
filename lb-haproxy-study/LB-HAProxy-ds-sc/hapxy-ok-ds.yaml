@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ha-containers
+  labels:
+    app: ha-containers
+spec:
+  selector:
+    matchLabels:
+      app: ha-containers
+  template:
+    metadata:
+      labels:
+        app: ha-containers
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      - name: hostpathvol
+        hostPath:
+          path: /tmp/haproxy.cfg
+      shareProcessNamespace: true
+      containers:
+      - name: haproxy-container
+        image: mikkos73/haproxy11:latest
+        ports:
+          - name: http
+            containerPort: 7777
+          - name: https
+            containerPort: 443
+          - name: stat
+            containerPort: 1024
+        volumeMounts:
+          - mountPath: /usr/local/etc/haproxy
+            name:  shared-data
+      - name: sidecar-container
+        image: alpine
+        volumeMounts:
+        - name: shared-data
+          mountPath: /config-data
+        - name: hostpathvol
+          mountPath: /tmp/haproxy.cfg
+        command: ["/bin/sh"]
+        args: ["-c", "while true; do cat /tmp/haproxy.cfg > /config-data/haproxy.cfg; sleep 5;done"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ha-service
+  labels:
+    app: ha-containers
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - nodePort: 31222
+    port: 7777
+    protocol: TCP
+    targetPort: 7777
+  selector:
+    app: ha-containers
+  # ClientIP will cause stickeyness, one master is selected (for default time of 3 hours)
+  # None will allow the service to distribute to all masters
+  sessionAffinity: None
+  type: NodePort
+

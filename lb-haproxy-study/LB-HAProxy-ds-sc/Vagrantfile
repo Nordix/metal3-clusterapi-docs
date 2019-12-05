@@ -1,0 +1,38 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+#-----------------------Masters(Three)-------------------------
+Vagrant.configure("2") do |config|
+  config.vm.define "master1" do |master1|
+    master1.vm.box = "centos/7"
+    master1.vm.provision "shell", path: "setup_k8s_binaries.sh"
+    master1.vm.hostname = "master1"
+    master1.vm.provider :libvirt do |v|
+      v.memory = 2048
+      v.cpus = 2
+    end
+  end
+  config.vm.define "master2" do |master2|
+    master2.vm.box = "centos/7"
+    master2.vm.provision "shell", path: "setup_k8s_binaries.sh"
+    master2.vm.hostname = "master2"
+    master2.vm.provider :libvirt do |v|
+      v.memory = 2048
+      v.cpus = 2
+    end
+  end
+  config.vm.define "master3" do |master3|
+    master3.vm.box = "centos/7"
+    master3.vm.provision "shell", path: "setup_k8s_binaries.sh"
+    master3.vm.hostname = "master3"
+    master3.vm.provider :libvirt do |v|
+      v.memory = 2048
+      v.cpus = 2
+    end
+  end
+end
+

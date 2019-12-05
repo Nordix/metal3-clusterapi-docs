@@ -29,6 +29,8 @@ No need for iptables or socat tunneling for port forwarding from LB port to API 
   * Sidecar and HAProxy containers share the same volume so that sidecar can update HAProxy config directly to **/etc/haproxy/haproxy.cfg**
   * Sidecar periodically reads the status of configmap and if configmap is changed, it will update master node IP addresses **/etc/haproxy/haproxy.cfg** and then exec to HAProxy container and restarts HAProxy process with systemctl command
   * Sidecar and HAProxy can use 'shareProcessNamespace:true' and thus Sidecar can reboot HAProxy by killing its process
+  * Alternatively a daemonset pod could be deleted to force cfg-file reading but this would require kubectl and is not preferred due to security reasons
+  * Test environment can be found in LB-HAProxy-ds-sc directory
 
 * Option2, HAProxy reads configmap which is mounted as a volume
   * A delay (~60 sec) is identified when configmap is modified until the HAProxy sees the change, not seen as an issue at least for now
@@ -47,6 +49,6 @@ No need for iptables or socat tunneling for port forwarding from LB port to API 
         
 ### Test environments:
 * Metal3-dev-env, primary test env, iterations take time
-* Vagrant nodes, no applicable environment available now. Trial done with [Vagrant-cloud-init](https://github.com/craighurley/vagrant-cloud-init.git). Additional effort needed to get it working. Testing modified cloud-init is problematic
-
-
+* Cloud-init testing in Vagrant nodes, no applicable environment available now
+  * Trial done with [Vagrant-cloud-init](https://github.com/craighurley/vagrant-cloud-init.git). Additional effort needed to get it working. Testing modified cloud-init is problematic
+* Option1: LB-HAProxy-ds-sc directory
