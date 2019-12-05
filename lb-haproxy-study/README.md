@@ -18,7 +18,7 @@ HAProxy config has to contain port mapping from port used in **kubeam --control-
 No need for iptables or socat tunneling for port forwarding from LB port to API server port.
 
 * HAProxy config update logic service runs as an external service reading configmap content using access token. Token is generated in cloud init phase after kubeadm init and serviceaccount creation is made. This account gives rights to read configmaps. Token can be exposed to config update process as environment variable.
-  * HAProxy update logic periodically reads the status of configmap and if configmap is changed, it will update master node IP addresses /etc/haproxy/haproxy.cfg and then restarts HAProxy with systemctl command.
+  * HAProxy update logic periodically reads the status of configmap and if configmap is changed, it will update master node IP addresses **/etc/haproxy/haproxy.cfg** and then restarts HAProxy with systemctl command.
 
 #### HAProxy as a daemonset
 * Iptables or socat tunneling for port forwarding needed from LB port to API server port, this need to be activated in **cloud-init** before kubeadm init
