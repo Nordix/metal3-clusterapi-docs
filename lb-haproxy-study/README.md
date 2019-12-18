@@ -24,6 +24,7 @@ No need for iptables or socat tunneling for port forwarding from LB port to API 
 * Iptables or socat tunneling for port forwarding needed from LB port to API server port, this need to be activated in **cloud-init** before kubeadm init
 * After port forwarding is activated **kubeadm init** can be run with option **--control-plane-endpoint LB port**
 
+
 * Option1, HAProxy and sidecar:
   * After cluster is up, HAProxy with config update sidecar pod is created. Sidecar container uses serviceaccount token to periodically poll configmap status from API server
   * Sidecar and HAProxy containers share the same volume so that sidecar can update HAProxy config directly to **/etc/haproxy/haproxy.cfg**
@@ -31,7 +32,8 @@ No need for iptables or socat tunneling for port forwarding from LB port to API 
   * Sidecar and HAProxy can use 'shareProcessNamespace:true' and thus Sidecar can reboot HAProxy by killing its process
   * Alternatively a daemonset pod could be deleted to force cfg-file reading but this would require kubectl and is not preferred due to security reasons
   * Test environment can be found in LB-HAProxy-ds-sc directory
-
+  * Port mapping from nodePort to API server can be do with socat
+    before mapping deployed inside crluster: sudo socat tcp-l:31117,fork,reuseaddr tcp:127.0.0.1:6443
 * Option2, HAProxy reads configmap which is mounted as a volume
   * A delay (~60 sec) is identified when configmap is modified until the HAProxy sees the change, not seen as an issue at least for now
 
@@ -43,7 +45,6 @@ No need for iptables or socat tunneling for port forwarding from LB port to API 
 [Draw.io](https://www.draw.io/#G15Fv5MDyr7YOiKmU_-e-ABYpOs6ZJnBu1)
 
 ### Open issues:
-* How to sync HAProxy daemonset pod starting and IP forward rule deactivation?
 * Can you add deployment(pod etc,) contend to kubeadm init config yaml? 
 
         
