@@ -17,11 +17,17 @@ HAProxy and update logic services are started in **cloud-init** phase before kub
 HAProxy config has to contain port mapping from port used in **kubeam --control-plane-endpoint** parameter to API server port.
 No need for iptables or socat tunneling for port forwarding from LB port to API server port.
 
-* HAProxy config update logic service runs as an external service reading configmap content using access token. Token is generated in cloud init phase after kubeadm init and serviceaccount creation is made. This account gives rights to read configmaps. Token can be exposed to config update process as environment variable.
+* Option1 Periodical polling of configmap with token
+  * HAProxy config update logic service runs as an external service reading configmap content using access token. Token is generated in cloud init phase after kubeadm init and serviceaccount creation is made. This account gives rights to read configmaps. Token can be exposed to config update process as environment variable.
   * HAProxy update logic periodically reads the status of configmap and if configmap is changed, it will update master node IP addresses **/etc/haproxy/haproxy.cfg** and then restarts HAProxy with systemctl command.
 
+* Option2 Configmap mounted as host volume
+  * Configmap is mounted as host volume into haproxy.cfg file so that haproxy can use that as is when soft link created between mounted haproxy.cfg and config location haproxy uses in restart
+  * systemctl path unit used to detect changes in mounter haproxy.cfg and trigger service restarting haproxy in case changes occur.
+  * Haproxy has internal logic to do restart gracefully.
+
 #### HAProxy as a daemonset
-* Iptables or socat tunneling for port forwarding needed from LB port to API server port, this need to be activated in **cloud-init** before kubeadm init
+* IPtables or socat tunneling for port forwarding needed from LB port to API server port, this need to be activated in **cloud-init** before kubeadm init
 * After port forwarding is activated **kubeadm init** can be run with option **--control-plane-endpoint LB port**
 
 
