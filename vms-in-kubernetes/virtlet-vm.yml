@@ -1,0 +1,31 @@
+# Ubuntu 16 based VM with 4 cores, 8Gi of memory. Volume is configured
+# via PersistentVolumeClaim (PVC) that is attached to this particular VM.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: virtlet-vm
+  annotations:
+    kubernetes.io/target-runtime: virtlet.cloud
+    VirtletSSHKeys: |
+    # Paste your ssh public key here
+    VirtletVCPUCount: "4"
+spec:
+  nodeSelector:
+    extraRuntime: virtlet
+  terminationGracePeriodSeconds: 120
+  containers:
+  - name: ubuntu-vm
+    image: virtlet.cloud/cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img
+    imagePullPolicy: IfNotPresent
+    tty: true
+    stdin: true
+    resources:
+      limits:
+        memory: 8Gi
+    volumeMounts:
+    - name: mypvc
+      mountPath: /var/lib/docker
+  volumes:
+  - name: mypvc
+    persistentVolumeClaim:
+      claimName: virtlet-pv-claim

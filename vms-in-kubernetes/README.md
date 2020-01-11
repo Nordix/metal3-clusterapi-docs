@@ -1,4 +1,4 @@
-# Running vms in a Kubernetes cluster
+# Running virtual machines (VMs) in a Kubernetes cluster
 
 Two main options are available : KubeVirt and Virtlet. The first runs the
 virtual machines in containers while the second use virtual machines instead of
@@ -11,7 +11,7 @@ by RedHat. Its goal is to provide a virtualization platform using Kubernetes,
 allowing users to run and manage their virtual machines as containers in
 Kubernetes.
 
-## Container native virtualization
+### Container native virtualization
 
 The core idea in the implementation of the project is to run a libvirtd
 hypervisor in a container, allowing to run a VM in this container.
@@ -41,7 +41,7 @@ allows users to run service meshes such as Istio.
 KubeVirt has also reimplemented the ReplicaSet feature as
 VirtualMachineReplicaSet.
 
-## Networking
+### Networking
 
 KubeVirt maps the pod networking to the VM networking. Hence it is possible to
 use any of the CNI, such as Multus, calico or flannel. There three possible
@@ -76,7 +76,7 @@ spec:
 Here is the networking
 [documentation](https://kubevirt.io/user-guide/docs/latest/creating-virtual-machines/interfaces-and-networks.html)
 
-## Storage
+### Storage
 
 Similarly, KubeVirt implement the VM storage with a backend. For the mapping of
 the backend volume to the VM volume, KubeVirt offers three mechanisms:
@@ -155,27 +155,7 @@ virtual machine. all common options are available.
 
 KubeVirt supports those three feature the same way it is used for pods.
 
-## Requirements and installation
-
-There are some requirements towards the nodes that should have hardware
-acceleration and could support huge page support. For multiple interfaces on the
-vm, Multus or Genie have to be deployed on the cluster. Otherwise a CNI is
-required, for example Calico, Cilium or Flannel.
-
-The installation of KubeVirt is done using a Kubernetes operator and hence is
-very simple:
-
-```bash
-$ export RELEASE=v0.17.0
-# creates KubeVirt operator
-$ kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${RELEASE}/kubevirt-operator.yaml
-# creates KubeVirt KV custom resource
-$ kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${RELEASE}/kubevirt-cr.yaml
-# wait until all KubeVirt components is up
-$ kubectl -n kubevirt wait kv kubevirt --for condition=Available
-```
-
-## Custom resources and APIs
+### Custom resources and APIs
 
 The API reference is available [here](https://kubevirt.io/api-reference)
 
@@ -218,7 +198,43 @@ spec:
         chpasswd: { expire: False }
 ```
 
-## Running virtual machines in Kubernetes with Virtlet
+### Requirements and installation
+
+There are some requirements towards the nodes that should have hardware
+acceleration and should support huge pages. For multiple interfaces on the
+VM, Multus or Genie have to be deployed on the cluster. Otherwise a CNI is
+required, for example Calico, Cilium or Flannel.
+
+The installation of KubeVirt is done using a Kubernetes operator and hence is
+very simple:
+
+```bash
+$ export KUBEVIRT_VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt/releases/latest | jq -r .tag_name)
+# creates KubeVirt operator
+$ kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
+# creates KubeVirt KV custom resource
+$ kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
+# waits until all KubeVirt components are up
+$ kubectl -n kubevirt wait kv kubevirt --for condition=Available
+# enables software-emulated virtualization
+$ kubectl create configmap kubevirt-config -n kubevirt --from-literal debug.useEmulation=true
+# downloads client tool to interact with VMs
+$ wget -O virtctl https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/virtctl-${KUBEVIRT_VERSION}-linux-amd64
+$ chmod +x virtctl && mv virtctl /usr/local/bin/
+```
+
+
+### Creating Virtual Machine
+```bash
+# creates a virtual machine
+$ kubectl apply -f kubevirt-vm.yml
+# starts the virtual machine
+$ virtctl start kubevirt-vm
+# connects to the VM console
+$ virtctl console kubevirt-vm
+```
+
+# Running virtual machines in Kubernetes with Virtlet
 
 Virtlet is a Mirantis project aiming at offering a CRI for VMs, hence replacing
 docker or containerd with libvirt in Kubernetes. This is aimed at bringing all
@@ -264,6 +280,114 @@ If you have Virtlet running only on some of the nodes in the cluster,
 you also need to specify either nodeSelector or nodeAffinity for the pod to
 have it land on a node with Virtlet.
 
+Here is an example of pod configuration to create a Virtlet virtual machine:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: virtlet-vm
+  annotations:
+    kubernetes.io/target-runtime: virtlet.cloud
+    VirtletSSHKeys: |
+    # paste your ssh public key here
+    VirtletVCPUCount: "4"
+spec:
+  nodeSelector:
+    extraRuntime: virtlet
+  terminationGracePeriodSeconds: 120
+  containers:
+  - name: ubuntu-vm
+    image: virtlet.cloud/cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img
+    imagePullPolicy: IfNotPresent
+    tty: true
+    stdin: true
+    resources:
+      limits:
+        memory: 8Gi
+    volumeMounts:
+    - name: mypvc
+      mountPath: /var/lib/docker
+  volumes:
+  - name: mypvc
+    persistentVolumeClaim:
+      claimName: virtlet-pv-claim
+```
+
+### Requirements and installation
+According to [documentation](https://docs.virtlet.cloud/user-guide/real-cluster) for Virtlet to run VMs it requires installing [CRI Proxy](https://github.com/Mirantis/criproxy) on the Kubernetes node.
+Before starting installation of Virtlet make sure to disable SELinux.
+Follow the steps below to set up Virtlet on existing Kubernetes cluster.
+
+```bash
+$ CRIPROXY_DEB_URL=https://github.com/Mirantis/criproxy/releases/download/v0.14.0/criproxy-nodeps_0.14.0_amd64.deb
+# downloads the latest release of criproxy
+$ curl -sSL $CRIPROXY_DEB_URL > criproxy.deb
+# installs the criproxy with dpkg
+$ dpkg -i criproxy.deb
+```
+
+Create a file ```/etc/systemd/system/dockershim.service``` with the following content and
+replace ```......``` with kubelet command line arguments which can be obtained by running ```ps aux|grep kubelet```
+
+```ini
+[Unit]
+Description=dockershim for criproxy
+
+[Service]
+ExecStart=/usr/bin/kubelet --experimental-dockershim --port 11250 ......
+Restart=always
+StartLimitInterval=0
+RestartSec=10
+
+[Install]
+RequiredBy=criproxy.service
+```
+
+```bash
+# enable criproxy
+$ systemctl stop kubelet
+$ systemctl daemon-reload
+$ systemctl enable criproxy dockershim
+$ systemctl start criproxy dockershim
+
+```
+Add following flags to kubelet configuration, located in ```/lib/systemd/system/kubelet.service```
+so that it uses CRI Proxy:
+
+```ini
+--container-runtime=remote \
+--container-runtime-endpoint=unix:///run/criproxy.sock \
+--image-service-endpoint=unix:///run/criproxy.sock \
+--enable-controller-attach-detach=false
+```
+
+```bash
+# restarts kubelet
+$ systemctl daemon-reload
+$ systemctl start kubelet
+# each node running Virtlet deamonset should be labelled
+$ kubectl label node <name_of_node> extraRuntime=virtlet
+# installs image translations configmap
+$ curl https://raw.githubusercontent.com/Mirantis/virtlet/master/deploy/images.yaml >images.yaml
+$ kubectl create configmap -n kube-system virtlet-image-translations --from-file images.yaml
+# downloads virtletctl client tool
+$ curl -SL -o virtletctl https://github.com/Mirantis/virtlet/releases/download/v1.5.1/virtletctl
+# deploys Virtlet from the latest image
+$ docker run --rm mirantis/virtlet:latest virtletctl gen --tag latest | kubectl apply -f -
+# disable KVM
+$ kubectl create configmap -n kube-system virtlet-config --from-literal=disable_kvm=y
+```
+
+### Creating Virtual Machine
+
+```bash
+$ kubectl create -f virtlet-vm.yml
+# check if the corresponding pod is created and running
+$ kubectl get pods
+# connect to the VM console
+$ kubectl attach -it virtlet-vm
+```
 
 ## Kata containers
 
@@ -316,8 +440,34 @@ Definitions. Virtlet implements pods with Libvirt, hence is more restricted in
 what can be done (device hotplug, vm scaling), but benefits from native
 replicasets and deployments features. The libvirt features supported in Virtlet
 are far less than in KubeVirt, for example there is no live migration.
-Virtlet is much more complex than KubeVirt, requires more additional components
+Virtlet is much more complex than KubeVirt, requires additional components
 and seems to receive far less attention from the community.
+
+Furthermore, performance comparision has been conducted and according to
+results, KubeVirt reports higher interface bandwidth (measured with
+```iPerf```) but
+closely the same on other system resources (e.g. CPU Throlling, IdleJitter,
+etc) which was measured with [Netdata](https://github.com/netdata/netdata).\
+Please note that the results of CPU performance below don't give insights on real
+CPU
+performance but rather explain the behaviour of various system components when
+imposed with certain load. As VMs don't support some of the
+standard CPU performance counters (CPU instructions, cycles...) it is
+problematic to measure real CPU performance on a virtualized environment. As such,
+the CPU comparision below gives some idea on all the system components'
+perfromance when stressed with [Stress](https://linux.die.net/man/1/stress)
+Linux utility.
+
+```bash
+# generates load on 4 CPUs
+$ stress --cpu 4 --io 4 --vm 4 --vm-bytes 1280M --timeout 300s
+```
+
+|| Virtlet | KubeVirt |
+| ------------- | ------------- | ------------- |
+| Average bandwidth | 1.05 Gbits/sec | 821 Mbits/sec |
+| CPU metrics | [Virtlet](https://github.com/Nordix/airship-clusterapi-docs/blob/study/feature-feruz/vms-in-kubernetes/performance_virtlet.pdf) | [Kubevirt](https://github.com/Nordix/airship-clusterapi-docs/blob/study/feature-feruz/vms-in-kubernetes/performance_kubevirt.pdf) |
+
 
 ## Conclusion
 

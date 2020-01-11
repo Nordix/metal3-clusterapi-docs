@@ -1,0 +1,54 @@
+# Ubuntu_16 based VM with 4 cores, 8Gi of memory. Volume is configured
+# via PersistentVolumeClaim (PVC) that is attached to this particular VM.
+apiVersion: kubevirt.io/v1alpha3
+kind: VirtualMachine
+metadata:
+  name: kubevirt-vm
+spec:
+  running: false
+  template:
+    metadata:
+      labels:
+        kubevirt.io/size: small
+        kubevirt.io/domain: ubuntu
+    spec:
+      domain:
+        cpu:
+          cores: 4
+        devices:
+          disks:
+            - name: containervolume
+              disk:
+                bus: virtio
+            - name: mypvcdisk
+              disk:
+                bus: virtio
+            - name: cloudinitvolume
+              disk:
+                bus: virtio
+          interfaces:
+          - name: default
+            bridge: {}
+        resources:
+          requests:
+            cpu: 2
+            memory: 8Gi
+      networks:
+      - name: default
+        pod: {}
+      volumes:
+        - name: containervolume
+          containerDisk:
+            image: tedezed/ubuntu-container-disk:16.0
+        - name: mypvcdisk
+          persistentVolumeClaim:
+            claimName: kubevirt-pv-claim
+        - name: cloudinitvolume
+          cloudInitNoCloud:
+            userData: |-
+              #cloud-config
+              chpasswd:
+                list: |
+                  ubuntu:mypassword
+                  root:root
+                expire: False
