@@ -112,5 +112,7 @@ ssh ubuntu@"${TARGET_CLUSTER}" -- kubectl get bmh -n metal3
     a. Use relevant interface
     b. Add dhcp-leases specific configmap entries in provider component
 3. Change the pivoting code to apply the configmap before applying the provider-component
-
-    
+4. Address multi-cluster and multi-namespace issues for pivoting
+5. Standardize identifier of pods (could be done via naming, labels, annotations...)
+6. Check the user secret (cloud init) is moved/maintained in the target cluster
+7. Change provider id in bmh to be namespace/name
