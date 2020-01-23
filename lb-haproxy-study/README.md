@@ -48,7 +48,7 @@ No need for iptables or socat tunneling for port forwarding from LB port to API 
   * keepalived takes care of the switch from ephemeral to target node/cluster
 
 #### Visualization
-[Draw.io](https://drive.google.com/file/d/15Fv5MDyr7YOiKmU_-e-ABYpOs6ZJnBu1/view?usp=sharing)
+[Draw.io](https://www.draw.io/?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Untitled%20Diagram.drawio#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D15Fv5MDyr7YOiKmU_-e-ABYpOs6ZJnBu1%26export%3Ddownload)
 
 ### Open issues:
 * Can you add deployment(pod etc,) contend to kubeadm init config yaml? 
