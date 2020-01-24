@@ -1,0 +1,9 @@
+[Unit]
+Description=Monitor the file stopping file for changes, touch is enough
+
+[Path]
+PathChanged=/haproxy/haproxy.cfg
+Unit=haproxy.reload.service
+
+[Install]
+WantedBy=multi-user.target
