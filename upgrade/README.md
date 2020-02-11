@@ -38,6 +38,34 @@ https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/
   sudo systemctl daemon-reload
   sudo systemctl restart kubelet
 ```
+### Add/replace nodes to an existing cluster
+https://kubernetes.io/docs/setup/release/version-skew-policy/#supported-version-skew
+Kubeadm upgrade is not used in this case. Add/replace should be supported between Kubernetes minor versions, e.g 1.16 to 1.17.
+* setup a cluster running e.g 3 nodes
+* check cluster content and component versions
+```sh
+  kubectl get nodes
+  kubeadm version
+  kubelet --version
+  kubectl version
+```
+* create new node(s) and join to cluster
+```sh
+  TOKEN=$(kubeadm token generate)
+  JOIN_WORKER=$(sudo kubeadm token create ${TOKEN} --print-join-command)
+  JOIN_MASTER="${JOIN_WORKER} --control-plane --certificate-key ${KEY}"
+  sudo ${JOIN_MASTER}
+  sudo ${JOIN_WORKER}
+```
+* clean up "old" nodes
+```sh
+  sudo kubeadm reset -f || true
+```
+* the cluster leader might be re-elected
+```sh
+  kubectl describe endpoints kube-scheduler -n kube-system
+```
+
 ## 
 
 ## References
