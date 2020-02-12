@@ -26,10 +26,10 @@ OUTPUT_DIR=${1:-${SOURCE_DIR}/_bases}
 CLONE_DIR=/tmp/collectrepos
 
 # Starting point for traversing the directory structure for each repo.
-base_capi="${OUTPUT_DIR}/capi-config"
-base_bmo="${OUTPUT_DIR}/bmo-deploy"
-base_capbm="${OUTPUT_DIR}/capbm-config"
-base_cabpk="${OUTPUT_DIR}/cabpk-config"
+base_capi="${OUTPUT_DIR}/capi"
+base_bmo="${OUTPUT_DIR}/bmo"
+base_capbm="${OUTPUT_DIR}/capbm"
+base_cabpk="${OUTPUT_DIR}/cabpk"
 
 # Remove old repo data
 rm -rf ${CLONE_DIR} && mkdir ${CLONE_DIR}
@@ -56,8 +56,7 @@ rm -rf "${OUTPUT_DIR}"
 mkdir -p "${base_capi}" "${base_bmo}" "${base_capbm}" "${base_cabpk}"
 
 # Copy directory structure containing relevant yaml files
-# ---------------- The inner kustomize files refer to no existent files, thus disabled
-# cp -r "${CLONE_DIR}/cluster-api/config/." "${base_capi}"
+cp -r "${CLONE_DIR}/cluster-api/config/." "${base_capi}"
 cp -r "${CLONE_DIR}/cluster-api/controlplane/kubeadm/config/." "${base_cabpk}" # cabbk
 cp -r "${CLONE_DIR}/baremetal-operator/deploy/." "${base_bmo}"
 cp -r "${CLONE_DIR}/cluster-api-provider-baremetal/config/." "${base_capbm}"
@@ -65,41 +64,3 @@ cp -r "${CLONE_DIR}/cluster-api-provider-baremetal/config/." "${base_capbm}"
 # Replace all variables to their string version, example:
 # $(VAR_NAME) => VAR_NAME
 find "${OUTPUT_DIR}" -type f -exec sed -i "s/\$(\([^)]*\))/\1/g" {} \;
-
-tree_root="${OUTPUT_DIR}"
-processed_output_root="/tmp/.processed_output_root"
-rm -rf "${processed_output_root}" && mkdir "${processed_output_root}"
-
-function iterate_over_repos() {
-  # if kustomize file exists, then
-  # kustomize build
-  # Do not go further
-  pushd "${1}"
-  for item in $(ls); do
-    if [ -f "kustomization.yaml" ]; then
-      # Add randomness to kustomized processed folders to avoid naming conflicts
-      random_name=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w5 | head -n1)
-      kustomize build . > "${processed_output_root}/${1}-${random_name}.yaml"
-            
-      # Found Kustomization file, no need to go further.echo "We found kustomization file"
-      break
-    else
-      # Found not Kustomization file, going inside folders
-      iterate_over_repos "${item}"
-    fi
-  done
-  popd
-}
-
-iterate_over_repos "${tree_root}"
-
-# Gather all into one file
-touch "${OUTPUT_DIR}/all_files.yaml"
-
-for f in "$(find ${processed_output_root} -type f)";do
-   echo "---" >> "${OUTPUT_DIR}/all_files.yaml"
-   cat $f $f >> "${OUTPUT_DIR}/all_files.yaml"
-done
-
-# show output
-cat "${OUTPUT_DIR}/all_files.yaml"
