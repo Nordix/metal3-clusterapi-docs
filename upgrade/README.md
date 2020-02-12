@@ -42,6 +42,7 @@ https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/
 https://kubernetes.io/docs/setup/release/version-skew-policy/#supported-version-skew
 Kubeadm upgrade is not used in this case. Add/replace should be supported between Kubernetes minor versions, e.g 1.16 to 1.17.
 * setup a cluster running e.g 3 nodes
+  * certificate-key can be found in config used in kubeadm init, e.g kubeadm-config.yaml
 * check cluster content and component versions
 ```sh
   kubectl get nodes
