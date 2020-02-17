@@ -1,0 +1,11 @@
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: BareMetalMachineTemplate
+metadata:
+  name: test1-md-0
+  namespace: default
+spec:
+  template:
+    spec:
+      image:
+        checksum: 97830b21ed272a3d854615beb54cf004
+        url: http://172.22.0.1/images/rhcos-ootpa-latest.qcow2

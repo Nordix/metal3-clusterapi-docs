@@ -1,0 +1,83 @@
+apiVersion: v1
+data:
+  password: MWYyZDFlMmU2N2Rm
+  username: YWRtaW4=
+kind: Secret
+metadata:
+  name: demo-externally-provisioned-secret
+  namespace: default
+type: Opaque
+---
+apiVersion: metal3.io/v1alpha1
+kind: BareMetalHost
+metadata:
+  name: metal3-0
+  namespace: default
+spec:
+  bmc:
+    address: ipmi://192.168.122.10:6233
+    credentialsName: demo-externally-provisioned-secret
+  online: false
+status:
+  errorMessage: ""
+  goodCredentials:
+    credentials:
+      name: demo-externally-provisioned-secret
+      namespace: default
+    credentialsVersion: "879"
+  hardware:
+    cpu:
+      arch: x86_64
+      clockMegahertz: 2494.222
+      count: 4
+      flags:
+      - aes
+      model: Intel Xeon E3-12xx v2 (Ivy Bridge)
+    firmware:
+      bios:
+        date: 04/01/2014
+        vendor: SeaBIOS
+        version: 1.10.2-1ubuntu1
+    hostname: master-0
+    nics:
+    - ip: 172.22.0.11
+      mac: 00:28:19:1f:79:4d
+      model: 0x1af4 0x0001
+      name: eth0
+      pxe: true
+      speedGbps: 0
+      vlanId: 0
+    - ip: 192.168.111.20
+      mac: 00:28:19:1f:79:4f
+      model: 0x1af4 0x0001
+      name: eth1
+      pxe: false
+      speedGbps: 0
+      vlanId: 0
+    ramMebibytes: 8192
+    storage:
+    - hctl: "6:0:0:0"
+      model: QEMU HARDDISK
+      name: /dev/sda
+      rotational: true
+      serialNumber: drive-scsi0-0-0-0
+      sizeBytes: 53687091200
+      vendor: QEMU
+    systemVendor:
+      manufacturer: QEMU
+      productName: Standard PC (Q35 + ICH9, 2009)
+      serialNumber: ""
+  hardwareProfile: unknown
+  operationalStatus: OK
+  poweredOn: false
+  provisioning:
+    ID: be02cfb3-7b24-47c7-b9b8-d69207d86f1e
+    image:
+      checksum: http://172.22.0.1/images/centos-updated.qcow2.md5sum
+      url: http://172.22.0.1/images/centos-updated.qcow2
+    state: provisioned
+  triedCredentials:
+    credentials:
+      name: demo-externally-provisioned-secret
+      namespace: default
+    credentialsVersion: "879"

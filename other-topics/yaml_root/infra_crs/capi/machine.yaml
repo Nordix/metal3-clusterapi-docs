@@ -1,0 +1,22 @@
+apiVersion: cluster.x-k8s.io/v1alpha3
+kind: Machine
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: test1
+    cluster.x-k8s.io/control-plane: "true"
+  name: test1-controlplane-0
+  namespace: default
+spec:
+  bootstrap:
+    configRef:
+      apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+      kind: KubeadmConfig
+      name: test1-controlplane-0
+      namespace: default
+  clusterName: test1
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+    kind: BareMetalMachine
+    name: test1-controlplane-0
+    namespace: default
+  version: v1.16.0

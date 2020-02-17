@@ -1,0 +1,18 @@
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+kind: KubeadmConfig
+metadata:
+  name: test1-controlplane-0
+  namespace: default
+spec:
+  clusterConfiguration:
+    apiServer:
+      extraArgs:
+        cloud-provider: baremetal
+    controllerManager:
+      extraArgs:
+        cloud-provider: baremetal
+  initConfiguration:
+    nodeRegistration:
+      kubeletExtraArgs:
+        cloud-provider: baremetal
+      name: '{{ ds.meta_data.hostname }}'

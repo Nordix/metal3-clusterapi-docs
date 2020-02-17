@@ -1,0 +1,9 @@
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: BareMetalMachine
+metadata:
+  name: test1-controlplane-0
+  namespace: default
+spec:
+  image:
+    checksum: 97830b21ed272a3d854615beb54cf004
+    url: http://172.22.0.1/images/rhcos-ootpa-latest.qcow2
