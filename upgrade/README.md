@@ -35,6 +35,35 @@ Details in https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-u
   * Example cluster running on top of CentOS with loadbalancer, master1, 2, 3, XX and worker1, 2
     * details described in README.md inside usecases/Add_replace_nodes_to_cluster.zip
 
-## 
+### Image update
+  * https://kubernetes.io/docs/tutorials/kubernetes-basics/update/update-interactive/
+  * https://medium.com/platformer-blog/enable-rolling-updates-in-kubernetes-with-zero-downtime-31d7ec388c81
+    * rolling update
+        * readiness probe secures the incoming requests being served at all times, "old" pod termination started after new ones are ready
+        * create a cluster, use e.g usecases/Add_replace_nodes_to_cluster.zip
+  * image updating can be tested in the following way
+
+```sh
+kubectl get nodes -owide
+
+- deploy nginx to running cluster
+kubectl apply -f https://k8s.io/examples/application/deployment.yaml
+
+kubectl get deployment --all-namespaces
+kubectl get all --all-namespaces
+kubectl get pods -owide
+
+kubectl describe pods <nginx-deployment-pod-id>
+
+- trigger image update by changing image version (chosen version in this example is 1.17.0)
+kubectl set image deployments/nginx-deployment nginx=nginx:1.17.0
+
+kubectl get all --all-namespaces
+kubectl rollout status deployments/nginx-deployment
+
+- rollback to from version
+kubectl rollout undo deployments/nginx-deployment
+kubectl rollout status deployments/nginx-deployment
+```
 
 ## References
