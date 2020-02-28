@@ -1,0 +1,14 @@
+providers:
+  - name: metal3
+    url: /home/airshipci/.cluster-api/overrides/infrastructure-metal3/v0.3.0/infrastructure-components.yaml
+    type: InfrastructureProvider
+  - name: kubeadm
+    url: /home/airshipci/.cluster-api/overrides/bootstrap-kubeadm/v0.3.0/bootstrap-components.yaml
+    type: BootstrapProvider
+  - name: kubeadm
+    url: /home/airshipci/.cluster-api/overrides/control-plane-kubeadm/v0.3.0/control-plane-components.yaml
+    type: ControlPlaneProvider
+  - name: cluster-api
+    url: /home/airshipci/.cluster-api/overrides/cluster-api/v0.3.0/core-components.yaml
+    type: CoreProvider
+
