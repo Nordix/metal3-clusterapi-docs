@@ -1,0 +1,42 @@
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+kind: KubeadmControlPlane
+metadata:
+  name: my-controlplane
+  namespace: default
+spec:
+  replicas: 3
+  #strategy:
+  #  type: RollingUpdate
+  #  rollingUpdate:
+  #    maxSurge: 1
+  #    maxUnavailable: 25%
+  version: v1.15.3
+  infrastructureTemplate:
+    kind: DockerMachineTemplate
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+    name: my-controlplane
+  kubeadmConfigSpec:
+    initConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          # Default thresholds are higher to provide a buffer before resources
+          # are completely depleted, at the cost of requiring more total
+          # resources. These low thresholds allow running with fewer resources.
+          # Appropriate for testing or development only.
+          eviction-hard: nodefs.available<0%,nodefs.inodesFree<0%,imagefs.available<0%
+    clusterConfiguration:
+      controllerManager:
+        extraArgs:
+          # Enables dynamic storage provisioning without a cloud provider.
+          # Appropriate for testing or development only.
+          enable-hostpath-provisioner: "true"
+---
+  apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+  kind: DockerMachineTemplate
+  metadata:
+    name: my-controlplane
+    namespace: default
+  spec:
+    template:
+      spec: {}
+  
