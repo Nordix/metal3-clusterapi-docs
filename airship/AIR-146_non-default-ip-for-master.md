@@ -146,7 +146,7 @@ etcd:
 #---------------------------------------------------#
 imageRepository: k8s.gcr.io
 kind: ClusterConfiguration
-kubernetesVersion: v1.15.0
+kubernetesVersion: v1.18.0
 networking:
   dnsDomain: cluster.local
   serviceSubnet: 10.96.0.0/12
@@ -170,7 +170,7 @@ discovery:
     - sha256:33efb18e8a3158d01314dc526fc896c7f6658d3a3e30b7d73b9b4633330a90b1
   tlsBootstrapToken: c9ac23.nhcwh17fwdd5zbko
 controlPlane:
-certificateKey: a60bfc726ed405c6fb457220e1486855a50ff107b70ce9a9bc8b170ffcc5ddba
+  certificateKey: a60bfc726ed405c6fb457220e1486855a50ff107b70ce9a9bc8b170ffcc5ddba
   localAPIEndpoint:
     advertiseAddress: 192.168.10.3 # That of join_master
 ```
