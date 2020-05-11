@@ -5,7 +5,7 @@ The purpose of this document is to give easy step-by-step instructions how to se
 ## Prerequisites
 1. Go version 1.13.0+ 
 2. Docker
-3. Kind v0.6 or newer (other clusters can be used if preload_images_for_kind is set to false)
+3. Kind v0.6 or v0.7 (other clusters can be used if preload_images_for_kind is set to false)
 4. Kustomize standalone (kubectl kustomize does not work because it is missing some features of kustomize v3)
 5. Tilt v0.10.3 or newer
 6. Clone the Cluster API repository locally. CAPD and Cluster API Bootstrap Provider Kubeadm (CABPK) comes with Cluster API.
@@ -20,6 +20,8 @@ Kind is a tool for running local Kubernetes clusters using Docker container "nod
 ```
 GO111MODULE="on" go get sigs.k8s.io/kind@v0.7.0
 ```
+
+**Note:** In Kind v0.8.0 the default docker network for nodes is different from older versions. This has cause problems, so always use version v0.7.0.
 
 ## Install tilt
 Tilt is a handy tool for local kubernetes development. The good thing about tilt is that it watches files for edits and automatically builds the container images, and applies any changes to bring the environment up-to-date in real-time. [Tilt](https://docs.tilt.dev/install.html) can be installed using the following command: 
@@ -157,4 +159,6 @@ worker   Running   3          3           3
 ## Docker cluster
 
 Now you have created test cluster. If you are interested to see containers running your cluster run ```docker ps```.
+
+ 
 
