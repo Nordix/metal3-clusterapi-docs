@@ -84,7 +84,10 @@ However, after phase 1, i.e., rolling out the old certificate, the new
 certificate, and the old key to the control plane nodes, the control plane can
 not issue new certificates to worker nodes because the CSRSigningController can
 not deal with two certificates in the CA file (this issue would need to be
-fixed in kubernetes). Therefore, we could not investigate further than that.
+fixed in kubernetes or kubeadm, see
+[kubeadm#1350](https://github.com/kubernetes/kubeadm/issues/1350)). Therefore,
+we could not investigate further than that.
+
 Such issues may arise in multiple places in the kubernetes code base but they
 are probably fixable by searching for a certificate in the file that matches
 the private key (. Another option would be to introduce new CLI options or
