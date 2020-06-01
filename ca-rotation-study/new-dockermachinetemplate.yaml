@@ -1,0 +1,10 @@
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: DockerMachineTemplate
+metadata:
+  name: my-controlplane-ca-stage1
+  namespace: default
+  labels:
+    caRotation: stage1
+spec:
+  template:
+    spec: {}

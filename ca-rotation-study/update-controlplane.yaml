@@ -1,0 +1,5 @@
+spec:
+  infrastructureTemplate:
+    kind: DockerMachineTemplate
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+    name: my-controlplane-ca-stage1

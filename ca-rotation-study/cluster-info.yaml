@@ -1,0 +1,13 @@
+data:
+  kubeconfig: |
+    apiVersion: v1
+    clusters:
+    - cluster:
+        certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0...<certificate data>
+        server: https://172.17.0.3:6443
+      name: ""
+    contexts: null
+    current-context: ""
+    kind: Config
+    preferences: {}
+    users: null
