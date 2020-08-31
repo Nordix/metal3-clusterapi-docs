@@ -12,7 +12,7 @@ The purpose of this document is to give easy step-by-step instructions how to se
 
 ## Cloning Git Repo
 ```
-git clone git@github.com:kubernetes-sigs/cluster-api.git
+git clone https://github.com/kubernetes-sigs/cluster-api.git
 ```
 ## Install Kind
 Kind is a tool for running local Kubernetes clusters using Docker container "nodes". Run following commands to install Kind:
