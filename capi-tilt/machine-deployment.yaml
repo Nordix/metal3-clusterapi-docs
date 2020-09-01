@@ -27,7 +27,7 @@ spec:
         nodepool: nodepool-0
     spec:
       clusterName: my-cluster
-      version: v1.15.3
+      version: v1.18.0
       bootstrap:
         configRef:
           name: worker
