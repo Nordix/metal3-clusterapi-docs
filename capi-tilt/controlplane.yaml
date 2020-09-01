@@ -5,12 +5,7 @@ metadata:
   namespace: default
 spec:
   replicas: 3
-  #strategy:
-  #  type: RollingUpdate
-  #  rollingUpdate:
-  #    maxSurge: 1
-  #    maxUnavailable: 25%
-  version: v1.15.3
+  version: v1.18.0
   infrastructureTemplate:
     kind: DockerMachineTemplate
     apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
@@ -39,4 +34,3 @@ spec:
   spec:
     template:
       spec: {}
-  
