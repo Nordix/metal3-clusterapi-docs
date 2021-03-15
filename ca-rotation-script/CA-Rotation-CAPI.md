@@ -59,18 +59,21 @@ worker   Running   1          1           1
 ## Pivoting
 If we want to make sure that the CA rotation procedure works with the case that the cluster is self-hosted, we have to do pivoting.
 
-Firstly, transform the workload cluster into another management cluster:
+Firstly, initialize the CAPI and infrastructure provider components on the workload cluster:
 ```sh
 clusterctl init --kubeconfig capi-kubeconfig --infrastructure docker
 ```
-Next, move all CAPI components from the original management cluster to the new management cluster:
+Next, move all CAPI components from the original management cluster to the workload cluster:
 ```sh
 clusterctl move --to-kubeconfig capi-kubeconfig
 ```
 Then, make sure that all KCP nodes and machine deployment nodes are in the ready state.
 ## CA rotation
-Manually rotate the CA of the cluster following this [instruction][1]
-
+Manually rotate the CA of the cluster following this [instruction][1]. In addition, A script is provided in the `script/` directory to do the CA rotation for the workload in this document:
+```sh
+cd script/
+./manual-CA-Rotation.sh true # Whether to backup the /etc/kubernetes directory in the controlplane or not.
+```
 Finally, update the following secrets, so the CAPI components change to use the new CA:
 - `<workload-cluster-name>-ca`: 
 ```sh
