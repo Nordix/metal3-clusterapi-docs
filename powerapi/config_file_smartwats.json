@@ -1,0 +1,32 @@
+{
+    "verbose": true,
+    "stream": true,
+    "input": {
+      "puller": {
+        "model": "HWPCReport",
+        "type": "mongodb",
+        "uri": "mongodb://172.17.0.2",
+        "port": 27017,
+        "db": "db_sensor_energy",
+        "collection": "report_1"
+      }
+    },
+    "output": {
+      "pusher_power": {
+        "tags": "socket",
+        "type": "influxdb",
+        "model": "PowerReport",
+        "uri": "172.17.0.4",
+        "port": 8086,
+        "db": "test",
+        "collection": "prep"
+      }
+    },
+    "cpu-frequency-base": 19,
+    "cpu-frequency-min": 4,
+    "cpu-frequency-max": 42,
+    "cpu-error-threshold": 2.0,
+    "disable-dram-formula": true,
+    "sensor-report-sampling-interval": 1000
+  }
+  
