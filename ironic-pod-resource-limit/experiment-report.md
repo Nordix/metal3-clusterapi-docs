@@ -7,9 +7,9 @@ Operating system: `Ubuntu 20.04.3 LTS`
 
 Management cluster: Minikube
 
-Metric collector: Prometheus
+Metric collector: Prometheus in cluster
 
-Data visualizer: Grafana
+Data visualizer: Grafana in cluster
 
 Merics:
 
@@ -23,10 +23,10 @@ The reason is that Kubernetes uses this metric to determine whether it should ki
 
 `rate()[10m]` calculates the per-second average rate of increase of the time series of 10 minutes in the range vector. https://prometheus.io/docs/prometheus/latest/querying/functions/#rate. In short, combine with the above function, `rate()` measures the number of CPU seconds at any point in the timeline. The 10 minutes time range decides how sharp the plot is. The larger time range, the flatter the plot. 10-minute-duration is chosen to make the plot not too much frustrated, but also indicating some ideas about how much CPU a container can consume in a specific moment. To convert to milicore, a multiply to 1000 is needed. 
 
-
+Experiment: This experiment is based on metal3 integration test. Prometheus is installed into Minikube cluster after it starts. It monitors all activities of Ironic pod in a integration test, including instropecting, provisioning,... 
 
 ## 4 BMHs 
-```bash
+```
 +----------------------------+------------+---------------+
 |         Container          | Memory(MB) | CPU(milicore) |
 +----------------------------+------------+---------------+
@@ -51,7 +51,7 @@ Sum CPU usage
 ![sum_cpu_4BMHs][8]
 
 ## 10 BMHs 
-```bash
+```
 +----------------------------+------------+---------------+
 |         Container          | Memory(MB) | CPU(milicore) |
 +----------------------------+------------+---------------+
@@ -76,7 +76,7 @@ Sum CPU usage
 
 
 ## 15 BMHs 
-```bash
+```
 +----------------------------+------------+---------------+
 |         Container          | Memory(MB) | CPU(milicore) |
 +----------------------------+------------+---------------+
@@ -101,7 +101,7 @@ Sum CPU usage
 
 
 ## 20 BMHs 
-```bash
+```
 +----------------------------+------------+---------------+
 |         Container          | Memory(MB) | CPU(milicore) |
 +----------------------------+------------+---------------+
@@ -125,7 +125,7 @@ Sum CPU usage
 ![sum_cpu_20BMHs][16]
 
 ## 30 BMHs 
-```bash
+```
 +----------------------------+------------+---------------+
 |         Container          | Memory(MB) | CPU(milicore) |
 +----------------------------+------------+---------------+
@@ -150,7 +150,7 @@ Sum CPU usage
 
 
 ## 40 BMHs 
-```bash
+```
 +----------------------------+------------+---------------+
 |         Container          | Memory(MB) | CPU(milicore) |
 +----------------------------+------------+---------------+
