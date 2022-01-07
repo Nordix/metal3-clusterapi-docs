@@ -82,13 +82,13 @@ This is the easiest and quickest way to try out the Scaphandre project using
 docker. For that, just run:
 
 ```shell
-docker run -v /sys/class/powercap:/sys/class/powercap -v /proc:/proc -ti
-hubblo/scaphandre stdout -t 15
+docker run -v /sys/class/powercap:/sys/class/powercap -v /proc:/proc -ti \
+  hubblo/scaphandre stdout -t 15
 ```
 
 You should get an output like:
 
-```bash
+```
 ------------------------------------------------------------
 
 Host:	36.205597 W
