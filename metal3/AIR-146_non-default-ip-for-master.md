@@ -6,9 +6,6 @@
 
 **Key objectives**: configuring api-server and etcd to use a non-default network interface.
 
-Jira issues:
-- [Non-default IP for control plane components](https://airship.atlassian.net/browse/AIR-146)
-
 ## Motivation
 For this experiment our motivation is to know the answers to the following questions regarding control plane components: 
 

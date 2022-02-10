@@ -6,9 +6,6 @@
 
 **Key objectives**: Enabling configuring different run times for all nodes in a cluster.
 
-Jira issues:
-- [RunTimeClass configuration](https://airship.atlassian.net/browse/AIR-141)
-
 ## RuntimeClass Introduction
 It is possible to define RunTimeClass kind configuration to control runtimes used for pods.
 See example runtimeclass definition below.

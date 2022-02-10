@@ -5,9 +5,6 @@
  1. Encrypting data at rest using CABPK cofiguration
  2. Providing extra certificates using CABPK
 
-Jira Issues: 
-- [Investigate encryption key and providing more certificates to kubeadm](https://airship.atlassian.net/browse/AIR-142)
-
 ## Encrypt data at rest 
 Data at rest can be encrypted using the following steps:
 1. Creating the secret key and encryption config file

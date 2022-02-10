@@ -78,8 +78,8 @@ TODO: update once Prometheus metrics are working (KB-529)
 Metrics are deployed into the CI image used for the OpenStack instances in the
 image provisioning scripts:
 
-* https://github.com/Nordix/airship-dev-tools/blob/master/ci/scripts/image_scripts/setup_monitoring_ubuntu.sh
-* https://github.com/Nordix/airship-dev-tools/blob/master/ci/scripts/image_scripts/setup_monitoring_centos.sh
+* https://github.com/Nordix/metal3-dev-tools/blob/master/ci/scripts/image_scripts/setup_monitoring_ubuntu.sh
+* https://github.com/Nordix/metal3-dev-tools/blob/master/ci/scripts/image_scripts/setup_monitoring_centos.sh
 
 ## Known issues with metrics
 

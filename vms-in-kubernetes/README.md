@@ -466,7 +466,7 @@ $ stress --cpu 4 --io 4 --vm 4 --vm-bytes 1280M --timeout 300s
 || Virtlet | KubeVirt |
 | ------------- | ------------- | ------------- |
 | Average bandwidth | 1.05 Gbits/sec | 821 Mbits/sec |
-| CPU metrics | [Virtlet](https://github.com/Nordix/airship-clusterapi-docs/blob/study/feature-feruz/vms-in-kubernetes/performance_virtlet.pdf) | [Kubevirt](https://github.com/Nordix/airship-clusterapi-docs/blob/study/feature-feruz/vms-in-kubernetes/performance_kubevirt.pdf) |
+| CPU metrics | [Virtlet](https://github.com/Nordix/metal3-clusterapi-docs/blob/study/feature-feruz/vms-in-kubernetes/performance_virtlet.pdf) | [Kubevirt](https://github.com/Nordix/metal3-clusterapi-docs/blob/study/feature-feruz/vms-in-kubernetes/performance_kubevirt.pdf) |
 
 
 ## Conclusion

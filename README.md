@@ -1,5 +1,5 @@
-# Airship and cluster-api docs
+# Metal3 and cluster-api docs
 
-The purpose of this repo is to centralize technical studies related to airship and cluster-api components relevant to airship.
+The purpose of this repo is to centralize technical studies related to cluster-api components with focus on kubernetes cluster life cycle.
 
-[Airship docs](airship/README.md)
+[Metal3 docs](metal3/README.md)

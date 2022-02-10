@@ -6,10 +6,6 @@
 
 **Key objectives**: Creating LB and masters setup automatically before running kubeadm init/join.
 
-Jira Issues: 
-- [metallb](https://airship.atlassian.net/browse/AIR-5)
-- [keepalived](https://airship.atlassian.net/browse/AIR-140)
-
 ## Introduction
 
 **The problem:**

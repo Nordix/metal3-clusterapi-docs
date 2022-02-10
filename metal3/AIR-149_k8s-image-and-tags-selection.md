@@ -6,9 +6,6 @@
 
 **Key objectives**: configure what registry and tag to use for kubernetes control plane components.
 
-Jira Issues:
-- [Override K8s registry and tag](https://airship.atlassian.net/browse/AIR-149)
-
 We would like to control which registry or/and tag are used when running kubeadm init and join. 
 We can specify both options as described below.
 

@@ -6,10 +6,6 @@
 
 **key objectives**: configure what pause image to use before manifest files are generated.
 
-Jira Issues:
-- [Pause container selection](https://airship.atlassian.net/browse/AIR-148)
-
-
 In order to set the registry of pause container, independent of k8s control plane components, one can use the following command line argument. BUt, we do not consider such cases.
 
 The ```--pod-infra-container-image``` can be used to set specific pause container image.
