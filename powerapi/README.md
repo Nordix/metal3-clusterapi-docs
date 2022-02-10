@@ -66,7 +66,7 @@ For more info see https://powerapi-ng.github.io/virtualwatts.html#virtualwatts
     also to run it. The sensor script takes config_file_sensor.json as configuration file.
 
     ```shell 
-     $ git clone https://github.com/Nordix/airship-clusterapi-docs.git
+     $ git clone https://github.com/Nordix/metal3-clusterapi-docs.git
      $ cd powerapi
      $ ./sensor.sh
     ```

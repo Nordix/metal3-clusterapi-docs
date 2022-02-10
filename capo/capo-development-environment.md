@@ -197,7 +197,7 @@ Also, the ```externalNetworkId``` value may change from time to time. Therefore,
 
 ```bash
 #!/bin/bash
-EXTERNAL_NETWORK_ID=$(openstack network show airship-ci-ext-net -f value -c id)
+EXTERNAL_NETWORK_ID=$(openstack network show metal3-ci-ext-net -f value -c id)
 echo ${EXTERNAL_NETWORK_ID}
 ```
 

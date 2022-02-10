@@ -5,10 +5,6 @@
 # CA rotation with kubeadm
 **Key objectives**: 
 Investigate certificate renewal and CA rotation capabilities of Kubeadm. 
-
-Jira Issues:
-- [CA rotation](https://airship.atlassian.net/browse/AIR-138)
-
  
 ## Use pre-generated certs and user provided CA
 
@@ -102,4 +98,4 @@ The same set of observations apply here as stated in [Automatic Certificate Rene
 4. The whole process of CA rotation need more experiments to conclude on service downtime.
 
 ## Note 
-A new component [kubernetes operator](https://github.com/kubernetes/kubeadm/issues/1698) is proposed to control configuration changes, and upgrades in a systematic fashion. It will possibly include a few of the concerns mentioned here i.e. enable support for cluster lifecycle activities like certificate rotation, client certificate renewal and other related activities in kubeadm. It would be important to keep an eye on these activities and suggest relevant changes required for airship.
+A new component [kubernetes operator](https://github.com/kubernetes/kubeadm/issues/1698) is proposed to control configuration changes, and upgrades in a systematic fashion. It will possibly include a few of the concerns mentioned here i.e. enable support for cluster lifecycle activities like certificate rotation, client certificate renewal and other related activities in kubeadm.

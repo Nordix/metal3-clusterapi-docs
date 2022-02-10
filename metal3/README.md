@@ -1,5 +1,5 @@
 # Introduction
-The purpose of this document is for studying the limitations of kubeadm in accomplishing the tasks done by airship components. Each task is mapped to a jira issue and focuses on some specific topic as outlined during a face to face meeting. The original meeting points can found in Gaps section here: [Airship_F2f_Notes](https://etherpad.openstack.org/p/Airship_F2f_Notes)
+The purpose of this document is for studying the limitations of kubeadm in accomplishing the tasks related to kubernetes cluster life cycle management.
 
 # Tasks
 - [x] [Rotate certificates](AIR-138_kubeadm-rotating-ca.md)

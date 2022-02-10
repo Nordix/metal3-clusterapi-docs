@@ -2,7 +2,7 @@
 
 ### This README is based on docs:
 * https://cluster-api.sigs.k8s.io/clusterctl/overview.html
-* https://github.com/Nordix/airship-clusterapi-docs/blob/clusterctl-kashif/clusterCtl-study/testcmd/instrusctions.md
+* https://github.com/Nordix/metal3-clusterapi-docs/blob/clusterctl-kashif/clusterCtl-study/testcmd/instrusctions.md
   * note files and details of high importance e.g **clusterctl-settings.json**
 
 ### create clusterctl-settings.json

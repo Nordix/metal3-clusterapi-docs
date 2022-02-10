@@ -53,6 +53,6 @@ SSH to the `node-0` which has default username `root`:
 This should enable user to SSH to that IPA node and can check more info from `/var/log/` folder and can check the content of `messages` which has more detail informtation regarding IPA node. If necessary, repeat `Step 2` for other IPA node and that will allow to SSH to that IPA node.
 
 ## More Information
-1. [Ironic and IPA image building process](https://github.com/Nordix/airship-dev-tools/blob/master/wow/ipa-ironic-build.md)
+1. [Ironic and IPA image building process](https://github.com/Nordix/metal3-dev-tools/blob/master/wow/ipa-ironic-build.md)
 2. [IPA-builder SSH access](https://docs.openstack.org/ironic-python-agent-builder/latest/admin/dib.html#ssh-access)
 3. [Troubleshooting IPA](https://docs.openstack.org/ironic-python-agent/latest/admin/troubleshooting.html)

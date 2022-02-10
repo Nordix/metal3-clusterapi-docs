@@ -6,10 +6,6 @@
 
 **key objectives**: Investigate if digest (i.e. sha256 hash) can be used to perform docker operations.
 
-Jira Issue:
-- [Docker operations with sha256](https://airship.atlassian.net/browse/AIR-147)
-
-
 When you build docker image locally, a new image contains unique id - i.e., sha265 hash, which is stored in `"Id"` field as shown in the following example:
 
 ```bash
