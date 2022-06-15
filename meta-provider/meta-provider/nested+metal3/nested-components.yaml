@@ -1,0 +1,64 @@
+apiVersion: cluster.x-k8s.io/v1alpha4
+kind: Cluster
+metadata:
+  name: cluster-sample
+spec:
+  controlPlaneEndpoint:
+    host: cluster-sample-apiserver
+    port: 6443
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+    kind: NestedControlPlane
+    name: cluster-sample-control-plane
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+    kind: NestedCluster
+    name: cluster-sample
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+kind: NestedCluster
+metadata:
+  name: cluster-sample
+spec:
+  controlPlaneEndpoint:
+    host: localhost
+    port: 6443
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+kind: NestedControlPlane
+metadata:
+  name: cluster-sample-control-plane
+spec:
+  apiserver:
+    apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+    kind: NestedAPIServer
+    name: cluster-sample-nestedapiserver
+  controllerManager:
+    apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+    kind: NestedControllerManager
+    name: cluster-sample-nestedcontrollermanager
+  etcd:
+    apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+    kind: NestedEtcd
+    name: cluster-sample-nestedetcd
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+kind: NestedEtcd
+metadata:
+  name: cluster-sample-nestedetcd
+spec:
+  replicas: 1
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+kind: NestedAPIServer
+metadata:
+  name: cluster-sample-nestedapiserver
+spec:
+  replicas: 1
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+kind: NestedControllerManager
+metadata:
+  name: cluster-sample-nestedcontrollermanager
+spec:
+  replicas: 1
