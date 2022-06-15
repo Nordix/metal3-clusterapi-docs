@@ -23,3 +23,5 @@ There are 7 containers in an ironic pod:
 	+ Port 69: TFTP
             IP: 172.22.0.1-2 - ironicendpoint
 - ironic-log-watch: No change
+
+Note: In order to prevent ports to open on all interfaces, set LISTEN_ALL_INTERFACES = false
