@@ -1,0 +1,182 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: byoh-cluster
+    nodepool: nodepool-0
+  name: test1
+spec:
+  clusterName: byoh-cluster
+  replicas: 1
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: byoh-cluster
+      nodepool: nodepool-0
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: byoh-cluster
+        nodepool: nodepool-0
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfigTemplate
+          name: test1-workers
+      clusterName: byoh-cluster
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: Metal3MachineTemplate
+        name: test1-workers
+      nodeDrainTimeout: 0s
+      version: v1.23.5
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: Metal3MachineTemplate
+metadata:
+  name: test1-workers
+spec:
+  template:
+    spec:
+      dataTemplate:
+        name: test1-workers-template
+      image:
+        checksum: http://172.22.0.1/images/CENTOS_9_NODE_IMAGE_K8S_v1.23.5-raw.img.md5sum
+        checksumType: md5
+        format: raw
+        url: http://172.22.0.1/images/CENTOS_9_NODE_IMAGE_K8S_v1.23.5-raw.img
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: Metal3DataTemplate
+metadata:
+  name: test1-workers-template
+spec:
+  clusterName: byoh-cluster
+  metaData:
+    ipAddressesFromIPPool:
+    - key: provisioningIP
+      name: provisioning-pool
+    objectNames:
+    - key: name
+      object: machine
+    - key: local-hostname
+      object: machine
+    - key: local_hostname
+      object: machine
+    prefixesFromIPPool:
+    - key: provisioningCIDR
+      name: provisioning-pool
+  networkData:
+    links:
+      ethernets:
+      - id: enp1s0
+        macAddress:
+          fromHostInterface: enp1s0
+        type: phy
+      - id: enp2s0
+        macAddress:
+          fromHostInterface: enp2s0
+        type: phy
+    networks:
+      ipv4:
+      - id: baremetalv4
+        ipAddressFromIPPool: baremetalv4-pool
+        link: enp2s0
+        routes:
+        - gateway:
+            fromIPPool: baremetalv4-pool
+          network: 0.0.0.0
+          prefix: 0
+    services:
+      dns:
+      - 8.8.8.8
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: test1-workers
+spec:
+  template:
+    spec:
+      files:
+      - content: |
+          #!/bin/bash
+          set -e
+          url="$1"
+          dst="$2"
+          filename="$(basename $url)"
+          tmpfile="/tmp/$filename"
+          curl -sSL -w "%{http_code}" "$url" | sed "s:/usr/bin:/usr/local/bin:g" > /tmp/"$filename"
+          http_status=$(cat "$tmpfile" | tail -n 1)
+          if [ "$http_status" != "200" ]; then
+            echo "Error: unable to retrieve $filename file";
+            exit 1;
+          else
+            cat "$tmpfile"| sed '$d' > "$dst";
+          fi
+        owner: root:root
+        path: /usr/local/bin/retrieve.configuration.files.sh
+        permissions: "0755"
+      - content: |
+          BOOTPROTO=none
+          DEVICE=eth0
+          ONBOOT=yes
+          TYPE=Ethernet
+          USERCTL=no
+          BRIDGE=ironicendpoint
+        owner: root:root
+        path: /etc/sysconfig/network-scripts/ifcfg-eth0
+        permissions: "0644"
+      - content: |
+          TYPE=Bridge
+          DEVICE=ironicendpoint
+          ONBOOT=yes
+          USERCTL=no
+          BOOTPROTO="static"
+          IPADDR={{ ds.meta_data.provisioningIP }}
+          PREFIX={{ ds.meta_data.provisioningCIDR }}
+        owner: root:root
+        path: /etc/sysconfig/network-scripts/ifcfg-ironicendpoint
+        permissions: "0644"
+      - content: |
+          [kubernetes]
+          name=Kubernetes
+          baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+          enabled=1
+          gpgcheck=1
+          repo_gpgcheck=0
+          gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+        owner: root:root
+        path: /etc/yum.repos.d/kubernetes.repo
+        permissions: "0644"
+      - content: |
+          [registries.search]
+          registries = ['docker.io']
+
+          [registries.insecure]
+          registries = ['192.168.111.1:5000']
+        owner: root:root
+        path: /etc/containers/registries.conf
+        permissions: "0644"
+      joinConfiguration:
+        nodeRegistration:
+          kubeletExtraArgs:
+            cgroup-driver: systemd
+            container-runtime: remote
+            container-runtime-endpoint: unix:///var/run/crio/crio.sock
+            feature-gates: AllAlpha=false
+            node-labels: metal3.io/uuid={{ ds.meta_data.uuid }}
+            provider-id: metal3://{{ ds.meta_data.uuid }}
+            runtime-request-timeout: 5m
+          name: '{{ ds.meta_data.name }}'
+      preKubeadmCommands:
+      - systemctl restart NetworkManager.service
+      - nmcli connection load /etc/sysconfig/network-scripts/ifcfg-eth0
+      - nmcli connection up filename /etc/sysconfig/network-scripts/ifcfg-eth0
+      - systemctl enable --now crio kubelet
+      users:
+      - name: metal3
+        sshAuthorizedKeys:
+        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC48zS2PJKInW6O8QxA1Ugvhad1qkl01XydfdTNR4deqAAiwn8KdHftQCwOTPmrK2QFEf6Pax86gSbcBmFRQwgS/1WkkAa00e+btTKD7BFDuMTXwDNiQLtFdpoWnWVj93Vb5cTIRDG3biaVup2koqODyzpshUvlT9POEQ+ri18LhC/Klk4JA4M7tW9e/gdptAKjyYPMQygrkeuwATrocEMxBrbypQzDkRfqgIXPqcENLBrtt7bDuv94/bUzHq5CLi9M+WJfItTdGNkezkonmDlf2DSMTTgx/ApRmnGsAqjIZnKYN44u8b1ax4oUAqd6lei0Ed3lAm1DQZAh4sApUEBpZdzSOZnoK51XvI36586kSwk5BnrqtpmiIWc77zebIedEc0N0PppD50gNKYKPNkYpwcIwzTU6Ds4ets8V0P96yyxMkEHxgqvFM5uNrfnYNPUTTxICsdd5NN+e1qs4XJ3RaF3bnEQOYSTtKF5gIgzXiBm8JCV0LVar4l0NVMGySAM=
+          ubuntu@lennart-test
+        sudo: ALL=(ALL) NOPASSWD:ALL
