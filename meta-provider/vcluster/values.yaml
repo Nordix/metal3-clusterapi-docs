@@ -1,0 +1,7 @@
+sync:
+  nodes:
+    enableScheduler: true
+scheduler:
+  disabled: false
+syncer:
+  disabled: true

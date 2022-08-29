@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: byoh
+  labels:
+    app: byoh
+spec:
+  # ports:
+  # - port: 80
+  #   name: web
+  clusterIP: None
+  selector:
+    app: byoh
+---
+# This StatefulSet was created based on the following command:
+# docker run --detach --tty --hostname host$i --name host$i --privileged --security-opt seccomp=unconfined --tmpfs /tmp --tmpfs /run --volume /var --volume /lib/modules:/lib/modules:ro --network kind byoh/node:e2e
+# The command comes from the getting started guide:
+# https://github.com/vmware-tanzu/cluster-api-provider-bringyourownhost/blob/main/docs/getting_started.md
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: byoh
+spec:
+  selector:
+    matchLabels:
+      app: byoh
+  serviceName: byoh
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: byoh
+    spec:
+      containers:
+      - name: byoh
+        image: 192.168.111.1:5000/localimages/byoh/node:dev
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: byoh-hostagent
+          mountPath: /mnt/byoh
+          readOnly: true
+        - name: var-run-containerd
+          mountPath: /var/run/containerd
+        - name: lib-modules
+          mountPath: /lib/modules
+          readOnly: true
+        - name: run
+          mountPath: /run
+      volumes:
+      - name: byoh-hostagent
+        hostPath:
+          path: /mnt/data/byoh
+      - name: var-run-containerd
+        hostPath:
+          path: /var/run/containerd
+      - name: lib-modules
+        hostPath:
+          path: /lib/modules
+      - name: run
+        emptyDir: {}
