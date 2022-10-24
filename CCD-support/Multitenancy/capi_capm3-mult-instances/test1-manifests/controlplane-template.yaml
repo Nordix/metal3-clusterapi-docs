@@ -1,0 +1,234 @@
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  name: test1
+  namespace: test1
+spec:
+  kubeadmConfigSpec:
+    clusterConfiguration: {}
+    files:
+    - content: |
+        #!/bin/bash
+        set -e
+        url="$1"
+        dst="$2"
+        filename="$(basename $url)"
+        tmpfile="/tmp/$filename"
+        curl -sSL -w "%{http_code}" "$url" | sed "s:/usr/bin:/usr/local/bin:g" > /tmp/"$filename"
+        http_status=$(cat "$tmpfile" | tail -n 1)
+        if [ "$http_status" != "200" ]; then
+          echo "Error: unable to retrieve $filename file";
+          exit 1;
+        else
+          cat "$tmpfile"| sed '$d' > "$dst";
+        fi
+      owner: root:root
+      path: /usr/local/bin/retrieve.configuration.files.sh
+      permissions: "0755"
+    - content: |
+        #!/bin/bash
+        while :; do
+          curl -sk https://127.0.0.1:6443/healthz 1>&2 > /dev/null
+          isOk=$?
+          isActive=$(systemctl show -p ActiveState keepalived.service | cut -d'=' -f2)
+          if [ $isOk == "0" ] &&  [ $isActive != "active" ]; then
+            logger 'API server is healthy, however keepalived is not running, starting keepalived'
+            echo 'API server is healthy, however keepalived is not running, starting keepalived'
+            sudo systemctl start keepalived.service
+          elif [ $isOk != "0" ] &&  [ $isActive == "active" ]; then
+            logger 'API server is not healthy, however keepalived running, stopping keepalived'
+            echo 'API server is not healthy, however keepalived running, stopping keepalived'
+            sudo systemctl stop keepalived.service
+          fi
+          sleep 5
+        done
+      owner: root:root
+      path: /usr/local/bin/monitor.keepalived.sh
+      permissions: "0755"
+    - content: |
+        [Unit]
+        Description=Monitors keepalived adjusts status with that of API server
+        After=syslog.target network-online.target
+        [Service]
+        Type=simple
+        Restart=always
+        ExecStart=/usr/local/bin/monitor.keepalived.sh
+        [Install]
+        WantedBy=multi-user.target
+      owner: root:root
+      path: /lib/systemd/system/monitor.keepalived.service
+    - content: |
+        ! Configuration File for keepalived
+        global_defs {
+            notification_email {
+            sysadmin@example.com
+            support@example.com
+            }
+            notification_email_from lb@example.com
+            smtp_server localhost
+            smtp_connect_timeout 30
+        }
+        vrrp_instance VI_1 {
+            state MASTER
+            interface eth1
+            virtual_router_id 1
+            priority 101
+            advert_int 1
+            virtual_ipaddress {
+                192.168.111.249
+            }
+        }
+      path: /etc/keepalived/keepalived.conf
+    - content: |
+        BOOTPROTO=none
+        DEVICE=eth0
+        ONBOOT=yes
+        TYPE=Ethernet
+        USERCTL=no
+        BRIDGE=ironicendpoint
+      owner: root:root
+      path: /etc/sysconfig/network-scripts/ifcfg-eth0
+      permissions: "0644"
+    - content: |
+        TYPE=Bridge
+        DEVICE=ironicendpoint
+        ONBOOT=yes
+        USERCTL=no
+        BOOTPROTO="static"
+        IPADDR={{ ds.meta_data.provisioningIP }}
+        PREFIX={{ ds.meta_data.provisioningCIDR }}
+      owner: root:root
+      path: /etc/sysconfig/network-scripts/ifcfg-ironicendpoint
+      permissions: "0644"
+    - content: |
+        [kubernetes]
+        name=Kubernetes
+        baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+        enabled=1
+        gpgcheck=1
+        repo_gpgcheck=0
+        gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+      owner: root:root
+      path: /etc/yum.repos.d/kubernetes.repo
+      permissions: "0644"
+    - content: |
+        [registries.search]
+        registries = ['docker.io']
+        [registries.insecure]
+        registries = ['192.168.111.1:5000']
+      path: /etc/containers/registries.conf
+    initConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          cgroup-driver: systemd
+          container-runtime: remote
+          container-runtime-endpoint: unix:///var/run/crio/crio.sock
+          feature-gates: AllAlpha=false
+          node-labels: metal3.io/uuid={{ ds.meta_data.uuid }}
+          provider-id: metal3://{{ ds.meta_data.providerid }}
+          runtime-request-timeout: 5m
+        name: '{{ ds.meta_data.name }}'
+    joinConfiguration:
+      controlPlane: {}
+      nodeRegistration:
+        kubeletExtraArgs:
+          cgroup-driver: systemd
+          container-runtime: remote
+          container-runtime-endpoint: unix:///var/run/crio/crio.sock
+          feature-gates: AllAlpha=false
+          node-labels: metal3.io/uuid={{ ds.meta_data.uuid }}
+          provider-id: metal3://{{ ds.meta_data.providerid }}
+          runtime-request-timeout: 5m
+        name: '{{ ds.meta_data.name }}'
+    postKubeadmCommands:
+    - mkdir -p /home/metal3/.kube
+    - chown metal3:metal3 /home/metal3/.kube
+    - cp /etc/kubernetes/admin.conf /home/metal3/.kube/config
+    - chown metal3:metal3 /home/metal3/.kube/config
+    preKubeadmCommands:
+    - systemctl restart NetworkManager.service
+    - nmcli connection load /etc/sysconfig/network-scripts/ifcfg-eth0
+    - nmcli connection up filename /etc/sysconfig/network-scripts/ifcfg-eth0
+    - systemctl enable --now crio keepalived kubelet
+    - systemctl link /lib/systemd/system/monitor.keepalived.service
+    - systemctl enable monitor.keepalived.service
+    - systemctl start monitor.keepalived.service
+    users:
+    - name: metal3
+      sshAuthorizedKeys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCWL9EOaqZjHE86+ORcwviHMCtrlMc8c28KSXoYa2H8w4R0+LVpMg6srMA0wvrUmhVk+qhvmGRV/AwjTORKFl6BD6XLrFzRwPc6RweVKEkexZvqa/eGJ9ri5NCvZwj0RHW7NuyE+xWP3/gmhikkx0hKNPnf2uXg6SnJgPayh4UYHxO2/vdx5GBUwYEqysvJi2a4M8Lq82XXoktlqfWkooep6W5XIg42i/kkMflai49T4ZRg5U4311FcKV6eiqznmgCpdm9IymeihHXgiE8g0q2N/3jfrqgOQDIAEG/ZwBeZ87iNOdokzg/suNGVVgyuMj7yC6MMXaOrYgAxAm9Gx5g16YYZqtMf3nWw4jKjvB+KnV9aVLia/8ZBVTDvz/Jeislk0xFn3f0PXbN+aTELGfk1w+45Tkj8Z+zL3syvBHh4hgS8f5rMNMHc8vmVapbo8Vt0/FgNNuZ2AcWxcrr/8OJOu3HELSQ4xTe7S10k9eeTpc5JSpnZOuec0LrqQb5+CqU=
+        centos@mohammed-gentemp.openstacklocal
+      sudo: ALL=(ALL) NOPASSWD:ALL
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: Metal3MachineTemplate
+      name: test1-controlplane
+    nodeDrainTimeout: 0s
+  replicas: 1
+  rolloutStrategy:
+    rollingUpdate:
+      maxSurge: 1
+  version: v1.24.1
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: Metal3MachineTemplate
+metadata:
+  name: test1-controlplane
+  namespace: test1
+spec:
+  template:
+    spec:
+      dataTemplate:
+        name: test1-controlplane-template
+      image:
+        checksum: http://172.22.0.1/images/CENTOS_9_NODE_IMAGE_K8S_v1.24.1-raw.img.md5sum
+        checksumType: md5
+        format: raw
+        url: http://172.22.0.1/images/CENTOS_9_NODE_IMAGE_K8S_v1.24.1-raw.img
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: Metal3DataTemplate
+metadata:
+  name: test1-controlplane-template
+  namespace: test1
+spec:
+  clusterName: test1
+  metaData:
+    ipAddressesFromIPPool:
+    - key: provisioningIP
+      name: provisioning-pool
+    objectNames:
+    - key: name
+      object: machine
+    - key: local-hostname
+      object: machine
+    - key: local_hostname
+      object: machine
+    prefixesFromIPPool:
+    - key: provisioningCIDR
+      name: provisioning-pool
+  networkData:
+    links:
+      ethernets:
+      - id: enp1s0
+        macAddress:
+          fromHostInterface: enp1s0
+        type: phy
+      - id: enp2s0
+        macAddress:
+          fromHostInterface: enp2s0
+        type: phy
+    networks:
+      ipv4:
+      - id: baremetalv4
+        ipAddressFromIPPool: baremetalv4-pool
+        link: enp2s0
+        routes:
+        - gateway:
+            fromIPPool: baremetalv4-pool
+          network: 0.0.0.0
+          prefix: 0
+    services:
+      dns:
+      - 8.8.8.8
