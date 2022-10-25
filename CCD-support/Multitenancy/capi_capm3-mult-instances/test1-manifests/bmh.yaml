@@ -1,0 +1,23 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: node-1-bmc-secret
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: cGFzc3dvcmQ=
+
+---
+apiVersion: metal3.io/v1alpha1
+kind: BareMetalHost
+metadata:
+  name: node-1
+spec:
+  online: true
+  bootMACAddress: 00:5c:52:31:3a:9c
+  bootMode: legacy
+  bmc:
+    address: ipmi://192.168.111.1:6230
+    credentialsName: node-1-bmc-secret
+
