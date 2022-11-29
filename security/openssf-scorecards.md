@@ -177,10 +177,10 @@ SAST tooling is not enabled/detected in any repository.
 
 We have started inserting security policy files in repos, but `SECURITY_CONTACTS` is not valid file to this check.
 
->Remediation steps:
+> Remediation steps:
 >
->- Place a security policy file `SECURITY.md` in the root directory of your repository. This makes it easily discoverable by a vulnerability reporter.
->- The file should contain information on what constitutes a vulnerability and a way to report it securely (e.g. issue tracker with private issue support, encrypted email with a published public key). Follow the coordinated vulnerability disclosure guidelines to respond to vulnerability disclosures.
+> - Place a security policy file `SECURITY.md` in the root directory of your repository. This makes it easily discoverable by a vulnerability reporter.
+> - The file should contain information on what constitutes a vulnerability and a way to report it securely (e.g. issue tracker with private issue support, encrypted email with a published public key). Follow the coordinated vulnerability disclosure guidelines to respond to vulnerability disclosures.
 
 An [organization wide community health files repository](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file) can provide for `SECURITY.md` for all repositories under an organization.
 
@@ -188,28 +188,28 @@ An [organization wide community health files repository](https://docs.github.com
 
 We only have any release objects for couple of projects, but none of them are signed.
 
->This check looks for the following filenames in the project's last five release assets: `*.minisig`, `*.asc` (pgp), `*.sig`, `*.sign`, `*.intoto.jsonl`.
+> This check looks for the following filenames in the project's last five release assets: `*.minisig`, `*.asc` (pgp), `*.sig`, `*.sign`, `*.intoto.jsonl`.
 >
->If a signature is found in the assets for each release, a score of 8 is given. If a SLSA provenance file is found in the assets for each release (`*.intoto.jsonl`), the maximum score of 10 is given.
+> If a signature is found in the assets for each release, a score of 8 is given. If a SLSA provenance file is found in the assets for each release (`*.intoto.jsonl`), the maximum score of 10 is given.
 >
->Note: The check does not verify the signatures.
+> Note: The check does not verify the signatures.
 >
->Remediation steps:
+> Remediation steps:
 >
->- Publish the release.
->- Generate a signing key.
->- Download the release as an archive locally.
->- Sign the release archive with this key (should output a signature file).
->- Attach the signature file next to the release archive.
+> - Publish the release.
+> - Generate a signing key.
+> - Download the release as an archive locally.
+> - Sign the release archive with this key (should output a signature file).
+> - Attach the signature file next to the release archive.
 
 ### Token-Permissions
 
 Some projects miss top-level permissions setup, and some just use tokens that have unnecessary permssions.
 
->Remediation steps:
+> Remediation steps:
 >
->- Set permissions as read-all or contents: read as described in GitHub's [documentation](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#permissions).
->- To help determine the permissions needed for your workflows, you may use StepSecurity's [online tool](https://app.stepsecurity.io/) by ticking the "Restrict permissions for GITHUB_TOKEN". You may also tick the "Pin actions to a full length commit SHA" to fix issues found by the Pinned-dependencies check.
+> - Set permissions as read-all or contents: read as described in GitHub's [documentation](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#permissions).
+> - To help determine the permissions needed for your workflows, you may use StepSecurity's [online tool](https://app.stepsecurity.io/) by ticking the "Restrict permissions for GITHUB_TOKEN". You may also tick the "Pin actions to a full length commit SHA" to fix issues found by the Pinned-dependencies check.
 
 ### Vulnerabilities
 

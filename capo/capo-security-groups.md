@@ -3,15 +3,15 @@
 In this document, we try to address the following points. The shorter versions of the answers are given here and details will follow.
 
 1. Can we give already existing security groups ?
-   **Yes, pre-created security groups can be used**
+  **Yes, pre-created security groups can be used**
 2. Can it create the security groups, given a set of rules ?
-   **No, there is no way of creating security groups using CAPO manifests**
+  **No, there is no way of creating security groups using CAPO manifests**
 3. Can we create specific security groups per network per machine deployment / KCP ?
-**No, there is no way of creating security groups using CAPO manifests**
+  **No, there is no way of creating security groups using CAPO manifests**
 
-### Use existing security groups
+## Use existing security groups
 
-Existing security groups can be used by referencing their names in the ```OpenStackMachineTemplate``` resource.
+Existing security groups can be used by referencing their names in the `OpenStackMachineTemplate` resource.
 
 ```yaml
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
@@ -33,9 +33,9 @@ spec:
       sshKeyName: xenwar-key
 ```
 
-### View security groups
+## View security groups
 
-The security groups and their respective groups are shown in the ```OpenstackCluster``` resource. 
+The security groups and their respective groups are shown in the `OpenstackCluster` resource.
 
 ```json
 kubectl get openstackcluster basic-1 -o json | jq '.status|.controlPlaneSecurityGroup,.workerSecurityGroup'
@@ -114,9 +114,8 @@ kubectl get openstackcluster basic-1 -o json | jq '.status|.controlPlaneSecurity
 }
 ```
 
-For pre-created security groups referenced in ```OpenStackMachineTemplate.spec.template.spec.securityGroups.name```, the details need to be retrieved from openstack itself.
+For pre-created security groups referenced in `OpenStackMachineTemplate.spec.template.spec.securityGroups.name`, the details need to be retrieved from openstack itself.
 
-
-### Create new security groups
+## Create new security groups
 
 As of now, there is no way of creating a security group using CAPO manifests. The security groups and their respective rules in use for the controlplane and worker servers are hard coded as shown in [controlPlaneRules](https://github.com/kubernetes-sigs/cluster-api-provider-openstack/blob/8d40447beb68e9b199973ba42023a0ecdddc6f5c/pkg/cloud/services/networking/securitygroups.go#L149) and [workerRules](https://github.com/kubernetes-sigs/cluster-api-provider-openstack/blob/8d40447beb68e9b199973ba42023a0ecdddc6f5c/pkg/cloud/services/networking/securitygroups.go#L225)

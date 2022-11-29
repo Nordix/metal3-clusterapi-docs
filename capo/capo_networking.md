@@ -27,18 +27,19 @@ for the above questions, there are three cases.
 **case 3:** Each KCP node taking an addition network of its own and Each worker taking an additional network of its own
         This is not possible as the OpenStackMachineTemplate/OpenStackMachineTemplate are immutable resources. This would require deleting and re-creating them. Since KCP and machine deployments are dependent on them, it is not possible without deleting the actual servers.
 
-## supported fields
+## Supported fields
 
-### network
+### Network
 
 Resource: OpenStackMachineTemplate/OpenStackMachine
 
-To specify multiple networks, the ```OpenStackMachineTemplate``` resource needs to be created after the ```Cluster``` resource is created. When the ```Cluster``` is created, the internal network is created by CAPO.
+To specify multiple networks, the `OpenStackMachineTemplate` resource needs to be created after the `Cluster` resource is created. When the `Cluster` is created, the internal network is created by CAPO.
 
-In order to connect a node with multiple external networks, 
-1. Create the cluster so that the internal network is created. 
+In order to connect a node with multiple external networks,
+
+1. Create the cluster so that the internal network is created.
 2. Create additional networks.
-3. Gather network and subnet uuid for each of the external networks and the internal networks and put the values in the ```OpenStackMachineTemplate/OpenStackMachine``` resources.
+3. Gather network and subnet uuid for each of the external networks and the internal networks and put the values in the `OpenStackMachineTemplate/OpenStackMachine` resources.
 
 ```yaml
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
@@ -77,21 +78,22 @@ spec:
 
 Note that when adding multiple networks, there is a routing issue and adding a floating IP on any of the interfaces would not allow sshing into the VM. A quick solution is to remove and re-add the interfaces.
 
-Also, specifying different network for a portion of KCP or machineDeployments is not possible. i.e. All KCP nodes are generated from the same ```openstackMachineTemplate```. The same applies to the machineDeployments. Trying to modify the networks of an existing openstackMachineTemplate results in the following error.
+Also, specifying different network for a portion of KCP or machineDeployments is not possible. i.e. All KCP nodes are generated from the same `openstackMachineTemplate`. The same applies to the machineDeployments. Trying to modify the networks of an existing openstackMachineTemplate results in the following error.
 
 ```yaml
-Error from server (openstackMachineTemplateSpec is immutable): 
-error when replacing "vms/osmachinetemplate_worker.yaml": 
-admission webhook "validation.openstackmachinetemplate.infrastructure.x-k8s.io" denied the request: 
+Error from server (openstackMachineTemplateSpec is immutable):
+error when replacing "vms/osmachinetemplate_worker.yaml":
+admission webhook "validation.openstackmachinetemplate.infrastructure.x-k8s.io" denied the request:
 openstackMachineTemplate is immutable
 ```
 
-### fixedIp:
+### fixedIp
 
 Resources: OpenStackMachineTemplate/OpenStackMachineTemplate
 Result: Fixed address values are selected by CAPO and field value is not enforced.
 
 Two methods of adding fixedIPs was tried
+
 1. Directly adding IPv4 adddress has no effect
 2. Creating a port with static IP and giving the port name has no effect
 
@@ -120,8 +122,8 @@ Resource: OpenStackCluster
 Result: Not supported
 
 Enabling or disabling port security per port is not possible as the value is set at the network level of the cluster.
-Also notice that the value is set for the entire network at the cluster level. 
-There is no way of setting via ```openstackmachine.spec.networks```.
+Also notice that the value is set for the entire network at the cluster level.
+There is no way of setting via `openstackmachine.spec.networks`.
 
 ```yaml
 kubectl explain openstackcluster.spec.disablePortSecurity
@@ -135,29 +137,36 @@ DESCRIPTION:
      the Kubernetes cluster, which also disables SecurityGroups
 ```
 
-### binding:vnic_type: 
+### binding:vnic_type
+
 No information available, Not supported
-### value_specs: 
+
+### value_specs
+
 No information available, Not supported
-### allowed_address_pairs: 
+
+### allowed_address_pairs
+
 No information available, Not supported
-### vinc_type: 
+
+### vinc_type
+
 No information available, Not supported
- 
+
 ### trunk_port
 
 Resources: OpenStackMachine, OpenStackMachineTemplate
 
-Result: CAPO supports it, but the Openstack cloud we are using does not. 
+Result: CAPO supports it, but the Openstack cloud we are using does not.
 
 ```bash
-E0223 14:27:04.644406       1 openstackmachine_controller.go:460] 
-controllers/OpenStackMachine "msg"="OpenStack instance cannot be created: error creating Openstack instance: there is no trunk support. Please disable it" 
-"error"="UpdateError" 
-"cluster"="basic-1" 
-"machine"="basic-1-md-0-7dd455f64f-9v7rk" 
-"namespace"="default" 
-"openStackCluster"="basic-1" 
+E0223 14:27:04.644406       1 openstackmachine_controller.go:460]
+controllers/OpenStackMachine "msg"="OpenStack instance cannot be created: error creating Openstack instance: there is no trunk support. Please disable it"
+"error"="UpdateError"
+"cluster"="basic-1"
+"machine"="basic-1-md-0-7dd455f64f-9v7rk"
+"namespace"="default"
+"openStackCluster"="basic-1"
 "openStackMachine"="basic-1-md-0-9kgj8"
 ```
 

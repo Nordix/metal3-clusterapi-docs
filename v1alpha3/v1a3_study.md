@@ -1,14 +1,15 @@
-
 # v1alpha3 impact study
 
 ## Cluster API v1alpha2 compared to v1alpha3
 
-https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/book/src/providers/v1alpha2-to-v1alpha3.md
+<https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/book/src/providers/v1alpha2-to-v1alpha3.md>
+
 * Update CAPBM CRD and controllers for v1alpha3 (for example the bootstrap data being in a secret, not in the machine status anymore, a creation of a secret might not be needed anymore)
 * Migrate changes we have done in v1alpha2 to v1alpha3 version of CAPBM (v1alpha3 branch in Nordix is up to date with master)
-* Checkout your work from here https://github.com/Nordix/cluster-api-provider-baremetal/tree/v1alpha3
+* Checkout your work from here <https://github.com/Nordix/cluster-api-provider-baremetal/tree/v1alpha3>
 
 ## Setup CR conversion
+
 Setup the webhooks and cert-manager to convert properly the CRs from/to v1alpha2 to/from v1alpha3.
 
 Conversion webhooks are used in CAPI v1alpha2 which is a good reference for CAPBM webhook implementation.
@@ -18,18 +19,20 @@ Conversion webhooks are used in CAPI v1alpha2 which is a good reference for CAPB
 * How the cert-manager installation should be handled in CAPBM? (Now we have installed it manually)
 * kubebuilder suggest to us cert-manager for provisioning the certificates for the webhook server. We should then use cert-manager!
 
-### Webhook related links:
-https://book.kubebuilder.io/multiversion-tutorial/conversion-concepts.htmlok.kubebuilder.io/multiversion-tutorial/conversion-concepts.html
-https://book.kubebuilder.io/reference/markers/webhook.htmlarkers/webhook.htmlarkers/webhook.htmlarkers/webhook.html
-https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definition-versioning/#webhook-conversion
-https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#authenticate-apiservers
+### Webhook related links
 
-### Cert-manager installation:
-https://cert-manager.io/docs/installation/kubernetes/
+<https://book.kubebuilder.io/multiversion-tutorial/conversion-concepts.htmlok.kubebuilder.io/multiversion-tutorial/conversion-concepts.html>
+<https://book.kubebuilder.io/reference/markers/webhook.htmlarkers/webhook.htmlarkers/webhook.htmlarkers/webhook.html>
+<https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definition-versioning/#webhook-conversion>
+<https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#authenticate-apiservers>
+
+### Cert-manager installation
+
+<https://cert-manager.io/docs/installation/kubernetes/>
 
 ## Integrate the provider e2e test framework
 
-https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/proposals/20191016-e2e-test-framework.md
+<https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/proposals/20191016-e2e-test-framework.md>
 
 The crux of this proposal is to implement a test suite/framework/library that providers can use as e2e tests. It will not cover provider specific edge cases. Providers are still left to implement their own provider specific e2es.
 
@@ -40,7 +43,7 @@ This framework will be implemented using the Ginkgo/Gomega behavioral testing fr
 
 ## Clusterctl redesign
 
-https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/proposals/20191016-clusterctl-redesign.md
+<https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/proposals/20191016-clusterctl-redesign.md>
 
 ### Initial Deployment
 
@@ -64,18 +67,19 @@ As a Cluster API provider developer, I would like to use my current implementati
 
 ## Intergrate machine health checking a.k.a node auto repair
 
-https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/proposals/20191030-machine-health-checking.md
+<https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/proposals/20191030-machine-health-checking.md>
 
 * Enable opt in automated health checking and remediation of unhealthy nodes backed by machines for Metal3
 * Use of the same node in repair?
 
 ### User story1
+
 * As a user of a Workload Cluster, I only care about my app's availability, so I want my cluster infrastructure to be self-healing and the nodes to be remediated transparently in the case of failures
 
 ### User story2
+
 * As an operator of a Management Cluster, I want my machines to be self-healing and to be recreated, resulting in a new healthy node in the case of matching my unhealthy criteria
 
 ## Loadbalancer
 
-https://github.com/kubernetes-sigs/cluster-api/issues/1850
-
+<https://github.com/kubernetes-sigs/cluster-api/issues/1850>

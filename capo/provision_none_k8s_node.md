@@ -2,29 +2,29 @@
 
 In order to create a VM that is not part of kubernetes cluster using the CAPO controllers, the following resources are created.
 
+Create Cloud init data, `clouddata.yaml`:
 
-create Cloud init data
-
-clouddata.yaml
 ```yaml
 ## template: jinja
 #cloud-config
 
 runcmd:
-  - echo "Successfully provisioned a none-k8s node" > /tmp/provisioned.node.txt 
+  - echo "Successfully provisioned a none-k8s node" > /tmp/provisioned.node.txt
 users:
   - name: <add username here>
     sudo: ALL=(ALL) NOPASSWD:ALL
     ssh_authorized_keys:
       - ssh-rsa AAAAB3 machine.local (Add your key here)
 ```
-Encode the above file in base64
+
+Encode the above file in base64:
 
 ```bash
 cat clouddata.yaml | base64
 ```
 
-Next, create a secret resource
+Next, create a `Secret` resource:
+
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -38,11 +38,11 @@ data:
   value: <Encoded cloud init data>
 ```
 
-Then we create the ```Machine``` and ```OpenstackMachine``` resources.
-Note that the ```KubeadmConfig``` referenced in the ```Machine``` resource already exists.
+Then we create the `Machine` and `OpenstackMachine` resources.
+Note that the `KubeadmConfig` referenced in the `Machine` resource already exists.
 It was created earlier when the cluster was provisioned.
 
-Machine
+`Machine`:
 
 ```yaml
 apiVersion: cluster.x-k8s.io/v1alpha3
@@ -68,7 +68,7 @@ spec:
   version: v1.19.1
 ```
 
-OpenstackMachine
+`OpenstackMachine`:
 
 ```yaml
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
@@ -87,8 +87,10 @@ spec:
 ```
 
 ## Result
+
 As discussed above, it is possible to create a VM by using CAPO utilities.
 The created machine has the following properties:
+
 - It does not join the k8s cluster
 - It does not contain sensitive files such as cacert and clouds.yaml
 - It is deleted upon the deletion of the cluster.

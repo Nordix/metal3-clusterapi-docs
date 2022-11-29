@@ -1,8 +1,9 @@
-# IRONIC RESOURCE LIMITATION 
+# IRONIC RESOURCE LIMITATION
 
 This report contains the results of experiments to measure minimal CPU and memory consumption of ironic pod. The experiments are conducted with different number of BMHs, and these numbers allow engineers to estimate the minimal amount of resources Ironic pod required given any specific number of BMHs, ranging from 4 to 40.
 
 ## Experiment environment
+
 Operating system: `Ubuntu 20.04.3 LTS`
 
 Management cluster: Minikube
@@ -13,20 +14,21 @@ Data visualizer: Grafana in cluster
 
 Merics:
 
-	For memory usage: `container_memory_working_set_bytes / 1000000`
- 
-The reason is that Kubernetes uses this metric to determine whether it should kill the container because of OOM: https://docs.newrelic.com/whats-new/2021/03/kubernetes-whats-new/. The division to 1000000 is for conversion from byte to Megabyte.
+ For memory usage: `container_memory_working_set_bytes / 1000000`
 
-	For CPU usage: rate(container_cpu_usage_seconds_total[10m]) * 1000
+The reason is that Kubernetes uses this metric to determine whether it should kill the container because of OOM: <https://docs.newrelic.com/whats-new/2021/03/kubernetes-whats-new/>. The division to 1000000 is for conversion from byte to Megabyte.
+
+ For CPU usage: `rate(container_cpu_usage_seconds_total[10m]) * 1000`
 
 `container_cpu_usage_seconds_total` measures the number of seconds one container uses CPU. In detail, if one container uses 1 second CPU in 1 second, that container uses 100% of one CPU core (1000 milicore) in that moment. Similarly, if it uses 0.5 second, it uses 500 milicore, and 2 seconds mean 2000 milicore. However, this metric is aggregating over time, so using it alone is not enough.
 
-`rate()[10m]` calculates the per-second average rate of increase of the time series of 10 minutes in the range vector. https://prometheus.io/docs/prometheus/latest/querying/functions/#rate. In short, combine with the above function, `rate()` measures the number of CPU seconds at any point in the timeline. The 10 minutes time range decides how sharp the plot is. The larger time range, the flatter the plot. 10-minute-duration is chosen to make the plot not too much frustrated, but also indicating some ideas about how much CPU a container can consume in a specific moment. To convert to milicore, a multiply to 1000 is needed. 
+`rate()[10m]` calculates the per-second average rate of increase of the time series of 10 minutes in the range vector. <https://prometheus.io/docs/prometheus/latest/querying/functions/#rate>. In short, combine with the above function, `rate()` measures the number of CPU seconds at any point in the timeline. The 10 minutes time range decides how sharp the plot is. The larger time range, the flatter the plot. 10-minute-duration is chosen to make the plot not too much frustrated, but also indicating some ideas about how much CPU a container can consume in a specific moment. To convert to milicore, a multiply to 1000 is needed.
 
-Experiment: This experiment is based on metal3 integration test. Prometheus is installed into Minikube cluster after it starts. It monitors all activities of Ironic pod in a integration test, including instropecting, provisioning,... 
+Experiment: This experiment is based on metal3 integration test. Prometheus is installed into Minikube cluster after it starts. It monitors all activities of Ironic pod in a integration test, including instropecting, provisioning,...
 
-## 4 BMHs 
-```
+## 4 BMHs
+
+```text
 +----------------------------+------------+---------------+
 |         Container          | Memory(MB) | CPU(milicore) |
 +----------------------------+------------+---------------+
@@ -43,15 +45,16 @@ Experiment: This experiment is based on metal3 integration test. Prometheus is i
 
 Memory usage by each container
 ![memory_4BMHs][5]
-Sum memory usage 
+Sum memory usage
 ![sum_memory_4BMHs][6]
 CPU usage by each container
 ![cpu_4BMHs][7]
 Sum CPU usage
 ![sum_cpu_4BMHs][8]
 
-## 10 BMHs 
-```
+## 10 BMHs
+
+```text
 +----------------------------+------------+---------------+
 |         Container          | Memory(MB) | CPU(milicore) |
 +----------------------------+------------+---------------+
@@ -65,18 +68,19 @@ Sum CPU usage
 | Sum                        |        910 |           211 |
 +----------------------------+------------+---------------+
 ```
+
 Memory usage by each container
 ![memory_10BMHs][2]
-Sum memory usage 
+Sum memory usage
 ![sum_memory_10BMHs][1]
 CPU usage by each container
 ![cpu_10BMHs][3]
 Sum CPU usage
 ![sum_cpu_10BMHs][4]
 
+## 15 BMHs
 
-## 15 BMHs 
-```
+```text
 +----------------------------+------------+---------------+
 |         Container          | Memory(MB) | CPU(milicore) |
 +----------------------------+------------+---------------+
@@ -90,6 +94,7 @@ Sum CPU usage
 | Sum                        |        909 |           284 |
 +----------------------------+------------+---------------+
 ```
+
 Memory usage by each container
 ![memory_15BMHs][9]
 Sum memory usage
@@ -99,9 +104,9 @@ CPU usage by each container
 Sum CPU usage
 ![sum_cpu_15BMHs][12]
 
+## 20 BMHs
 
-## 20 BMHs 
-```
+```text
 +----------------------------+------------+---------------+
 |         Container          | Memory(MB) | CPU(milicore) |
 +----------------------------+------------+---------------+
@@ -115,6 +120,7 @@ Sum CPU usage
 | Sum                        |        902 |           408 |
 +----------------------------+------------+---------------+
 ```
+
 Memory usage by each container
 ![memory_20BMHs][13]
 Sum memory usage
@@ -124,8 +130,9 @@ CPU usage by each container
 Sum CPU usage
 ![sum_cpu_20BMHs][16]
 
-## 30 BMHs 
-```
+## 30 BMHs
+
+```text
 +----------------------------+------------+---------------+
 |         Container          | Memory(MB) | CPU(milicore) |
 +----------------------------+------------+---------------+
@@ -139,6 +146,7 @@ Sum CPU usage
 | Sum                        |        901 |           439 |
 +----------------------------+------------+---------------+
 ```
+
 Memory usage by each container
 ![memory_30BMHs][17]
 Sum memory usage
@@ -148,9 +156,9 @@ CPU usage by each container
 Sum CPU usage
 ![sum_cpu_30BMHs][20]
 
+## 40 BMHs
 
-## 40 BMHs 
-```
+```text
 +----------------------------+------------+---------------+
 |         Container          | Memory(MB) | CPU(milicore) |
 +----------------------------+------------+---------------+
@@ -164,6 +172,7 @@ Sum CPU usage
 | Sum                        |        860 |           597 |
 +----------------------------+------------+---------------+
 ```
+
 Memory usage by each container
 ![memory_40BMHs][21]
 Sum memory usage

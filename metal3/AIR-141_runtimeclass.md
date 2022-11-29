@@ -1,23 +1,25 @@
-[main page](README.md)|[experiments](AIR-141_.md)
-
----
-
 # RunTimeClass configuration
+
+[main page](README.md)|[experiments](AIR-141_.md)
 
 **Key objectives**: Enabling configuring different run times for all nodes in a cluster.
 
 ## RuntimeClass Introduction
+
 It is possible to define RunTimeClass kind configuration to control runtimes used for pods.
 See example runtimeclass definition below.
-```
+
+```yaml
 apiVersion: node.k8s.io/v1beta1
 kind: RuntimeClass
 metadata:
   name: containerdruntimeclass
 handler: containerd
 ```
+
 After class is configured, it can be taken into use in pods, see example pod definition below.
-```
+
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -30,43 +32,45 @@ spec:
       command: ["/bin/bash", "-ec", "while :; do echo '.'; sleep 5 ; done"]
   restartPolicy: Never
 ```
+
 ## Runtime selection for Kubeadm
 
 Kubeadm detects available runtime sockets and if there is more than one runtime socket available, kubeadm expects
-that user will define wanted runtime in Kubeadm config.yaml or by setting --cri-socket parameter:
+that user will define wanted runtime in Kubeadm `config.yaml` or by setting `--cri-socket` parameter:
 
+`config.yaml`:
 
-```
-config.yaml:
-...
-kind: InitConfiguration                  
-localAPIEndpoint:                        
-  advertiseAddress: 1.2.3.4              
-  bindPort: 6443                         
-nodeRegistration:                        
+```yaml
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: 1.2.3.4
+  bindPort: 6443
+nodeRegistration:
   criSocket: /var/run/crio/crio.sock
-  name: master1                          
-  taints:                                
-  - effect: NoSchedule                   
-    key: node-role.kubernetes.io/master  
-...
+  name: master1
+  taints:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+```
 
+```bash
 kubeadm init --config=config.yaml
 ```
+
 OR
-```
+
+```bash
 kubeadm init --cri-socket /var/run/crio/crio.sock
 ```
 
-
 ## Runtime installation
+
 Packages needed for runtime installations can be installed into ISO/qcow2 images.
 See example for installation script for CRI-O.
 
+### CRI-O installation script for (Centos 7)
 
-#### CRI-O installation script for (Centos 7)
-
-```
+```bash
 sudo su
 modprobe overlay
 modprobe br_netfilter
@@ -86,7 +90,9 @@ yum -y install cri-o cri-tools
 systemctl start crio
 exit
 ```
-# Summary
-External runtime (CRI-O in this case) can be preinstalled to ISO image or can be installed 
+
+## Summary
+
+External runtime (CRI-O in this case) can be preinstalled to ISO image or can be installed
 in cloud init phase. Selected runtime for the cluster can be selected in Kubeadm init phase.
 Runtime classes for pods are not needed in case the whole cluster uses the same runtime.

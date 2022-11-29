@@ -57,6 +57,7 @@ See the manifests in `BYOH+metal3`.
 2. Add another VM to use as a BYOHost: `vagrant up`
 3. Initialize the BYO provider and register the BYO host
    On the management host:
+
    ```bash
    clusterctl init --infrastructure byoh
    cp ~/.kube/config ~/.kube/management-cluster.conf
@@ -64,7 +65,9 @@ See the manifests in `BYOH+metal3`.
    sed -i 's/    server\:.*/    server\: https\:\/\/'"$KIND_IP"'\:6443/g' ~/.kube/management-cluster.conf
    scp -i .vagrant/machines/control-plane1/libvirt/private_key /home/ubuntu/.kube/management-cluster.conf vagrant@192.168.10.10:management-cluster.conf
    ```
+
    On the BYOH:
+
    ```bash
    sudo apt-get install socat ebtables ethtool conntrack
    wget https://github.com/vmware-tanzu/cluster-api-provider-bringyourownhost/releases/download/v0.2.0/byoh-hostagent-linux-amd64
@@ -72,18 +75,24 @@ See the manifests in `BYOH+metal3`.
    chmod +x byoh-hostagent
    sudo ./byoh-hostagent --namespace metal3 --kubeconfig management-cluster.conf
    ```
+
 4. Apply BYO manifest to create a cluster with control plane from the BYOH provider.
    Note: You should do this in the same namespace where the BMHs are!
+
    ```bash
    kubectl -n metal3 apply -f BYOH+metal3/byoh-components.yaml
    ```
+
 5. Apply the Metal3 manifests to add a MachineDeployment with metal3 as provider.
    Note: You will need to replace the `sshAuthorizedKeys` with your own to get ssh access to the BMHs.
+
    ```bash
    kubectl -n metal3 apply -f BYOH+metal3/metal3-cluster.yaml
    kubectl -n metal3 apply -f BYOH+metal3/metal3-workers-ubuntu.yaml
    ```
+
 6. Get the workload cluster kubeconfig and apply Calico as CNI.
+
    ```bash
    clusterctl get kubeconfig -n metal3 byoh-cluster > kubeconfig.yaml
    export KUBECONFIG=kubeconfig.yaml
@@ -119,9 +128,11 @@ See the manifests in `nested+metal3`.
 4. Set up metallb in the KinD cluster using [this guide](https://kind.sigs.k8s.io/docs/user/loadbalancer/).
 5. Change the API server Service of the nested cluster to be of LoadBalancer type
 6. Edit the KubeadmConfigTemplate so that it adds the LoadBalancer IP to `/etc/hosts`, e.g. add this to `preKubeadmCommands`:
-   ```
+
+   ```bash
    echo "172.18.255.200 cluster-sample-apiserver" >> /etc/hosts
    ```
+
    You may also want to set a password so you can use `virsh console` to check the status of the VM easily.
 7. Apply the metal3 manifests
 
@@ -141,14 +152,18 @@ My attempt was to use the same container image to create a pod inside the manage
 The issues were:
 
 1. **KinD:** Kubeadm init fails when pulling the scheduler image with
-   ```
+
+   ```bash
    failed to convert whiteout file \"usr/local/.wh..wh..opq\": operation not supported: unknown
    ```
+
    This seems to be a common error when using nfs, and I'm guessing the issue comes from how KinD works (Kubernetes in Docker and now we add one more layer to this).
 2. **Minikube:** Kubeadm init fails with
-   ```
+
+   ```bash
    [ERROR FileContent--proc-sys-net-bridge-bridge-nf-call-iptables]: /proc/sys/net/bridge/bridge-nf-call-iptables does not exist
    ```
+
    This is probably because the container image used depends on the kernel and there is a mismatch between the kernel minikube is using and what the container image needs.
    (`modprobe br_netfilter` does not help in this case.)
    The problem is that they make an assumption in the Dockerfile that it is running on Ubuntu.
@@ -198,6 +213,7 @@ See the manifests in `vcluster`.
 - Based on these [instructions](https://github.com/loft-sh/cluster-api-provider-vcluster#installation-instructions)
 - Create a kind cluster.
 - Configure clusterctl and initialize vcsluter provider
+
   ```bash
   mkdir ~/.cluster-api
   cat <<EOF > ~/.cluster-api/clusterctl.yaml
@@ -208,15 +224,20 @@ See the manifests in `vcluster`.
   EOF
   clusterctl init --infrastructure vcluster
   ```
+
 - Create a vcluster based on k8s (not k3s) with enabled scheduler and disabled syncer.
+
   ```bash
   kubectl create ns vcluster
   kubectl apply -f vcluster/vcluster.yaml
   ```
+
 - Get kubeconfig
+
   ```bash
   kubeconfig -n vcluster get secrets vcluster-certs -o jsonpath="{.data.admin\.conf}" | base64 -d > kubeconfig.yaml
   ```
+
 - Disabling the syncer causes the kubeconfig to not be created in the management cluster.
   But it can be extracted from the container (k3s) or from the vcluster-certs secret (k8s).
 - k8s:
@@ -225,6 +246,7 @@ See the manifests in `vcluster`.
   - The cluster-info configmap is missing
 
 **Conclusion:** The necessary changes to support our use case would be to
+
 - Add the code in vcluster (not the provider) to allow joining nodes with kubeadm.
   This would require generating some RBAC, a configmap with certificate info and a way to generate tokens at minimum.
 - Modify vcluster and the provider (nested or vcluster) to allow disabling the syncer and enabling scheduler *without syncing nodes*.
@@ -233,9 +255,11 @@ See the manifests in `vcluster`.
 ### Know issues
 
 - The vcluster provider keeps the `cluster` in provisioning state because of the following:
-  ```
+
+  ```bash
   Waiting for the first control plane machine to have its status.nodeRef set
   ```
+
   Since there are no nodes, there is never a nodeRef.
 - When the syncer is disabled, the kubeconfig secret is never created in the management cluster.
 
