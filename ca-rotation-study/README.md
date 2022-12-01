@@ -2,6 +2,7 @@
 
 A Kubernetes cluster uses the following certificate authorities (CAs) for its
 operation:
+
 - kubernetes-ca/cluster-ca: CA for most Kubernetes related tasks
 - etcd-ca: CA for etcd
 - kubernetes-front-proxy-ca: CA for front proxy
@@ -16,7 +17,6 @@ the cluster due to, e.g., expiry of certificates, regulatory reasons, or
 leakage of secrets. In this study, we collect information on required actions
 to make the rotation of the CAs in the cluster possible.
 
-
 ## How to rotate CAs
 
 The rotation should happen in a cluster set up with CAPI, i.e., the machines
@@ -24,6 +24,7 @@ are immutable, and without downtime of the cluster. To prevent a downtime while
 maintaining a operational cluster, the nodes in the cluster need to trust two
 CAs for every CA type for some amount of time. Given these requirements, only
 the following phases would be possible:
+
 1. **Establish trust with the new CAs:** All nodes in the cluster need to know
    about the new CAs and need to trust them.
 2. **Rotate the CAs:** Switch to the new CAs by updating the key on the
@@ -39,7 +40,6 @@ moment as the certificates are placed on the hosts on creation and are not
 updated later on. Step 2 requires only reprovisioning of the control plane
 nodes.
 
-
 ## Rotation of the etcd CA and the front-proxy CA
 
 These certificates can be rotated through cluster-api with the phases described before.
@@ -49,7 +49,7 @@ tests, we created new ones that were completely independent from the existing
 certificates. We used the commands from the [cluster-api
 book](https://cluster-api.sigs.k8s.io/tasks/certs/using-custom-certificates.html):
 
-```
+```bash
 openssl req -x509 -subj “/CN=ETCD CA” -new -newkey rsa:2048 -nodes -keyout new-etcd.key -sha256 -days 3650 -out new-etcd.crt
 openssl req -x509 -subj “/CN=Front-End Proxy” -new -newkey rsa:2048 -nodes -keyout new-front-proxy.key -sha256 -days 3650 -out new-front-proxy.crt
 ```
@@ -67,7 +67,6 @@ new CAs.
 After that, the secrets can be updated again to remove the old certificate from
 them. After another upgrade of the control plane nodes, they only know about
 the new CA with the new key.
-
 
 ## Rotation of the cluster CA
 
@@ -102,7 +101,6 @@ kubernetes/cluster-api but requires some operational process. The service
 account secrets also contain the CA certificates and may therefore need to be
 updated in this step.
 
-
 ## Rotation of the Service Account key pair
 
 In addition to the authentication between the nodes and authentication of user
@@ -116,14 +114,12 @@ keys right now. The issue is tracked in
 Therefore, it is not possible right now to rotate the service account keys
 without endangering the functioning of the deployed pods.
 
-
 ## Technical details
 
 Trusting two CAs for communication should work in the most places already
 because kubernetes and etcd both use `go.etcd.io/etcd/pkg/transport` for TLS
 connections which correctly implements the certificate verification against
 multiple CAs.
-
 
 ## Tests done and their results
 
@@ -135,15 +131,19 @@ book](https://cluster-api.sigs.k8s.io/tasks/certs/using-custom-certificates.html
 For all the yaml files used in the tests, there are examples in this repository.
 
 ### Test 1: Replacing cluster-ca secret in management cluster
+
 - Start with a fresh cluster
 - Export existing cluster CA certificate and key from the management cluster
+
   ```sh
   kubectl get secrets my-cluster-ca -o json | jq -r '.data."tls.crt"' | base64 --decode > my-cluster-ca.crt
   kubectl get secrets my-cluster-ca -o json | jq -r '.data."tls.key"' | base64 --decode > my-cluster-ca.key
   ```
+
 - Replace the certificate in the my-cluster secret with a combination of the
   new CA certificate and the old CA certificate and replace the key in the
   secret with the new key
+
   ```sh
   # To combine certificates for updating the secret
   # Order is probably important, certificate matching the key first
@@ -152,13 +152,14 @@ For all the yaml files used in the tests, there are examples in this repository.
 
   kubectl apply -f update-ca.yaml # For cluster-ca secret
   ```
+
 - Delete one worker to force reprovisioning
 - Result: Worker can not be provisioned, problem when checking the pinned certificates
 - Finding: Cluster certificate is also present in the cluster-info configmap inside the cluster
 - Same problem when deleting controlplane node to recreate it
 
-
 ### Test 2: updating cluster-ca secret to include new cert
+
 - Start with a fresh cluster
 - Export existing cluster CA certificate and key from the management cluster as
   before
@@ -173,32 +174,41 @@ For all the yaml files used in the tests, there are examples in this repository.
   only the old CA certificate (probably taken from the cluster-info configmap)
 
 ### Test 3: update cluster-ca secret and cluster-info configmap
+
 - Start with a fresh cluster
 - Export existing cluster CA certificate and key from the management cluster as
   before
 - Retrieve current cluster-info configmap from the target cluster
+
   ```sh
   kubectl --kubeconfig capi-kubeconfig get configmap --namespace kube-public cluster-info -o yaml > cluster-info.yaml
   ```
+
 - Replace the certificate in the my-cluster secret with a combination of the
   old CA certificate and the new CA certificate and leave the old key in the
   secret (see test 1)
 - Patch the cluster-info configmap in the target cluster to contain the same
   set of certificates as the secret
+
   ```sh
   kubectl --kubeconfig capi-kubeconfig patch -n kube-public configmap cluster-info --patch "$(cat cluster-info.yaml)"
   ```
+
 - For automatic upgrade of the worker nodes:
+
   ```sh
   kubectl patch machinedeployments worker --type merge --patch "$(cat update-worker.yaml)"
   ```
+
 - For automatic upgrade of the control plane nodes:
+
   ```sh
   # Create MachineTemplate with new name and label
   kubectl apply -f new-dockermachinetemplate.yaml
   # Patch kcp to use the new template, this triggers upgrade
   kubectl patch kcp my-controlplane --type merge --patch "$(cat update-controlplane.yaml)"
   ```
+
 - Results:
   - Reprovisioning worker nodes is successful, `pki/ca.crt` contains both
     certificates
@@ -207,6 +217,7 @@ For all the yaml files used in the tests, there are examples in this repository.
   - Cluster works during and after the upgrade
 
 ### Test 4: rotate cluster-ca key (after test 3)
+
 - Reuse cluster after test 3
 - Replace the certificate in the my-cluster secret and in the cluster-info
   configmap with a combination of the new CA certificate and the old CA
@@ -220,8 +231,8 @@ For all the yaml files used in the tests, there are examples in this repository.
   however, the bootstrap token is generated as a secret; reason:
   CSRSigningController can not deal with two certificates
 
-
 ### Test 5: CA trust
+
 - Start with a fresh cluster
 - On one worker node:
   - Create a new CA certificate with openssl
@@ -231,8 +242,8 @@ For all the yaml files used in the tests, there are examples in this repository.
 - Result: connection to control plane is possible --> trusting two certificates
   works
 
-
 ### Test 6: etcd and front-proxy certificates
+
 - Start with a fresh cluster
 - Export existing certificate and key for cluster-ca, etcd-ca and
   front-proxy-ca from the management cluster as before; retrieve cluster-info
@@ -245,8 +256,8 @@ For all the yaml files used in the tests, there are examples in this repository.
 - Upgrade control plane nodes as in test 3
 - Result: Works, control plane is successfully upgraded
 
-
 ### Test 7: etcd and front-proxy certificates rotation
+
 - Start with a fresh cluster
 - Export existing certificate and key for etcd-ca and front-proxy-ca from the
   management cluster as before
@@ -260,4 +271,3 @@ For all the yaml files used in the tests, there are examples in this repository.
   - Works, control plane is successfully updated
   - No split brain during upgrade
   - Updated nodes do already have certificates signed by new CA
-

@@ -4,7 +4,7 @@ Two main options are available : KubeVirt and Virtlet. The first runs the
 virtual machines in containers while the second use virtual machines instead of
 containers, offering an alternative to docker, containerd, etc. with Libvirt.
 
-# Running VMs in Containers with KubeVirt
+## Running VMs in Containers with KubeVirt
 
 The main project in this area is KubeVirt. KubeVirt is a CNCF project initiated
 by RedHat. Its goal is to provide a virtualization platform using Kubernetes,
@@ -25,14 +25,14 @@ The KubeVirt project is composed of four main elements :
 
 * virt-controller: This is the controller that reconciles the CRs created and
   modified by the users. It is available as a Kubernetes Operator. It will
-	create the pods for each vm, find out the node on which the pod was scheduled
-	and call virt-handler to create the VM
+  create the pods for each vm, find out the node on which the pod was scheduled
+  and call virt-handler to create the VM
 * virt-handler: It will create the libvirtd domain once the pod has been created
 * virt-launcher: It takes care of creating the cgroups and namespaces for the
   vm, start it and monitor it.
 * virtctl: a command line tool mainly giving access to serial and graphical
   console, it also allows to easily stop or start the machine, and perform live
-	migration
+  migration
 
 Since the virtual machine runs in a container, it is possible to use all the
 normal features of a pod, such as volumes, networks and ports to expose. It even
@@ -86,6 +86,7 @@ the backend volume to the VM volume, KubeVirt offers three mechanisms:
 * cdrom
 
 Here is an example for a disk backed by a persistent volume.
+
 ```yaml
 metadata:
   name: testvmi-disk
@@ -223,8 +224,8 @@ $ wget -O virtctl https://github.com/kubevirt/kubevirt/releases/download/${KUBEV
 $ chmod +x virtctl && mv virtctl /usr/local/bin/
 ```
 
-
 ### Creating Virtual Machine
+
 ```bash
 # creates a virtual machine
 $ kubectl apply -f kubevirt-vm.yml
@@ -234,7 +235,7 @@ $ virtctl start kubevirt-vm
 $ virtctl console kubevirt-vm
 ```
 
-# Running virtual machines in Kubernetes with Virtlet
+## Running virtual machines in Kubernetes with Virtlet
 
 Virtlet is a Mirantis project aiming at offering a CRI for VMs, hence replacing
 docker or containerd with libvirt in Kubernetes. This is aimed at bringing all
@@ -314,7 +315,8 @@ spec:
       claimName: virtlet-pv-claim
 ```
 
-### Requirements and installation
+### Virtlet requirements and installation
+
 According to [documentation](https://docs.virtlet.cloud/user-guide/real-cluster) for Virtlet to run VMs it requires installing [CRI Proxy](https://github.com/Mirantis/criproxy) on the Kubernetes node.
 Before starting installation of Virtlet make sure to disable SELinux.
 Follow the steps below to set up Virtlet on existing Kubernetes cluster.
@@ -352,6 +354,7 @@ $ systemctl enable criproxy dockershim
 $ systemctl start criproxy dockershim
 
 ```
+
 Add following flags to kubelet configuration, located in ```/lib/systemd/system/kubelet.service```
 so that it uses CRI Proxy:
 
@@ -379,7 +382,7 @@ $ docker run --rm mirantis/virtlet:latest virtletctl gen --tag latest | kubectl 
 $ kubectl create configmap -n kube-system virtlet-config --from-literal=disable_kvm=y
 ```
 
-### Creating Virtual Machine
+### Creating Virtlet Virtual Machine
 
 ```bash
 $ kubectl create -f virtlet-vm.yml
@@ -445,7 +448,7 @@ and seems to receive far less attention from the community.
 
 Furthermore, performance comparision has been conducted and according to
 results, KubeVirt reports higher interface bandwidth (measured with
-```iPerf```) but
+`iPerf`) but
 closely the same on other system resources (e.g. CPU Throlling, IdleJitter,
 etc) which was measured with [Netdata](https://github.com/netdata/netdata).\
 Please note that the results of CPU performance below don't give insights on real
@@ -467,7 +470,6 @@ $ stress --cpu 4 --io 4 --vm 4 --vm-bytes 1280M --timeout 300s
 | ------------- | ------------- | ------------- |
 | Average bandwidth | 1.05 Gbits/sec | 821 Mbits/sec |
 | CPU metrics | [Virtlet](https://github.com/Nordix/metal3-clusterapi-docs/blob/study/feature-feruz/vms-in-kubernetes/performance_virtlet.pdf) | [Kubevirt](https://github.com/Nordix/metal3-clusterapi-docs/blob/study/feature-feruz/vms-in-kubernetes/performance_kubevirt.pdf) |
-
 
 ## Conclusion
 

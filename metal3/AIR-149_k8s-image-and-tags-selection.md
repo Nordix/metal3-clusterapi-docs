@@ -1,18 +1,16 @@
-[main page](README.md)|[experiments](experiments/AIR-149_.md)
-
----
-
 # Override k8s image registry and tag
+
+[main page](README.md)|[experiments](experiments/AIR-149_.md)
 
 **Key objectives**: configure what registry and tag to use for kubernetes control plane components.
 
-We would like to control which registry or/and tag are used when running kubeadm init and join. 
+We would like to control which registry or/and tag are used when running kubeadm init and join.
 We can specify both options as described below.
 
 **Configuration file:**
-The **tag** and **registry** information can set in kubeadm configuration file. 
+The **tag** and **registry** information can set in kubeadm configuration file.
 
-```
+```yaml
 ---
 apiServer:
   timeoutForControlPlane: 4m0s

@@ -30,42 +30,42 @@ Below is an example configuration for Keepalived and HAProxy.
 
 /etc/keepalived/keepalived.conf
 
-```
+```text
 ! Configuration File for keepalived
 global_defs {
-	notification_email {
-	sysadmin@example.com
-	support@example.com
-	}
-	notification_email_from lb@example.com
-	smtp_server localhost
-	smtp_connect_timeout 30
+ notification_email {
+ sysadmin@example.com
+ support@example.com
+ }
+ notification_email_from lb@example.com
+ smtp_server localhost
+ smtp_connect_timeout 30
 }
 vrrp_instance VI_1 {
-	state MASTER
-	interface <iface>
-	virtual_router_id 1
-	priority 101
-	advert_int 1
-	virtual_ipaddress {
-			<vip>
-	}
+ state MASTER
+ interface <iface>
+ virtual_router_id 1
+ priority 101
+ advert_int 1
+ virtual_ipaddress {
+   <vip>
+ }
 }
 vrrp_instance VI_2 {
-	state MASTER
-	interface <iface>
-	virtual_router_id 2
-	priority 101
-	advert_int 1
-	virtual_ipaddress {
-			<vip2>
-	}
+ state MASTER
+ interface <iface>
+ virtual_router_id 2
+ priority 101
+ advert_int 1
+ virtual_ipaddress {
+   <vip2>
+ }
 }
 ```
 
 `/etc/haproxy/haproxy.cfg`
 
-```
+```text
 global
     maxconn 1024
     daemon

@@ -15,8 +15,7 @@
 **Goal**: Original goal of the User Story was to investigate whether parallel execution of the e2e test
 specifications is possible or not.
 
-It was decided prior to the start of the study that the end-to-end testing will follow the BDD style test implementation and the following tools will
-be used to implement the tests:
+It was decided prior to the start of the study that the end-to-end testing will follow the BDD style test implementation and the following tools will be used to implement the tests:
 
 - The `Ginkgo` BDD test framework, more information can be found [here](https://onsi.github.io/ginkgo/#individual-specs-it)
 - Gomega matcher library, more information can be found [here](https://onsi.github.io/gomega/)
@@ -37,14 +36,14 @@ It would be very time consuming to run the cleanup and the re-installation proce
 Because of the nature of the e2e tests there are inherent issues:
 
 1. Not every test can run parallel to other tests in the same metal3-dev-env instance e.g.
-pivoting needs to be executed before re-pivoting. Other example Updating the management cluster or
-other objects in the cluster during an "upgrade test" might cause stability issues for other
-tests in the same environment.
+   pivoting needs to be executed before re-pivoting. Other example Updating the management cluster or
+   other objects in the cluster during an "upgrade test" might cause stability issues for other
+   tests in the same environment.
 
 2. At the moment the cleanup process for e2e tests in `CAPM3` is not test specific.
-There is no cleanup process implemented for individual e2e tests that would restore the dev-env to a state
-from where other e2e tests could be started, this is partly the case because the restoration process is highly
-dependent on the e2e test that was executed as some tests affect the configuration of the whole dev-env.
+   There is no cleanup process implemented for individual e2e tests that would restore the dev-env to a state
+   from where other e2e tests could be started, this is partly the case because the restoration process is highly
+   dependent on the e2e test that was executed as some tests affect the configuration of the whole dev-env.
 
 It has become clear that there are multiple ways to achieve the parallel test execution
 
@@ -100,40 +99,41 @@ present in the group. As a consequence of the aforementioned benefits the develo
 development environments without editing the `Ginkgo` code and also in CI it would be easy to create different jobs for different
 groups of tests.
 
-**Example of the test execution after restructuring has been implemented**
+#### Example of the test execution after restructuring has been implemented
+
 ```Makefile
-     .
-     .
-     .
-     TEST_PIVOT=true
-     TEST_REPIVOT=true
-     UPDATE_TARGET_CLUSTER=true
-     SOME_OTHER_TEST=true
-     .
-     .
-     .
-     # The following Ginkgo test executions could be tied to individual make command arguments e.g make e2e test pivoting-group
-     # A sequential group
-     time go test -v -timeout 24h -tags=e2e ./test/e2e/... -args \
-	-ginkgo.v -ginkgo.trace -ginkgo.progress -ginkgo.noColor=$(GINKGO_NOCOLOR) \
-	-e2e.artifacts-folder="$(ARTIFACTS)" \
+.
+.
+.
+TEST_PIVOT=true
+TEST_REPIVOT=true
+UPDATE_TARGET_CLUSTER=true
+SOME_OTHER_TEST=true
+.
+.
+.
+# The following Ginkgo test executions could be tied to individual make command arguments e.g make e2e test pivoting-group
+# A sequential group
+time go test -v -timeout 24h -tags=e2e ./test/e2e/... -args \
+     -ginkgo.v -ginkgo.trace -ginkgo.progress -ginkgo.noColor=$(GINKGO_NOCOLOR) \
+     -e2e.artifacts-folder="$(ARTIFACTS)" \
      -e2e.test_pivot="${TEST_PIVOT}" \ # Enables pivoting test spec
      -e2e.test_repivot="${TEST_REPIVOT}" \ # Enables repivoting test spec
-	-e2e.config="$(E2E_CONF_FILE_ENVSUBST)" \
-	-e2e.skip-resource-cleanup=$(SKIP_CLEANUP) \
-	-e2e.use-existing-cluster=$(SKIP_CREATE_MGMT_CLUSTER)
-     # A parallel group
-     time go test -v -timeout 24h -tags=e2e ./test/e2e/... -args \
-	-ginkgo.p -ginkgo.v -ginkgo.trace -ginkgo.progress -ginkgo.noColor=$(GINKGO_NOCOLOR) \
-	-e2e.artifacts-folder="$(ARTIFACTS)" \
+     -e2e.config="$(E2E_CONF_FILE_ENVSUBST)" \
+     -e2e.skip-resource-cleanup=$(SKIP_CLEANUP) \
+     -e2e.use-existing-cluster=$(SKIP_CREATE_MGMT_CLUSTER)
+# A parallel group
+time go test -v -timeout 24h -tags=e2e ./test/e2e/... -args \
+     -ginkgo.p -ginkgo.v -ginkgo.trace -ginkgo.progress -ginkgo.noColor=$(GINKGO_NOCOLOR) \
+     -e2e.artifacts-folder="$(ARTIFACTS)" \
      -e2e.test_update="${UPDATE_TARGET_CLUSTER}" \ # Enables update test spec
      -e2e.some_other_test="${SOME_OTHER_TEST}" \ # Enables some other test spec
-	-e2e.config="$(E2E_CONF_FILE_ENVSUBST)" \
-	-e2e.skip-resource-cleanup=$(SKIP_CLEANUP) \
-	-e2e.use-existing-cluster=$(SKIP_CREATE_MGMT_CLUSTER)
-     .
-     .
-     .
+     -e2e.config="$(E2E_CONF_FILE_ENVSUBST)" \
+     -e2e.skip-resource-cleanup=$(SKIP_CLEANUP) \
+     -e2e.use-existing-cluster=$(SKIP_CREATE_MGMT_CLUSTER)
+.
+.
+.
 ```
 
 **NOTE**:
@@ -147,7 +147,6 @@ groups of tests.
     during e2e test execution.
 
 ### Options to speed up e2e tests
-
 
 **Option 1 for time saving (pool of dev-envs)**:
 
@@ -175,11 +174,10 @@ require additional test logic it would use the test features implemented as part
 **CON**
 This approach would require multiple hosts in CityCloud and it would not provide time saving for developers locally executing all the tests.
 
-## Plan to proceed:
+## Plan to proceed
 
 1. All the e2e tests has to be implemented.
 
 2. Create a maintainable and configurable e2e test execution process. (restructuring)
 
 3. E2e tests have to be speed up with either the `(pool of dev-envs)` or `(solve it in CI)` approach.
-

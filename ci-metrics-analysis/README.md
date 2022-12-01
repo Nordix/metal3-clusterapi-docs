@@ -1,6 +1,6 @@
 # CI metrics analysis
 
-The Jenkins archive tarball contains files under the 'metrics/' directory which
+The Jenkins archive tarball contains files under the `metrics/` directory which
 includes recordings of the instance's resource usage during the CI run.
 
 It can be helpful to examine these to see if there are underlying
@@ -18,7 +18,7 @@ Three utilities are used for recording the metrics:
 
 ### sar (aka sysstat)
 
-sar is saved to a binary file 'sa<day-number>' in the metrics/sysstat
+sar is saved to a binary file `sa<day-number>` in the metrics/sysstat
 directory.
 
 After installing `sysstat` on your local machine, the metrics can be converted
@@ -29,7 +29,7 @@ to a readable text file with:
 There's a nice utility which will let you browse and plot the metrics called
 kSar:
 
-https://github.com/vlsi/ksar/releases
+<https://github.com/vlsi/ksar/releases>
 
 Download the *latest snapshot build* from here, and pair with a modern java
 JDK. Then run with:
@@ -51,7 +51,7 @@ timestamps with `t` and `T`.
 
 ### Prometheus
 
-WIP. A tool called 'krew' is used to dump the Prometheus database from in the
+WIP. A tool called `krew` is used to dump the Prometheus database from in the
 cluster. In theory, it should be possible to spin up a Prometheus instance
 using the database to query and graph the metrics from the database dump.
 
@@ -78,8 +78,8 @@ TODO: update once Prometheus metrics are working (KB-529)
 Metrics are deployed into the CI image used for the OpenStack instances in the
 image provisioning scripts:
 
-* https://github.com/Nordix/metal3-dev-tools/blob/master/ci/scripts/image_scripts/setup_monitoring_ubuntu.sh
-* https://github.com/Nordix/metal3-dev-tools/blob/master/ci/scripts/image_scripts/setup_monitoring_centos.sh
+* <https://github.com/Nordix/metal3-dev-tools/blob/master/ci/scripts/image_scripts/setup_monitoring_ubuntu.sh>
+* <https://github.com/Nordix/metal3-dev-tools/blob/master/ci/scripts/image_scripts/setup_monitoring_centos.sh>
 
 ## Known issues with metrics
 

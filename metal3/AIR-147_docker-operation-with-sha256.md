@@ -1,8 +1,6 @@
-[main page](README.md)|[experiments](experiments/AIR-147_.md)
-
----
-
 # Verify that sha256 can be used to do docker operations
+
+[main page](README.md)|[experiments](experiments/AIR-147_.md)
 
 **key objectives**: Investigate if digest (i.e. sha256 hash) can be used to perform docker operations.
 
@@ -35,7 +33,6 @@ REPOSITORY            TAG                 DIGEST                                
 feruzjon/test_image   v1                  <none>                                                                    9cfd3f2209d4        20 seconds ago      203MB
 ```
 
-
 After the local image is pushed to Docker container registry, another new unique sha256 hash is generated and added to `"RepoDigests"` field as shown in the following example:
 
 ```bash
@@ -55,12 +52,15 @@ root@infra:~# docker inspect f4c5014bf5bc
         .
         .
 ```
+
 sha256 from "RepoDigests" field can be used for only pulling the image as follows:
+
 ```bash
 root@infra:~# docker pull feruzjon/test_image@sha256:af3c4136783600d18b66cabba60f00caf56cca5142dec2f87dd30f69dc44e6ce
 ```
 
 We can check once again if the `"RepoDigests"` field contains image digest:
+
 ```bash
 root@infra:~# docker images --digests
 
@@ -75,5 +75,5 @@ feruzjon/test_image   v1                  sha256:af3c4136783600d18b66cabba60f00c
 1. sha256 stored in the `"Id"` field can be used to perform docker operations except pulling.
 2. sha256 from `"RepoDigests"` field can be publicly used to pull docker images.
 3. If the image is updated but pushed with exactly the same `"name:tag"`, previous image will not be deleted but rather
-tagged as `<none>:<none>`. As such, if one wants to pull previous image (which is tagged as `<none>:<none>` currently),
-digest from `"RepoDigests"` field can be used to pull it.
+   tagged as `<none>:<none>`. As such, if one wants to pull previous image (which is tagged as `<none>:<none>` currently),
+   digest from `"RepoDigests"` field can be used to pull it.

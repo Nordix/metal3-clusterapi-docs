@@ -7,7 +7,6 @@ There are some vulnerability detection tools available, such as **kube-hunter** 
 * Installing kube-hunter
 
 ```bash
-
   which pip
   pip --version
   kubelet --version
@@ -23,7 +22,7 @@ There are some vulnerability detection tools available, such as **kube-hunter** 
 ```text
 
 Vulnerabilities
-For further information about a vulnerability, search its ID in: 
+For further information about a vulnerability, search its ID in:
 https://avd.aquasec.com/
 
 +--------+-----------------+----------------------+----------------------+----------------------+----------+
@@ -42,7 +41,7 @@ https://avd.aquasec.com/
 ```text
 
 Vulnerabilities
-For further information about a vulnerability, search its ID in: 
+For further information about a vulnerability, search its ID in:
 https://avd.aquasec.com/
 
 +--------+----------------------+----------------------+----------------------+----------------------+----------+
@@ -67,7 +66,7 @@ https://avd.aquasec.com/
 kubectl logs pod/kube-hunter-nhsdw
 
 Vulnerabilities
-For further information about a vulnerability, search its ID in: 
+For further information about a vulnerability, search its ID in:
 https://avd.aquasec.com/
 +--------+----------------------+----------------------+----------------------+----------------------+----------------------+
 | ID     | LOCATION             | MITRE CATEGORY       | VULNERABILITY        | DESCRIPTION          | EVIDENCE             |

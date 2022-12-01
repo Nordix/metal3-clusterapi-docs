@@ -1,7 +1,9 @@
 # Introduction
+
 The purpose of this document is for studying the limitations of kubeadm in accomplishing the tasks related to kubernetes cluster life cycle management.
 
-# Tasks
+## Tasks
+
 - [x] [Rotate certificates](AIR-138_kubeadm-rotating-ca.md)
 - [x] [LB autosetup](AIR-139_140_loadbalancers.md)
 - [x] [Configure container run for a cluster](AIR-141_runtimeclass.md)
