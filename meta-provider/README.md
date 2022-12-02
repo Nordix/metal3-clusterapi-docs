@@ -107,14 +107,14 @@ This provider was chosen for the test because it runs the control plane as pods 
 However, there are some concerns about the suitability and usefulness:
 
 - [There is no scheduler](https://github.com/kubernetes-sigs/cluster-api-provider-nested/blob/main/controlplane/nested/api/v1alpha4/nestedcontrolplane_types.go#L36-L47) in the NestedControlPlaneSpec.
-  - Instead of scheduler, vcluster uses a "syncer" to [synchronize some resources](https://www.vcluster.com/docs/architecture/synced-resources) between the nested cluster and the "super cluster".
+   - Instead of scheduler, vcluster uses a "syncer" to [synchronize some resources](https://www.vcluster.com/docs/architecture/synced-resources) between the nested cluster and the "super cluster".
 - The Nested provider does not use the KubeadmControlPlane, instead it has a NestedControlPlane.
-  - The necessary config for joining is not available.
+   - The necessary config for joining is not available.
     There should be a configmap `cluster-info` in the `kube-public` namespace along with RBAC to allow `system:anonymous` access.
 - This provider seems to be in early stages of development
-  - Only CAPI v1alpha4 is supported.
-  - Minimal docs and only one release.
-  - Scaling of control plane components is not implemented (but possible via StatefulSets)
+   - Only CAPI v1alpha4 is supported.
+   - Minimal docs and only one release.
+   - Scaling of control plane components is not implemented (but possible via StatefulSets)
 
 **The test was not successful**: Since the nested provider doesn't have its own nodes and doesn't use the KubeadmControlPlane provider, it doesn't provide the necessary resources to join nodes to the cluster.
 
@@ -241,9 +241,9 @@ See the manifests in `vcluster`.
 - Disabling the syncer causes the kubeconfig to not be created in the management cluster.
   But it can be extracted from the container (k3s) or from the vcluster-certs secret (k8s).
 - k8s:
-  - Manually remove the syncer deployment (named `vcluster`). It is not possible to remove with helm values.
-  - Edit the scheduler command to remove `--port=0`.
-  - The cluster-info configmap is missing
+   - Manually remove the syncer deployment (named `vcluster`). It is not possible to remove with helm values.
+   - Edit the scheduler command to remove `--port=0`.
+   - The cluster-info configmap is missing
 
 **Conclusion:** The necessary changes to support our use case would be to
 

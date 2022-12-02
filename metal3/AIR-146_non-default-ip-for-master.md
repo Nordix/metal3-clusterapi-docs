@@ -93,14 +93,14 @@ On the join side, it is “not possible” to set the etcd IP directly.
 Here we just pinpoint the answers for the questions asked in [Motivation](#motivation) section:
 
 * How do these components choose which interfaces to use?
-  * If no information is given, it takes the default interface
+   * If no information is given, it takes the default interface
 * How do we influence the choice during init phase?
-  * By providing relevant ips in kubeconfig file
+   * By providing relevant ips in kubeconfig file
 * How do we influence the choice during join phase?
-  * By providing relevant ips in kubeconfig file
+   * By providing relevant ips in kubeconfig file
 * How granular the configuration could be made?
-  * Only one IP works. I.e. both the api-server and etcd can have the same non-default IP.
-  * Though not likely, if it is desired that the api-server and the etcd use two distinct non-default IPs, then more investigation needs to be done.
+   * Only one IP works. I.e. both the api-server and etcd can have the same non-default IP.
+   * Though not likely, if it is desired that the api-server and the etcd use two distinct non-default IPs, then more investigation needs to be done.
 
 ## Sample Configurations
 

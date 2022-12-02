@@ -73,13 +73,13 @@ In order to be certain the raw metrics are available look at a specific endpoint
 
 - Deploy [Power Driven Scheduling and Scaling with CPU telemetry in Kubernetes](https://github.com/intel/platform-aware-scheduling/blob/master/telemetry-aware-scheduling/docs/power/README.md). Once you follow all the steps described above you will have the following:
 
-  - Deployed collectd and prometheus adapter. This exposes node's energy metrics to kubernetes and prometheus. Check the following picture for an example.
+   - Deployed collectd and prometheus adapter. This exposes node's energy metrics to kubernetes and prometheus. Check the following picture for an example.
 
   ![Prometheus node energy](images/prometheus_node_energy.png)
 
-  - Deployed Kube state metrics and makes it available to prometheus.
+   - Deployed Kube state metrics and makes it available to prometheus.
 
-  - Deployed TAS Telemetry Policy for power. You can check the policy as follows:
+   - Deployed TAS Telemetry Policy for power. You can check the policy as follows:
 
   ```bash
 
@@ -106,9 +106,9 @@ In order to be certain the raw metrics are available look at a specific endpoint
 
   ```
 
-  - Deployed horizontal autoscaler for power. The Horizontal Pod Autoscaler is an in-built part of Kubernetes which allows scaling decisions to be made based on arbitrary metrics. In this case we're going to scale our workload based on the average power usage on nodes with current instances of our workload.
+   - Deployed horizontal autoscaler for power. The Horizontal Pod Autoscaler is an in-built part of Kubernetes which allows scaling decisions to be made based on arbitrary metrics. In this case we're going to scale our workload based on the average power usage on nodes with current instances of our workload.
 
-  - Deployed power sensitive application. TAS schedules it to the node with the lowest power usage, and will avoid scheduling to any node with more than 80 percent of its TDP currently in use.
+   - Deployed power sensitive application. TAS schedules it to the node with the lowest power usage, and will avoid scheduling to any node with more than 80 percent of its TDP currently in use.
 
 ### Disadvantages
 

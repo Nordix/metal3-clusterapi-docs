@@ -210,11 +210,11 @@ For all the yaml files used in the tests, there are examples in this repository.
   ```
 
 - Results:
-  - Reprovisioning worker nodes is successful, `pki/ca.crt` contains both
+   - Reprovisioning worker nodes is successful, `pki/ca.crt` contains both
     certificates
-  - Reprovisioning control plane node is successful, `pki/ca.crt` contains both
+   - Reprovisioning control plane node is successful, `pki/ca.crt` contains both
     certificates
-  - Cluster works during and after the upgrade
+   - Cluster works during and after the upgrade
 
 ### Test 4: rotate cluster-ca key (after test 3)
 
@@ -235,10 +235,10 @@ For all the yaml files used in the tests, there are examples in this repository.
 
 - Start with a fresh cluster
 - On one worker node:
-  - Create a new CA certificate with openssl
-  - Update ca.crt to include new CA certificate and old CA certificate (in that
+   - Create a new CA certificate with openssl
+   - Update ca.crt to include new CA certificate and old CA certificate (in that
     order)
-  - Restart node
+   - Restart node
 - Result: connection to control plane is possible --> trusting two certificates
   works
 
@@ -250,8 +250,8 @@ For all the yaml files used in the tests, there are examples in this repository.
   configmap from the target cluster
 - Update CAs so each contains old CA certificate, new CA certificate and old
   key
-  - For cluster-ca update secret and configmap as in test 3
-  - For etcd and front-proxy, just secrets need to be updated, similar to test
+   - For cluster-ca update secret and configmap as in test 3
+   - For etcd and front-proxy, just secrets need to be updated, similar to test
     3 (see `update-etcd.yaml` and `update-proxy.yaml`)
 - Upgrade control plane nodes as in test 3
 - Result: Works, control plane is successfully upgraded
@@ -268,6 +268,6 @@ For all the yaml files used in the tests, there are examples in this repository.
   new key
 - Upgrade control plane nodes as before
 - Results:
-  - Works, control plane is successfully updated
-  - No split brain during upgrade
-  - Updated nodes do already have certificates signed by new CA
+   - Works, control plane is successfully updated
+   - No split brain during upgrade
+   - Updated nodes do already have certificates signed by new CA
