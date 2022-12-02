@@ -5565,7 +5565,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3clusters
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5588,7 +5587,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3datas
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5611,7 +5609,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3dataclaims
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5634,7 +5631,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3datatemplates
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5657,7 +5653,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3machines
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5680,7 +5675,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3machinetemplates
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5703,7 +5697,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3remediations
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5726,7 +5719,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3remediationtemplates
-    scope: Namespaced
   sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -5759,7 +5751,6 @@ webhooks:
     - UPDATE
     resources:
     - ipaddresses
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5782,7 +5773,6 @@ webhooks:
     - UPDATE
     resources:
     - ipclaims
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5805,7 +5795,6 @@ webhooks:
     - UPDATE
     resources:
     - ippools
-    scope: Namespaced
   sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -5838,7 +5827,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3clusters
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5861,7 +5849,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3datas
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5884,7 +5871,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3dataclaims
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5907,7 +5893,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3datatemplates
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5930,7 +5915,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3machines
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5953,7 +5937,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3machinetemplates
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5976,7 +5959,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3remediations
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -5999,7 +5981,6 @@ webhooks:
     - UPDATE
     resources:
     - metal3remediationtemplates
-    scope: Namespaced
   sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -6032,7 +6013,6 @@ webhooks:
     - UPDATE
     resources:
     - ipaddresses
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -6055,7 +6035,6 @@ webhooks:
     - UPDATE
     resources:
     - ipclaims
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -6078,5 +6057,4 @@ webhooks:
     - UPDATE
     resources:
     - ippools
-    scope: Namespaced
   sideEffects: None

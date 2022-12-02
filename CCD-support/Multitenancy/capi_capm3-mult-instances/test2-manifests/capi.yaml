@@ -10431,7 +10431,6 @@ webhooks:
     - UPDATE
     resources:
     - machines
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10454,7 +10453,6 @@ webhooks:
     - UPDATE
     resources:
     - machinedeployments
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10477,7 +10475,6 @@ webhooks:
     - UPDATE
     resources:
     - machinehealthchecks
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10500,7 +10497,6 @@ webhooks:
     - UPDATE
     resources:
     - machinesets
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10523,7 +10519,6 @@ webhooks:
     - UPDATE
     resources:
     - clusters
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10546,7 +10541,6 @@ webhooks:
     - UPDATE
     resources:
     - clusterclasses
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10569,7 +10563,6 @@ webhooks:
     - UPDATE
     resources:
     - extensionconfigs
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10592,7 +10585,6 @@ webhooks:
     - UPDATE
     resources:
     - machinepools
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10615,7 +10607,6 @@ webhooks:
     - UPDATE
     resources:
     - clusterresourcesets
-    scope: Namespaced
   sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -10648,7 +10639,6 @@ webhooks:
     - UPDATE
     resources:
     - machines
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10671,7 +10661,6 @@ webhooks:
     - UPDATE
     resources:
     - machinedeployments
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10694,7 +10683,6 @@ webhooks:
     - UPDATE
     resources:
     - machinehealthchecks
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10717,7 +10705,6 @@ webhooks:
     - UPDATE
     resources:
     - machinesets
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10741,7 +10728,6 @@ webhooks:
     - DELETE
     resources:
     - clusters
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10765,7 +10751,6 @@ webhooks:
     - DELETE
     resources:
     - clusterclasses
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10788,7 +10773,6 @@ webhooks:
     - UPDATE
     resources:
     - extensionconfigs
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10811,7 +10795,6 @@ webhooks:
     - UPDATE
     resources:
     - machinepools
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10834,7 +10817,6 @@ webhooks:
     - UPDATE
     resources:
     - clusterresourcesets
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10858,7 +10840,6 @@ webhooks:
     - DELETE
     resources:
     - ipaddresses
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10882,5 +10863,4 @@ webhooks:
     - DELETE
     resources:
     - ipaddressclaims
-    scope: Namespaced
   sideEffects: None

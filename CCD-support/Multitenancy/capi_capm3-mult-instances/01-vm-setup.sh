@@ -178,6 +178,9 @@ cat <<EOF > node-1.xml
 			<source bridge='baremetal'/>
 			<model type='virtio'/>
 		</interface>
+		<serial type='pty'>
+			<log file="/var/log/libvirt/qemu/node-1-serial0.log" append="on"/>
+		</serial>
 		<console type='pty'/>
 		<input type='mouse' bus='ps2'/>
 		<graphics type='vnc' port='-1' autoport='yes'/>
@@ -224,6 +227,9 @@ cat <<EOF > node-2.xml
 			<source bridge='baremetal'/>
 			<model type='virtio'/>
 		</interface>
+		<serial type='pty'>
+			<log file="/var/log/libvirt/qemu/node-2-serial0.log" append="on"/>
+		</serial>
 		<console type='pty'/>
 		<input type='mouse' bus='ps2'/>
 		<graphics type='vnc' port='-1' autoport='yes'/>

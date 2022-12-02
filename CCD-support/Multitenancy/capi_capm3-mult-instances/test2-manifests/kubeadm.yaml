@@ -6460,7 +6460,6 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmcontrolplanes
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -6482,7 +6481,6 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmcontrolplanetemplates
-    scope: Namespaced
   sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -6515,7 +6513,6 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmcontrolplanes
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -6537,7 +6534,6 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmcontrolplanetemplates
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -6559,5 +6555,4 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmcontrolplanes/scale
-    scope: Namespaced
   sideEffects: None
