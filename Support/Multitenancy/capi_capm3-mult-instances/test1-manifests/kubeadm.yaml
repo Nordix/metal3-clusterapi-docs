@@ -4,13 +4,13 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: control-plane-kubeadm
     control-plane: controller-manager
-  name: capi-kubeadm-control-plane-system-test2
+  name: capi-kubeadm-control-plane-system
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-kubeadm-control-plane-system-test2/capi-kubeadm-control-plane-serving-cert
+    cert-manager.io/inject-ca-from: capi-kubeadm-control-plane-system/capi-kubeadm-control-plane-serving-cert
     controller-gen.kubebuilder.io/version: v0.9.1
   labels:
     cluster.x-k8s.io/provider: control-plane-kubeadm
@@ -26,7 +26,7 @@ spec:
         caBundle: Cg==
         service:
           name: capi-kubeadm-control-plane-webhook-service
-          namespace: capi-kubeadm-control-plane-system-test2
+          namespace: capi-kubeadm-control-plane-system
           path: /convert
       conversionReviewVersions:
       - v1
@@ -3771,7 +3771,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-kubeadm-control-plane-system-test2/capi-kubeadm-control-plane-serving-cert
+    cert-manager.io/inject-ca-from: capi-kubeadm-control-plane-system/capi-kubeadm-control-plane-serving-cert
     controller-gen.kubebuilder.io/version: v0.9.1
   labels:
     cluster.x-k8s.io/provider: control-plane-kubeadm
@@ -3787,7 +3787,7 @@ spec:
         caBundle: Cg==
         service:
           name: capi-kubeadm-control-plane-webhook-service
-          namespace: capi-kubeadm-control-plane-system-test2
+          namespace: capi-kubeadm-control-plane-system
           path: /convert
       conversionReviewVersions:
       - v1
@@ -6178,7 +6178,7 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: control-plane-kubeadm
   name: capi-kubeadm-control-plane-manager
-  namespace: capi-kubeadm-control-plane-system-test2
+  namespace: capi-kubeadm-control-plane-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -6186,7 +6186,7 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: control-plane-kubeadm
   name: capi-kubeadm-control-plane-leader-election-role
-  namespace: capi-kubeadm-control-plane-system-test2
+  namespace: capi-kubeadm-control-plane-system
 rules:
 - apiGroups:
   - ""
@@ -6213,7 +6213,7 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: control-plane-kubeadm
     kubeadm.controlplane.cluster.x-k8s.io/aggregate-to-manager: "true"
-  name: capi-kubeadm-control-plane-manager-role2
+  name: capi-kubeadm-control-plane-manager-role
 rules:
 - apiGroups:
   - apiextensions.k8s.io
@@ -6287,7 +6287,7 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: control-plane-kubeadm
   name: capi-kubeadm-control-plane-leader-election-rolebinding
-  namespace: capi-kubeadm-control-plane-system-test2
+  namespace: capi-kubeadm-control-plane-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -6295,22 +6295,22 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: capi-kubeadm-control-plane-manager
-  namespace: capi-kubeadm-control-plane-system-test2
+  namespace: capi-kubeadm-control-plane-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
     cluster.x-k8s.io/provider: control-plane-kubeadm
-  name: capi-kubeadm-control-plane-manager-rolebinding2
+  name: capi-kubeadm-control-plane-manager-rolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: capi-kubeadm-control-plane-manager-role2
+  name: capi-kubeadm-control-plane-manager-role
 subjects:
 - kind: ServiceAccount
   name: capi-kubeadm-control-plane-manager
-  namespace: capi-kubeadm-control-plane-system-test2
+  namespace: capi-kubeadm-control-plane-system
 ---
 apiVersion: v1
 kind: Service
@@ -6318,7 +6318,7 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: control-plane-kubeadm
   name: capi-kubeadm-control-plane-webhook-service
-  namespace: capi-kubeadm-control-plane-system-test2
+  namespace: capi-kubeadm-control-plane-system
 spec:
   ports:
   - port: 443
@@ -6333,7 +6333,7 @@ metadata:
     cluster.x-k8s.io/provider: control-plane-kubeadm
     control-plane: controller-manager
   name: capi-kubeadm-control-plane-controller-manager
-  namespace: capi-kubeadm-control-plane-system-test2
+  namespace: capi-kubeadm-control-plane-system
 spec:
   replicas: 1
   selector:
@@ -6348,7 +6348,7 @@ spec:
     spec:
       containers:
       - args:
-        - --namespace=test2
+        - --namespace=test1
         - --leader-elect
         - --metrics-bind-addr=localhost:8080
           #- --feature-gates=ClusterTopology=${CLUSTER_TOPOLOGY:=false},KubeadmBootstrapFormatIgnition=${EXP_KUBEADM_BOOTSTRAP_FORMAT_IGNITION:=false}
@@ -6407,11 +6407,11 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: control-plane-kubeadm
   name: capi-kubeadm-control-plane-serving-cert
-  namespace: capi-kubeadm-control-plane-system-test2
+  namespace: capi-kubeadm-control-plane-system
 spec:
   dnsNames:
-  - capi-kubeadm-control-plane-webhook-service.capi-kubeadm-control-plane-system-test2.svc
-  - capi-kubeadm-control-plane-webhook-service.capi-kubeadm-control-plane-system-test2.svc.cluster.local
+  - capi-kubeadm-control-plane-webhook-service.capi-kubeadm-control-plane-system.svc
+  - capi-kubeadm-control-plane-webhook-service.capi-kubeadm-control-plane-system.svc.cluster.local
   issuerRef:
     kind: Issuer
     name: capi-kubeadm-control-plane-selfsigned-issuer
@@ -6426,7 +6426,7 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: control-plane-kubeadm
   name: capi-kubeadm-control-plane-selfsigned-issuer
-  namespace: capi-kubeadm-control-plane-system-test2
+  namespace: capi-kubeadm-control-plane-system
 spec:
   selfSigned: {}
 ---
@@ -6434,7 +6434,7 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-kubeadm-control-plane-system-test2/capi-kubeadm-control-plane-serving-cert
+    cert-manager.io/inject-ca-from: capi-kubeadm-control-plane-system/capi-kubeadm-control-plane-serving-cert
   labels:
     cluster.x-k8s.io/provider: control-plane-kubeadm
   name: capi-kubeadm-control-plane-mutating-webhook-configuration
@@ -6445,7 +6445,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-kubeadm-control-plane-webhook-service
-      namespace: capi-kubeadm-control-plane-system-test2
+      namespace: capi-kubeadm-control-plane-system
       path: /mutate-controlplane-cluster-x-k8s-io-v1beta1-kubeadmcontrolplane
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -6460,7 +6460,6 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmcontrolplanes
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -6468,7 +6467,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-kubeadm-control-plane-webhook-service
-      namespace: capi-kubeadm-control-plane-system-test2
+      namespace: capi-kubeadm-control-plane-system
       path: /mutate-controlplane-cluster-x-k8s-io-v1beta1-kubeadmcontrolplanetemplate
   failurePolicy: Fail
   name: default.kubeadmcontrolplanetemplate.controlplane.cluster.x-k8s.io
@@ -6482,14 +6481,13 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmcontrolplanetemplates
-    scope: Namespaced
   sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-kubeadm-control-plane-system-test2/capi-kubeadm-control-plane-serving-cert
+    cert-manager.io/inject-ca-from: capi-kubeadm-control-plane-system/capi-kubeadm-control-plane-serving-cert
   labels:
     cluster.x-k8s.io/provider: control-plane-kubeadm
   name: capi-kubeadm-control-plane-validating-webhook-configuration
@@ -6500,7 +6498,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-kubeadm-control-plane-webhook-service
-      namespace: capi-kubeadm-control-plane-system-test2
+      namespace: capi-kubeadm-control-plane-system
       path: /validate-controlplane-cluster-x-k8s-io-v1beta1-kubeadmcontrolplane
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -6515,7 +6513,6 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmcontrolplanes
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -6523,7 +6520,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-kubeadm-control-plane-webhook-service
-      namespace: capi-kubeadm-control-plane-system-test2
+      namespace: capi-kubeadm-control-plane-system
       path: /validate-controlplane-cluster-x-k8s-io-v1beta1-kubeadmcontrolplanetemplate
   failurePolicy: Fail
   name: validation.kubeadmcontrolplanetemplate.controlplane.cluster.x-k8s.io
@@ -6537,7 +6534,6 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmcontrolplanetemplates
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -6545,7 +6541,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-kubeadm-control-plane-webhook-service
-      namespace: capi-kubeadm-control-plane-system-test2
+      namespace: capi-kubeadm-control-plane-system
       path: /validate-scale-controlplane-cluster-x-k8s-io-v1beta1-kubeadmcontrolplane
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -6559,5 +6555,4 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmcontrolplanes/scale
-    scope: Namespaced
   sideEffects: None

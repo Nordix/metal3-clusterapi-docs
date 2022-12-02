@@ -26,21 +26,24 @@ curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.1.5/
 chmod +x ./clusterctl
 sudo mv ./clusterctl /usr/local/bin/clusterctl
 
+# Init the cluster
 # Download node images
 sudo ./dowanload-node-image.sh
-kubectl apply -f test1-manifests/capm3.yaml
-kubectl apply -f test1-manifests/capi.yaml
-kubectl apply -f test1-manifests/kubeadm.yaml
-kubectl apply -f test1-manifests/kubeadm-bootstrap.yaml
+kubectl apply -f cluster-manifests/capi.yaml
+kubectl apply -f cluster-manifests/kubeadm.yaml
+kubectl apply -f cluster-manifests/kubeadm-bootstrap.yaml
+kubectl apply -f test1-manifests/capm3-test1-v1.2.yaml
+kubectl apply -f test1-manifests/ipam-test1-v1.2.yaml
+kubectl apply -f test1-manifests/secret.yaml
 
-kubectl apply -f test2-manifests/capi.yaml
-kubectl apply -f test2-manifests/kubeadm.yaml
-kubectl apply -f test2-manifests/kubeadm-bootstrap.yaml
-kubectl apply -f test2-manifests/capm3.yaml
-sleep 91
+kubectl apply -f test2-manifests/capm3-test2-v1.2.yaml
+kubectl apply -f test2-manifests/ipam-test2-v1.2.yaml
+kubectl apply -f test2-manifests/secret.yaml
+
+sleep 90
 kubectl apply -f test1-manifests/cluster-template.yaml
 kubectl apply -f test1-manifests/controlplane-template.yaml
-kubectl apply -f test2-manifests/cluster-template.yaml
-kubectl apply -f test2-manifests/controlplane-template.yaml
+kubectl apply -f v1a4/cluster-template.yaml
+kubectl apply -f v1a4/controlplane-template.yaml
 
 

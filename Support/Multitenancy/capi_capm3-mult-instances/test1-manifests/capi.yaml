@@ -4,13 +4,13 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: cluster-api
     control-plane: controller-manager
-  name: capi-system-test2
+  name: capi-system
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-system-test2/capi-serving-cert
+    cert-manager.io/inject-ca-from: capi-system/capi-serving-cert
     controller-gen.kubebuilder.io/version: v0.9.1
   labels:
     cluster.x-k8s.io/provider: cluster-api
@@ -23,7 +23,7 @@ spec:
         caBundle: Cg==
         service:
           name: capi-webhook-service
-          namespace: capi-system-test2
+          namespace: capi-system
           path: /convert
       conversionReviewVersions:
       - v1
@@ -1277,7 +1277,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-system-test2/capi-serving-cert
+    cert-manager.io/inject-ca-from: capi-system/capi-serving-cert
     controller-gen.kubebuilder.io/version: v0.9.1
   labels:
     cluster.x-k8s.io/provider: cluster-api
@@ -1290,7 +1290,7 @@ spec:
         caBundle: Cg==
         service:
           name: capi-webhook-service
-          namespace: capi-system-test2
+          namespace: capi-system
           path: /convert
       conversionReviewVersions:
       - v1
@@ -1569,7 +1569,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-system-test2/capi-serving-cert
+    cert-manager.io/inject-ca-from: capi-system/capi-serving-cert
     controller-gen.kubebuilder.io/version: v0.9.1
   labels:
     cluster.x-k8s.io/provider: cluster-api
@@ -1582,7 +1582,7 @@ spec:
         caBundle: Cg==
         service:
           name: capi-webhook-service
-          namespace: capi-system-test2
+          namespace: capi-system
           path: /convert
       conversionReviewVersions:
       - v1
@@ -2086,7 +2086,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-system-test2/capi-serving-cert
+    cert-manager.io/inject-ca-from: capi-system/capi-serving-cert
     controller-gen.kubebuilder.io/version: v0.9.1
   labels:
     cluster.x-k8s.io/provider: cluster-api
@@ -2099,7 +2099,7 @@ spec:
         caBundle: Cg==
         service:
           name: capi-webhook-service
-          namespace: capi-system-test2
+          namespace: capi-system
           path: /convert
       conversionReviewVersions:
       - v1
@@ -3737,7 +3737,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-system-test2/capi-serving-cert
+    cert-manager.io/inject-ca-from: capi-system/capi-serving-cert
     controller-gen.kubebuilder.io/version: v0.9.1
   labels:
     cluster.x-k8s.io/provider: cluster-api
@@ -3750,7 +3750,7 @@ spec:
         caBundle: Cg==
         service:
           name: capi-webhook-service
-          namespace: capi-system-test2
+          namespace: capi-system
           path: /convert
       conversionReviewVersions:
       - v1
@@ -5201,7 +5201,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-system-test2/capi-serving-cert
+    cert-manager.io/inject-ca-from: capi-system/capi-serving-cert
     controller-gen.kubebuilder.io/version: v0.9.1
   labels:
     cluster.x-k8s.io/provider: cluster-api
@@ -5214,7 +5214,7 @@ spec:
         caBundle: Cg==
         service:
           name: capi-webhook-service
-          namespace: capi-system-test2
+          namespace: capi-system
           path: /convert
       conversionReviewVersions:
       - v1
@@ -6032,7 +6032,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-system-test2/capi-serving-cert
+    cert-manager.io/inject-ca-from: capi-system/capi-serving-cert
     controller-gen.kubebuilder.io/version: v0.9.1
   labels:
     cluster.x-k8s.io/provider: cluster-api
@@ -6045,7 +6045,7 @@ spec:
         caBundle: Cg==
         service:
           name: capi-webhook-service
-          namespace: capi-system-test2
+          namespace: capi-system
           path: /convert
       conversionReviewVersions:
       - v1
@@ -7443,7 +7443,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-system-test2/capi-serving-cert
+    cert-manager.io/inject-ca-from: capi-system/capi-serving-cert
     controller-gen.kubebuilder.io/version: v0.9.1
   labels:
     cluster.x-k8s.io/provider: cluster-api
@@ -7456,7 +7456,7 @@ spec:
         caBundle: Cg==
         service:
           name: capi-webhook-service
-          namespace: capi-system-test2
+          namespace: capi-system
           path: /convert
       conversionReviewVersions:
       - v1
@@ -8604,7 +8604,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-system-test2/capi-serving-cert
+    cert-manager.io/inject-ca-from: capi-system/capi-serving-cert
     controller-gen.kubebuilder.io/version: v0.9.1
   labels:
     cluster.x-k8s.io/provider: cluster-api
@@ -8617,7 +8617,7 @@ spec:
         caBundle: Cg==
         service:
           name: capi-webhook-service
-          namespace: capi-system-test2
+          namespace: capi-system
           path: /convert
       conversionReviewVersions:
       - v1
@@ -9884,7 +9884,7 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: cluster-api
   name: capi-manager
-  namespace: capi-system-test2
+  namespace: capi-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -9892,7 +9892,7 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: cluster-api
   name: capi-leader-election-role
-  namespace: capi-system-test2
+  namespace: capi-system
 rules:
 - apiGroups:
   - ""
@@ -9919,7 +9919,7 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: cluster-api
   name: capi-manager-role1
-  namespace: test2
+  namespace: test1
 rules:
 - apiGroups:
   - addons.cluster.x-k8s.io
@@ -10198,7 +10198,7 @@ metadata:
   labels:
     cluster.x-k8s.io/aggregate-to-manager: "true"
     cluster.x-k8s.io/provider: cluster-api
-  name: capi-manager-role2
+  name: capi-manager-role
 rules:
 - apiGroups:
   - ""
@@ -10242,7 +10242,7 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: cluster-api
   name: capi-leader-election-rolebinding
-  namespace: capi-system-test2
+  namespace: capi-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -10250,22 +10250,22 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: capi-manager
-  namespace: capi-system-test2
+  namespace: capi-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
     cluster.x-k8s.io/provider: cluster-api
-  name: capi-manager-rolebinding2
+  name: capi-manager-rolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: capi-manager-role2
+  name: capi-manager-role
 subjects:
 - kind: ServiceAccount
   name: capi-manager
-  namespace: capi-system-test2
+  namespace: capi-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -10273,7 +10273,7 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: cluster-api
   name: capi-manager-rolebinding
-  namespace: test2
+  namespace: test1
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -10281,7 +10281,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: capi-manager
-  namespace: capi-system-test2
+  namespace: capi-system
 ---
 apiVersion: v1
 kind: Service
@@ -10289,7 +10289,7 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: cluster-api
   name: capi-webhook-service
-  namespace: capi-system-test2
+  namespace: capi-system
 spec:
   ports:
   - port: 443
@@ -10304,7 +10304,7 @@ metadata:
     cluster.x-k8s.io/provider: cluster-api
     control-plane: controller-manager
   name: capi-controller-manager
-  namespace: capi-system-test2
+  namespace: capi-system
 spec:
   replicas: 1
   selector:
@@ -10319,7 +10319,7 @@ spec:
     spec:
       containers:
       - args:
-        - --namespace=test2
+        - --namespace=test1
         - --leader-elect
         - --metrics-bind-addr=localhost:8080
           #- --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},ClusterResourceSet=${EXP_CLUSTER_RESOURCE_SET:=false},ClusterTopology=${CLUSTER_TOPOLOGY:=false},RuntimeSDK=${EXP_RUNTIME_SDK:=false}
@@ -10378,11 +10378,11 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: cluster-api
   name: capi-serving-cert
-  namespace: capi-system-test2
+  namespace: capi-system
 spec:
   dnsNames:
-  - capi-webhook-service.capi-system-test2.svc
-  - capi-webhook-service.capi-system-test2.svc.cluster.local
+  - capi-webhook-service.capi-system.svc
+  - capi-webhook-service.capi-system.svc.cluster.local
   issuerRef:
     kind: Issuer
     name: capi-selfsigned-issuer
@@ -10397,7 +10397,7 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: cluster-api
   name: capi-selfsigned-issuer
-  namespace: capi-system-test2
+  namespace: capi-system
 spec:
   selfSigned: {}
 ---
@@ -10405,7 +10405,7 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-system-test2/capi-serving-cert
+    cert-manager.io/inject-ca-from: capi-system/capi-serving-cert
   labels:
     cluster.x-k8s.io/provider: cluster-api
   name: capi-mutating-webhook-configuration
@@ -10416,7 +10416,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /mutate-cluster-x-k8s-io-v1beta1-machine
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10431,7 +10431,6 @@ webhooks:
     - UPDATE
     resources:
     - machines
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10439,7 +10438,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /mutate-cluster-x-k8s-io-v1beta1-machinedeployment
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10454,7 +10453,6 @@ webhooks:
     - UPDATE
     resources:
     - machinedeployments
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10462,7 +10460,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /mutate-cluster-x-k8s-io-v1beta1-machinehealthcheck
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10477,7 +10475,6 @@ webhooks:
     - UPDATE
     resources:
     - machinehealthchecks
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10485,7 +10482,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /mutate-cluster-x-k8s-io-v1beta1-machineset
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10500,7 +10497,6 @@ webhooks:
     - UPDATE
     resources:
     - machinesets
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10508,7 +10504,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /mutate-cluster-x-k8s-io-v1beta1-cluster
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10523,7 +10519,6 @@ webhooks:
     - UPDATE
     resources:
     - clusters
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10531,7 +10526,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /mutate-cluster-x-k8s-io-v1beta1-clusterclass
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10546,7 +10541,6 @@ webhooks:
     - UPDATE
     resources:
     - clusterclasses
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10554,7 +10548,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /mutate-runtime-cluster-x-k8s-io-v1alpha1-extensionconfig
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10569,7 +10563,6 @@ webhooks:
     - UPDATE
     resources:
     - extensionconfigs
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10577,7 +10570,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /mutate-cluster-x-k8s-io-v1beta1-machinepool
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10592,7 +10585,6 @@ webhooks:
     - UPDATE
     resources:
     - machinepools
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10600,7 +10592,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /mutate-addons-cluster-x-k8s-io-v1beta1-clusterresourceset
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10615,14 +10607,13 @@ webhooks:
     - UPDATE
     resources:
     - clusterresourcesets
-    scope: Namespaced
   sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: capi-system-test2/capi-serving-cert
+    cert-manager.io/inject-ca-from: capi-system/capi-serving-cert
   labels:
     cluster.x-k8s.io/provider: cluster-api
   name: capi-validating-webhook-configuration
@@ -10633,7 +10624,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /validate-cluster-x-k8s-io-v1beta1-machine
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10648,7 +10639,6 @@ webhooks:
     - UPDATE
     resources:
     - machines
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10656,7 +10646,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /validate-cluster-x-k8s-io-v1beta1-machinedeployment
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10671,7 +10661,6 @@ webhooks:
     - UPDATE
     resources:
     - machinedeployments
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10679,7 +10668,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /validate-cluster-x-k8s-io-v1beta1-machinehealthcheck
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10694,7 +10683,6 @@ webhooks:
     - UPDATE
     resources:
     - machinehealthchecks
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10702,7 +10690,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /validate-cluster-x-k8s-io-v1beta1-machineset
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10717,7 +10705,6 @@ webhooks:
     - UPDATE
     resources:
     - machinesets
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10725,7 +10712,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /validate-cluster-x-k8s-io-v1beta1-cluster
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10741,7 +10728,6 @@ webhooks:
     - DELETE
     resources:
     - clusters
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10749,7 +10735,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /validate-cluster-x-k8s-io-v1beta1-clusterclass
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10765,7 +10751,6 @@ webhooks:
     - DELETE
     resources:
     - clusterclasses
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10773,7 +10758,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /validate-runtime-cluster-x-k8s-io-v1alpha1-extensionconfig
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10788,7 +10773,6 @@ webhooks:
     - UPDATE
     resources:
     - extensionconfigs
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10796,7 +10780,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /validate-cluster-x-k8s-io-v1beta1-machinepool
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10811,7 +10795,6 @@ webhooks:
     - UPDATE
     resources:
     - machinepools
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10819,7 +10802,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /validate-addons-cluster-x-k8s-io-v1beta1-clusterresourceset
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10834,7 +10817,6 @@ webhooks:
     - UPDATE
     resources:
     - clusterresourcesets
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10842,7 +10824,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /validate-ipam-cluster-x-k8s-io-v1alpha1-ipaddress
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10858,7 +10840,6 @@ webhooks:
     - DELETE
     resources:
     - ipaddresses
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -10866,7 +10847,7 @@ webhooks:
   clientConfig:
     service:
       name: capi-webhook-service
-      namespace: capi-system-test2
+      namespace: capi-system
       path: /validate-ipam-cluster-x-k8s-io-v1alpha1-ipaddressclaim
   failurePolicy: Fail
   matchPolicy: Equivalent
@@ -10882,5 +10863,4 @@ webhooks:
     - DELETE
     resources:
     - ipaddressclaims
-    scope: Namespaced
   sideEffects: None

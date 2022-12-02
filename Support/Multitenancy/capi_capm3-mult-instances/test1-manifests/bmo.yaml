@@ -2342,7 +2342,6 @@ webhooks:
     - UPDATE
     resources:
     - baremetalhosts
-    scope: "Namespaced"
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -2364,5 +2363,4 @@ webhooks:
     - UPDATE
     resources:
     - bmceventsubscriptions
-    scope: "Namespaced"
   sideEffects: None

@@ -6454,7 +6454,6 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmconfigs
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -6476,7 +6475,6 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmconfigtemplates
-    scope: Namespaced
   sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -6509,7 +6507,6 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmconfigs
-    scope: Namespaced
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -6532,5 +6529,4 @@ webhooks:
     - UPDATE
     resources:
     - kubeadmconfigtemplates
-    scope: Namespaced
   sideEffects: None
