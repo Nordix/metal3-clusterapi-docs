@@ -6,5 +6,5 @@ The purpose of this repo is to centralize technical studies related to cluster-a
 
 ## Checks
 
-Markdownlint via `hacks/markdownlint.sh` will check the validity of markdown
+Markdownlint via `./hack/markdownlint.sh` will check the validity of markdown
 markup.
