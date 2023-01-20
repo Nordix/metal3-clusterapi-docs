@@ -27,8 +27,12 @@ sudo mv ./clusterctl /usr/local/bin/clusterctl
 
 # Init the cluster
 clusterctl init --core cluster-api:v1.1.5 --bootstrap kubeadm:v1.1.5 --control-plane kubeadm:v1.1.5 --infrastructure=metal3:v1.1.2  -v5
+
+# Download the node image
+sudo ./dowanload-node-image.sh
+
 # Apply clusters template
-sleep 30
+sleep 90
 kubectl apply -f test1-manifests/cluster-template.yaml -n test1
 kubectl apply -f test2-manifests/cluster-template.yaml -n test2
 kubectl apply -f test1-manifests/controlplane-template.yaml -n test1

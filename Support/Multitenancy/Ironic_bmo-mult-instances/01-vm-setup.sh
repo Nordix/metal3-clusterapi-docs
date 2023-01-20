@@ -86,10 +86,61 @@ virsh net-start provisioning-2
 virsh net-autostart provisioning-2
 
 yum install -y net-tools
-echo -e "DEVICE=provisioning-1\nTYPE=Bridge\nONBOOT=yes\nBOOTPROTO=static\nIPADDR=172.22.0.1\nNETMASK=255.255.255.0" | sudo dd of=/etc/sysconfig/network-scripts/ifcfg-provisioning-1
-echo -e "DEVICE=provisioning-2\nTYPE=Bridge\nONBOOT=yes\nBOOTPROTO=static\nIPADDR=172.23.0.1\nNETMASK=255.255.255.0" | sudo dd of=/etc/sysconfig/network-scripts/ifcfg-provisioning-2
-echo -e "DEVICE=baremetal\nTYPE=Bridge\nONBOOT=yes\n" | sudo dd of=/etc/sysconfig/network-scripts/ifcfg-baremetal
-systemctl restart NetworkManager.service
+tee -a /etc/NetworkManager/system-connections/provisioning-1.nmconnection <<EOF
+[connection]
+id=provisioning-1
+type=bridge
+interface-name=provisioning-1
+[bridge]
+stp=false
+[ipv4]
+address1=172.22.0.1/24
+method=manual
+[ipv6]
+addr-gen-mode=eui64
+method=disabled
+EOF
+
+chmod 600 /etc/NetworkManager/system-connections/provisioning-1.nmconnection
+nmcli con load /etc/NetworkManager/system-connections/provisioning-1.nmconnection
+nmcli con up provisioning-1
+
+tee -a /etc/NetworkManager/system-connections/provisioning-2.nmconnection <<EOF
+[connection]
+id=provisioning-2
+type=bridge
+interface-name=provisioning-2
+[bridge]
+stp=false
+[ipv4]
+address1=172.23.0.1/24
+method=manual
+[ipv6]
+addr-gen-mode=eui64
+method=disabled
+EOF
+
+chmod 600 /etc/NetworkManager/system-connections/provisioning-2.nmconnection
+nmcli con load /etc/NetworkManager/system-connections/provisioning-2.nmconnection
+nmcli con up provisioning-2
+
+tee /etc/NetworkManager/system-connections/baremetal.nmconnection <<EOF
+[connection]
+id=baremetal
+type=bridge
+interface-name=baremetal
+autoconnect=true
+[bridge]
+stp=false
+[ipv6]
+addr-gen-mode=stable-privacy
+method=ignore
+EOF
+
+chmod 600 /etc/NetworkManager/system-connections/baremetal.nmconnection
+nmcli con load /etc/NetworkManager/system-connections/baremetal.nmconnection
+nmcli con up baremetal
+
 cat <<EOF > node-1.xml
 <domain type='kvm'>
 	<name>node-1</name>
@@ -97,7 +148,6 @@ cat <<EOF > node-1.xml
 	<vcpu>2</vcpu>
 	<os>
 		<type arch='x86_64' machine='q35'>hvm</type>
-		<nvram>/var/lib/libvirt/qemu/nvram/node-1.fd</nvram>
 		<boot dev='network'/>
 		<bootmenu enable='no'/>
 	</os>
@@ -128,6 +178,9 @@ cat <<EOF > node-1.xml
 			<source bridge='baremetal'/>
 			<model type='virtio'/>
 		</interface>
+		<serial type='pty'>
+			<log file="/var/log/libvirt/qemu/node-1-serial0.log" append="on"/>
+		</serial>
 		<console type='pty'/>
 		<input type='mouse' bus='ps2'/>
 		<graphics type='vnc' port='-1' autoport='yes'/>
@@ -144,7 +197,6 @@ cat <<EOF > node-2.xml
 	<vcpu>2</vcpu>
 	<os>
 		<type arch='x86_64' machine='q35'>hvm</type>
-		<nvram>/var/lib/libvirt/qemu/nvram/node-2.fd</nvram>
 		<boot dev='network'/>
 		<bootmenu enable='no'/>
 	</os>
@@ -175,6 +227,9 @@ cat <<EOF > node-2.xml
 			<source bridge='baremetal'/>
 			<model type='virtio'/>
 		</interface>
+		<serial type='pty'>
+			<log file="/var/log/libvirt/qemu/node-2-serial0.log" append="on"/>
+		</serial>
 		<console type='pty'/>
 		<input type='mouse' bus='ps2'/>
 		<graphics type='vnc' port='-1' autoport='yes'/>
