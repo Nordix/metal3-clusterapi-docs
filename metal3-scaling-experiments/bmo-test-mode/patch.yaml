@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: baremetal-operator-controller-manager
+spec:
+  template:
+    spec:
+      containers:
+      - name: manager
+        args:
+        # Adding --test-mode (the other args are copied from upstream since they would otherwise be overwritten)
+        - "--metrics-addr=127.0.0.1:8085"
+        - "--enable-leader-election"
+        - --test-mode

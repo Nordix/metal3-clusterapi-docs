@@ -1,0 +1,11 @@
+# This kustomization is for running BMO in test-mode
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: baremetal-operator-system
+patches:
+- path: patch.yaml
+  target:
+    kind: Deployment
+    name: controller-manager
+resources:
+- https://github.com/metal3-io/baremetal-operator/config/default

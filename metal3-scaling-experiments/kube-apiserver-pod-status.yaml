@@ -1,0 +1,37 @@
+status:
+  conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2023-01-23T07:16:29Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2023-01-23T07:17:05Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2023-01-23T07:17:05Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2023-01-23T07:16:29Z"
+      status: "True"
+      type: PodScheduled
+  containerStatuses:
+    - containerID: containerd://4955ca169220703b9a063821412bf7b4675a8f8da36f0e8ce6fc35b53de4060c
+      image: registry.k8s.io/kube-apiserver:v1.25.3
+      imageID: docker.io/library/import-2022-10-25@sha256:4002c19dafb94b1995fc598fae590f70cac10135f61ca2551bd97aae37ed9c4a
+      lastState: {}
+      name: kube-apiserver
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2023-01-23T07:16:16Z"
+  hostIP: 172.18.0.4
+  phase: Running
+  podIP: 172.18.0.4
+  podIPs:
+    - ip: 172.18.0.4
+  qosClass: Burstable
+  startTime: "2023-01-23T07:16:29Z"
