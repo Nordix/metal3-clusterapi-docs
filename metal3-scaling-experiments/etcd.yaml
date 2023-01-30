@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd-server
+  labels:
+    app: etcd
+spec:
+  ports:
+    - port: 2379
+      name: client
+  selector:
+    app: etcd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd
+  labels:
+    app: etcd
+spec:
+  ports:
+    - port: 2379
+      name: client
+    - port: 2380
+      name: peer
+  clusterIP: None
+  selector:
+    app: etcd
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: etcd
+  name: etcd
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  selector:
+    matchLabels:
+      app: etcd
+  serviceName: etcd
+  template:
+    metadata:
+      labels:
+        app: etcd
+      name: etcd
+    spec:
+      containers:
+        - command:
+            - etcd
+            - --data-dir=/var/run/etcd
+            - --name=$(POD_NAME)
+            - --initial-cluster-state=new
+            - --initial-cluster=etcd-0=https://etcd-0.etcd.$(POD_NAMESPACE).svc.cluster.local:2380
+            - --initial-advertise-peer-urls=https://$(POD_NAME).etcd.$(POD_NAMESPACE).svc.cluster.local:2380
+            - --initial-cluster-token=etcd-cluster
+            - --listen-client-urls=https://0.0.0.0:2379
+            - --advertise-client-urls=https://etcd-0.etcd.$(POD_NAMESPACE).svc.cluster.local:2379,https://etcd-server.$(POD_NAMESPACE).svc.cluster.local:2379
+            - --client-cert-auth=true
+            - --trusted-ca-file=/etc/kubernetes/pki/ca/tls.crt
+            - --cert-file=/etc/kubernetes/pki/etcd/tls.crt
+            - --key-file=/etc/kubernetes/pki/etcd/tls.key
+            - --listen-peer-urls=https://0.0.0.0:2380
+            - --peer-client-cert-auth=true
+            - --peer-trusted-ca-file=/etc/kubernetes/pki/ca/tls.crt
+            - --peer-cert-file=/etc/kubernetes/pki/etcd-peer/tls.crt
+            - --peer-key-file=/etc/kubernetes/pki/etcd-peer/tls.key
+            - --snapshot-count=8000
+            - --auto-compaction-mode=periodic
+            - --auto-compaction-retention=5m
+            - --quota-backend-bytes=8589934592
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+          image: registry.k8s.io/etcd:3.5.4-0
+          imagePullPolicy: IfNotPresent
+          name: etcd
+          ports:
+            - containerPort: 2379
+              name: client
+              protocol: TCP
+            - containerPort: 2380
+              name: peer
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            # - mountPath: /var/run/etcd
+            #   name: data
+            - mountPath: /etc/kubernetes/pki/etcd
+              name: etcd-certs
+              readOnly: true
+            - mountPath: /etc/kubernetes/pki/ca/tls.crt
+              name: ca
+              subPath: tls.crt
+              readOnly: true
+            - mountPath: /etc/kubernetes/pki/etcd-peer
+              name: etcd-peer
+              readOnly: true
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: etcd-certs
+          secret:
+            secretName: etcd-server
+        - name: ca
+          secret:
+            secretName: test-etcd
+        - name: etcd-peer
+          secret:
+            secretName: etcd-peer
