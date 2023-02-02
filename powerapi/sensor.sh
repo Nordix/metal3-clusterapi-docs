@@ -7,8 +7,8 @@ docker run --rm --net=host --privileged --pid=host \
 -v /sys:/sys \
 -v /var/lib/docker/containers:/var/lib/docker/containers:ro \
 -v /tmp/powerapi-sensor-reporting:/reporting \
--v $(pwd):/srv \
--v $(pwd)/config_file_sensor.json:/config_file_sensor.json \
+-v "${PWD}":/srv \
+-v "${PWD}"/config_file_sensor.json:/config_file_sensor.json \
 powerapi/hwpc-sensor \
 --config-file /config_file_sensor.json
 

@@ -1,7 +1,7 @@
 set -e
 minikube config set driver kvm2
 minikube config set memory 4096
-sudo usermod --append --groups libvirt `whoami`
+sudo usermod --append --groups libvirt "${USER}"
 while /bin/true; do
   minikube_error=0
   minikube start  --insecure-registry 172.22.0.1:5000 || minikube_error=1
