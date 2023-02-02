@@ -27,6 +27,7 @@ sudo rm -rf  /opt/mypool
 #sudo rm -rf /opt/metal3-dev-env
 sudo rm -rf /opt/metal3-dev-env/ironic/virtualbmc/
 sudo podman stop -a
+# shellcheck disable=SC2046
 sudo podman rmi $(sudo podman images -qa) -f
 
 minikube stop

@@ -83,7 +83,7 @@ cat <<'EOF' > /opt/metal3-dev-env/ironic/virtualbmc/sushy-tools/htpasswd
 admin:$2b$12$/dVOBNatORwKpF.ss99KB.vESjfyONOxyH.UgRwNyZi1Xs/W2pGVS
 EOF
 echo -e 'y/n' | ssh-keygen -f /root/.ssh/id_rsa_virt_power -P ""
-cat /root/.ssh/id_rsa_virt_power.pub | tee -a /root/.ssh/authorized_keys
+cat /root/.ssh/id_rsa_virt_power.pub >> /root/.ssh/authorized_keys
 podman run -d --net host --name vbmc --pod infra-pod      -v /opt/metal3-dev-env/ironic/virtualbmc/vbmc:/root/.vbmc -v "/root/.ssh":/root/ssh      127.0.0.1:5000/localimages/vbmc
 podman run -d --net host --name sushy-tools --pod infra-pod      -v /opt/metal3-dev-env/ironic/virtualbmc/sushy-tools:/root/sushy -v "/root/.ssh":/root/ssh      127.0.0.1:5000/localimages/sushy-tools
 # Add vbmc client
