@@ -1,0 +1,78 @@
+diff --git a/bootstrap/kubeadm/config/manager/manager.yaml b/bootstrap/kubeadm/config/manager/manager.yaml
+index d54386179..a3a5ea576 100644
+--- a/bootstrap/kubeadm/config/manager/manager.yaml
++++ b/bootstrap/kubeadm/config/manager/manager.yaml
+@@ -23,6 +23,7 @@ spec:
+             - "--metrics-bind-addr=localhost:8080"
+             - "--feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},KubeadmBootstrapFormatIgnition=${EXP_KUBEADM_BOOTSTRAP_FORMAT_IGNITION:=false}"
+             - "--bootstrap-token-ttl=${KUBEADM_BOOTSTRAP_TOKEN_TTL:=15m}"
++            - "--kubeadmconfig-concurrency=100"
+           image: controller:latest
+           name: manager
+           ports:
+diff --git a/bootstrap/kubeadm/main.go b/bootstrap/kubeadm/main.go
+index f8e73fa12..13e86734b 100644
+--- a/bootstrap/kubeadm/main.go
++++ b/bootstrap/kubeadm/main.go
+@@ -167,6 +167,8 @@ func main() {
+ 	}
+
+ 	restConfig := ctrl.GetConfigOrDie()
++	restConfig.QPS = 200
++	restConfig.Burst = 300
+ 	restConfig.UserAgent = remote.DefaultClusterAPIUserAgent("cluster-api-kubeadm-bootstrap-manager")
+
+ 	tlsOptionOverrides, err := flags.GetTLSOptionOverrideFuncs(tlsOptions)
+diff --git a/config/manager/manager.yaml b/config/manager/manager.yaml
+index 5ac9b3967..c63855bf1 100644
+--- a/config/manager/manager.yaml
++++ b/config/manager/manager.yaml
+@@ -23,6 +23,10 @@ spec:
+             - "--leader-elect"
+             - "--metrics-bind-addr=localhost:8080"
+             - "--feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},ClusterResourceSet=${EXP_CLUSTER_RESOURCE_SET:=false},ClusterTopology=${CLUSTER_TOPOLOGY:=false},RuntimeSDK=${EXP_RUNTIME_SDK:=false}"
++            - "--cluster-concurrency=100"
++            - "--machine-concurrency=100"
++            - "--machineset-concurrency=100"
++            - "--machinedeployment-concurrency=100"
+           image: controller:latest
+           name: manager
+           env:
+diff --git a/controlplane/kubeadm/config/manager/manager.yaml b/controlplane/kubeadm/config/manager/manager.yaml
+index 34e85f86e..5d539c533 100644
+--- a/controlplane/kubeadm/config/manager/manager.yaml
++++ b/controlplane/kubeadm/config/manager/manager.yaml
+@@ -22,6 +22,7 @@ spec:
+             - "--leader-elect"
+             - "--metrics-bind-addr=localhost:8080"
+             - "--feature-gates=ClusterTopology=${CLUSTER_TOPOLOGY:=false},KubeadmBootstrapFormatIgnition=${EXP_KUBEADM_BOOTSTRAP_FORMAT_IGNITION:=false}"
++            - "--kubeadmcontrolplane-concurrency=100"
+           image: controller:latest
+           name: manager
+           env:
+diff --git a/controlplane/kubeadm/main.go b/controlplane/kubeadm/main.go
+index bc41b82db..675ec1a75 100644
+--- a/controlplane/kubeadm/main.go
++++ b/controlplane/kubeadm/main.go
+@@ -176,6 +176,8 @@ func main() {
+ 	}
+
+ 	restConfig := ctrl.GetConfigOrDie()
++	restConfig.QPS = 200
++	restConfig.Burst = 300
+ 	restConfig.UserAgent = remote.DefaultClusterAPIUserAgent("cluster-api-kubeadm-control-plane-manager")
+
+ 	tlsOptionOverrides, err := flags.GetTLSOptionOverrideFuncs(tlsOptions)
+diff --git a/main.go b/main.go
+index cb53d83bc..d836ec8a1 100644
+--- a/main.go
++++ b/main.go
+@@ -231,6 +231,8 @@ func main() {
+ 	}
+
+ 	restConfig := ctrl.GetConfigOrDie()
++	restConfig.QPS = 200
++	restConfig.Burst = 300
+ 	restConfig.UserAgent = remote.DefaultClusterAPIUserAgent("cluster-api-controller-manager")
+
+ 	minVer := version.MinimumKubernetesVersion

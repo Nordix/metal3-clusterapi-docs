@@ -135,7 +135,7 @@ STEP="10"
 for (( cluster = 1; cluster <= NUM; ++cluster )); do
   create_cluster "test-${cluster}" &
   if (( cluster % STEP == 0 )); then
-    echo "Waiting for ${cluster} clusters to be created in the background."
+    echo "Waiting for ${STEP} clusters to be created in the background."
     wait
   fi
 done
