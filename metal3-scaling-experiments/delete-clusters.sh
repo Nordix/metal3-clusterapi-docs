@@ -18,7 +18,7 @@ STEP="10"
 for (( cluster = 1; cluster <= NUM; ++cluster )); do
   delete_cluster "test-${cluster}" &
   if (( cluster % STEP == 0 )); then
-    echo "Waiting for ${cluster} clusters to be deleted in the background."
+    echo "Waiting for ${STEP} clusters to be deleted in the background."
     wait
   fi
 done

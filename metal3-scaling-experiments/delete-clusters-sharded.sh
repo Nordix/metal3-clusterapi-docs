@@ -23,7 +23,7 @@ for (( shard = 1; shard <= SHARDS; ++shard )); do
   for (( cluster = 1; cluster <= NUM; ++cluster )); do
     delete_cluster "test-${cluster}" "${namespace}" &
     if (( cluster % STEP == 0 )); then
-      echo "Waiting for ${cluster} clusters to be created in the background."
+      echo "Waiting for ${STEP} clusters to be created in the background."
       wait
     fi
   done

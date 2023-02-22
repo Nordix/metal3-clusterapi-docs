@@ -1,0 +1,114 @@
+- name: Update packages
+  become: true
+  apt:
+    name: "*"
+    update_cache: true
+
+- name: Add Docker apt key.
+  become: true
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/trusted.gpg.d/docker.asc
+    mode: '0644'
+
+- name: Add Docker Repository
+  become: true
+  apt_repository:
+    repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+  register: docker_repository
+
+- name: Install docker
+  become: true
+  apt:
+    name:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    update_cache: "{{ docker_repository is changed | bool }}"
+
+- name: Adding user to docker group
+  become: true
+  user:
+    name: "{{ ansible_user_id }}"
+    groups: docker
+    append: true
+  register: docker_group
+
+- name: Reboot if groups changed
+  become: true
+  ansible.builtin.reboot:
+  when: docker_group is changed
+
+- name: Find latest version of kind
+  when: kind_version is not defined
+  uri:
+    url: https://api.github.com/repos/kubernetes-sigs/kind/releases/latest
+    return_content: true
+  register: latest_release
+
+- name: Set kind version
+  when: kind_version is not defined
+  set_fact:
+    kind_version: "{{ (latest_release.content | from_json).tag_name }}"
+
+- name: Check current kind version
+  command: kind version
+  register: kind_output
+  ignore_errors: true
+  changed_when: false
+
+- name: Set current kind version
+  when: kind_output is succeeded
+  set_fact:
+    current_kind_version: "{{ kind_output.stdout_lines[0] | regex_search('v([0-9]+\\.){2}[0-9]+') }}"
+
+- name: Download kind
+  when: current_kind_version | default('none') != kind_version
+  become: true
+  get_url:
+    url: https://github.com/kubernetes-sigs/kind/releases/download/{{ kind_version }}/kind-linux-amd64
+    dest: /usr/local/bin/kind
+    mode: "u=xrw,g=xr,o=x"
+    force: true
+
+# When working with kind and larger clusters with many containers, it is easy to run into
+# "too many open files" issues. Increase the limits a bit to avoid this.
+- name: Increase inotify watch limits
+  become: true
+  ansible.posix.sysctl:
+    name: fs.inotify.max_user_watches
+    value: "1048576"
+- name: Increase inotify instance limits
+  become: true
+  ansible.posix.sysctl:
+    name: fs.inotify.max_user_instances
+    value: "8192"
+
+- name: Create kind config
+  ansible.builtin.template:
+    src: kind-config-backing-cluster.yaml
+    dest: /home/{{ ansible_user_id }}/kind-config.yaml
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: u=rw,g=r,o=r
+  tags:
+  - kind
+
+- name: Create kind cluster
+  ansible.builtin.command: kind create cluster --config /home/{{ ansible_user_id }}/kind-config.yaml
+  tags:
+  - kind
+
+- name: Get kubeconfig
+  ansible.builtin.shell: kind get kubeconfig > /home/{{ ansible_user_id }}/kubeconfig.yaml
+  register: kind_kubeconfig
+  tags:
+  - kubeconfig
+
+- name: Download kubeconfigs
+  ansible.builtin.fetch:
+    src: /home/{{ ansible_user_id }}/kubeconfig.yaml
+    dest: kubeconfigs
+  tags:
+  - kubeconfig

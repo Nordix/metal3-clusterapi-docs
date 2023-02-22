@@ -93,10 +93,10 @@ kubectl -n "${NAMESPACE}" get secrets "${CLUSTER}-ca" -o jsonpath="{.data.tls\.c
 kubectl -n "${NAMESPACE}" get secrets "${CLUSTER}-ca" -o jsonpath="{.data.tls\.key}" | base64 -d > /tmp/pki/ca.key
 
 # Generate certificates
-kubeadm init phase certs etcd-peer --config kubeadm-config.yaml
-kubeadm init phase certs etcd-server --config kubeadm-config.yaml
-kubeadm init phase certs apiserver-etcd-client --config kubeadm-config.yaml
-kubeadm init phase certs apiserver --config kubeadm-config.yaml
+kubeadm init phase certs etcd-peer --config manifests/v1/kubeadm-config.yaml
+kubeadm init phase certs etcd-server --config manifests/v1/kubeadm-config.yaml
+kubeadm init phase certs apiserver-etcd-client --config manifests/v1/kubeadm-config.yaml
+kubeadm init phase certs apiserver --config manifests/v1/kubeadm-config.yaml
 
 # Create secrets
 kubectl -n "${NAMESPACE}" create secret tls etcd-peer --cert /tmp/pki/etcd/peer.crt --key /tmp/pki/etcd/peer.key
@@ -105,8 +105,8 @@ kubectl -n "${NAMESPACE}" create secret tls apiserver-etcd-client --cert /tmp/pk
 kubectl -n "${NAMESPACE}" create secret tls apiserver --cert /tmp/pki/apiserver.crt --key /tmp/pki/apiserver.key
 
 # Deploy etcd and API server
-kubectl -n "${NAMESPACE}" apply -f etcd.yaml
-kubectl -n "${NAMESPACE}" apply -f kube-apiserver-deployment.yaml
+kubectl -n "${NAMESPACE}" apply -f manifests/v1/etcd.yaml
+kubectl -n "${NAMESPACE}" apply -f manifests/v1/kube-apiserver-deployment.yaml
 kubectl -n "${NAMESPACE}" wait --for=condition=Available deploy/test-kube-apiserver
 
 # Get kubeconfig
@@ -141,4 +141,4 @@ sed -e "s/fake-node/${MACHINE}/g" -e "s/fake-uuid/${BMH_UID}/g" fake-node.yaml |
 kubectl --kubeconfig=/tmp/kubeconfig-test.yaml label node "${MACHINE}" node-role.kubernetes.io/control-plane=""
 # Upload kubeadm config to configmap. This will mark the KCP as initialized.
 kubectl --kubeconfig=/tmp/kubeconfig-test.yaml -n kube-system create cm kubeadm-config \
-  --from-file=ClusterConfiguration=kubeadm-config.yaml
+  --from-file=ClusterConfiguration=manifests/v1/kubeadm-config.yaml

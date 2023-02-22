@@ -153,7 +153,7 @@ for (( shard = 1; shard <= SHARDS; ++shard )); do
   for (( cluster = 1; cluster <= NUM; ++cluster )); do
     create_cluster "test-${cluster}" "test-${shard}" &
     if (( cluster % STEP == 0 )); then
-      echo "Waiting for ${cluster} clusters to be created in the background."
+      echo "Waiting for ${STEP} clusters to be created in the background."
       wait
     fi
   done

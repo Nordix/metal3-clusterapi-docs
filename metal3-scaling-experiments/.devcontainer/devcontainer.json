@@ -4,10 +4,8 @@
 	"name": "Ubuntu",
 	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
 	// "image": "mcr.microsoft.com/devcontainers/go:1.18",
-
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
-
 	// Configure tool-specific properties.
 	"customizations": {
 		// Configure properties specific to VS Code.
@@ -21,22 +19,43 @@
 		}
 	},
 	"features": {
-		"ghcr.io/devcontainers/features/go:1": {"version": "1.18"},
+		"ghcr.io/devcontainers/features/go:1": {
+			"version": "1.19"
+		},
 		"ghcr.io/devcontainers/features/docker-in-docker:1": {},
 		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
 		"ghcr.io/mpriscella/features/kind:1": {},
-		"ghcr.io/lentzi90/features/clusterctl:0": {},
-		"ghcr.io/lentzi90/features/kubeadm:0": {"version": "v1.25.5"},
-		"ghcr.io/guiyomh/features/vim": {}
+		"ghcr.io/lentzi90/features/clusterctl:0": {
+			"version": "v1.3.3"
+		},
+		"ghcr.io/lentzi90/features/kubeadm:0": {
+			"version": "v1.25.5"
+		},
+		"ghcr.io/guiyomh/features/vim": {},
+		"ghcr.io/lentzi90/features/tilt:0": {}
 	},
-
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
-
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "go version",
-	"postCreateCommand": "./.devcontainer/postCreateCommand.sh"
-
+	"postCreateCommand": "./.devcontainer/postCreateCommand.sh",
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
+	"mounts": [
+		{
+			"source": "${localWorkspaceFolder}/../../cluster-api-provider-metal3",
+			"target": "/workspaces/cluster-api-provider-metal3",
+			"type": "bind"
+		},
+		{
+			"source": "${localWorkspaceFolder}/../../metal3-ipam",
+			"target": "/workspaces/metal3-ipam",
+			"type": "bind"
+		},
+		{
+			"source": "${localWorkspaceFolder}/../../cluster-api",
+			"target": "/workspaces/cluster-api",
+			"type": "bind"
+		}
+	]
 }
