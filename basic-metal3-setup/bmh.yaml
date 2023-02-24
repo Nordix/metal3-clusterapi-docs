@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: NAME-bmc-secret
+type: Opaque
+data:
+  username: YWRtaW4K
+  password: cGFzc3dvcmQK
+
+---
+apiVersion: metal3.io/v1alpha1
+kind: BareMetalHost
+metadata:
+  name: NAME
+spec:
+  online: true
+  bmc:
+    address: libvirt://VBMC_IP:VBMC_PORT/
+    credentialsName: NAME-bmc-secret
+  bootMACAddress: "MAC_ADDRESS"
+  bootMode: legacy
