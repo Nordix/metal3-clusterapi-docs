@@ -1,0 +1,54 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned-issuer
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ironic-cacert
+spec:
+  commonName: ironic-ca
+  isCA: true
+  ipAddresses:
+    - MINIKUBE_IP
+  issuerRef:
+    kind: Issuer
+    name: selfsigned-issuer
+  secretName: ironic-cacert
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: ca-issuer
+spec:
+  ca:
+    secretName: ironic-cacert
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ironic-cert
+spec:
+  commonName: ironic-cert
+  ipAddresses:
+    - MINIKUBE_IP
+  issuerRef:
+    kind: Issuer
+    name: ca-issuer
+  secretName: ironic-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ironic-inspector-cert
+spec:
+  commonName: ironic-inspector-cert
+  ipAddresses:
+    - MINIKUBE_IP
+  issuerRef:
+    kind: Issuer
+    name: ca-issuer
+  secretName: ironic-inspector-cert

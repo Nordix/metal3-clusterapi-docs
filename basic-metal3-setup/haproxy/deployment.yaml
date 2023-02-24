@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: haproxy
+  name: haproxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: haproxy
+  template:
+    metadata:
+      labels:
+        app: haproxy
+    spec:
+      hostNetwork: true
+      containers:
+        - image: haproxy
+          name: haproxy
+          volumeMounts:
+            - mountPath: /usr/local/etc/haproxy
+              name: haproxy-cfg
+      volumes:
+        - name: haproxy-cfg
+          configMap:
+            name: haproxy-cfg
