@@ -1,8 +1,8 @@
 set -e
 # Apply ironic
 kubectl apply -f manifests/ironic.yaml -n baremetal-operator-system
-
-cat <<'EOF' > ironicclient.sh
+kubectl -n baremetal-operator-system wait --for=condition=available deployment/baremetal-operator-ironic --timeout=300s
+cat <<'EOF' >ironicclient.sh
 #!/bin/bash
 
 DIR="$(dirname "$(readlink -f "$0")")"
@@ -26,7 +26,7 @@ EOF
 
 mkdir _clouds_yaml
 
-cat <<'EOF' > _clouds_yaml/clouds.yaml
+cat <<'EOF' >_clouds_yaml/clouds.yaml
 clouds:
   metal3:
     auth_type: none
@@ -36,14 +36,13 @@ EOF
 sudo chmod a+x ironicclient.sh
 sudo ln -sf "$PWD/ironicclient.sh" "/usr/local/bin/baremetal"
 
-
 # Create ironic node
 
 baremetal node create --driver redfish --driver-info \
- redfish_address=http://192.168.111.1:8000 --driver-info \
- redfish_system_id=/redfish/v1/Systems/27946b59-9e44-4fa7-8e91-f3527a1ef094 --driver-info \
- redfish_username=admin --driver-info redfish_password=password \
- --name default-node
+  redfish_address=http://192.168.111.1:8000 --driver-info \
+  redfish_system_id=/redfish/v1/Systems/27946b59-9e44-4fa7-8e91-f3527a1ef094 --driver-info \
+  redfish_username=admin --driver-info redfish_password=password \
+  --name default-node
 
 # baremetal node manage $NODE_UUID
 # get mac : virsh domiflist vmname

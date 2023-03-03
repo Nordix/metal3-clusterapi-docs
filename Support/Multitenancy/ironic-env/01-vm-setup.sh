@@ -1,9 +1,11 @@
 set -e
 #install kvm for minikube
-dnf -y install qemu-kvm libvirt virt-install net-tools
+dnf -y install qemu-kvm libvirt virt-install net-tools podman firewalld
 systemctl enable --now libvirtd
+systemctl start firewalld
+systemctl enable firewalld
 # create provisioning network
-cat <<EOF > provisioning.xml
+cat <<EOF >provisioning.xml
 <network
 	xmlns:dnsmasq='http://libvirt.org/schemas/network/dnsmasq/1.0'>
 	<dnsmasq:options>
@@ -16,7 +18,7 @@ cat <<EOF > provisioning.xml
 </network>
 EOF
 
-cat <<EOF > baremetal.xml
+cat <<EOF >baremetal.xml
 <network xmlns:dnsmasq='http://libvirt.org/schemas/network/dnsmasq/1.0'>
   <name>baremetal</name>
   <forward mode='nat'>
@@ -46,11 +48,11 @@ cat <<EOF > baremetal.xml
 </network>
 EOF
 # define networks
-virsh net-define baremetal.xml 
+virsh net-define baremetal.xml
 virsh net-start baremetal
 virsh net-autostart baremetal
 
-virsh net-define provisioning.xml 
+virsh net-define provisioning.xml
 virsh net-start provisioning
 virsh net-autostart provisioning
 tee -a /etc/NetworkManager/system-connections/provisioning.nmconnection <<EOF

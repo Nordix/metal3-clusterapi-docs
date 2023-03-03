@@ -1,25 +1,36 @@
+#!/bin/bash
 
+# Delete network connections
+sudo nmcli con delete baremetal provisioning
 
-sudo nmcli con delete baremetal
-sudo nmcli con delete provisioning
-sudo nmcli con delete provisioning
+# Disable and delete bridge interfaces
+for iface in baremetal provisioning; do
+    if ip link show $iface &>/dev/null; then
+        sudo ip link set $iface down
+        sudo brctl delbr $iface
+    fi
+done
 
-sudo virsh net-undefine provisioning
-sudo virsh net-undefine baremetal
+# Delete libvirt networks
+for net in provisioning baremetal; do
+    if sudo virsh net-info $net &>/dev/null; then
+        sudo virsh net-destroy $net
+        sudo virsh net-undefine $net
+    fi
+done
 
-sudo virsh net-destroy baremetal
-sudo virsh net-destroy  provisioning
+# Delete directories
+sudo rm -rf /opt/metal3-dev-env
+sudo rm -rf "$(dirname "$0")/_clouds_yaml"
 
-sudo ip link set provisioning down
-sudo ip link set provisioning down
-sudo ip link set baremetal down
-sudo brctl delbr baremetal
-sudo brctl delbr provisioning
-sudo brctl delbr provisioning
-#sudo rm -rf /opt/metal3-dev-env
-sudo rm -rf /opt/metal3-dev-env/ironic/virtualbmc/
-sudo podman stop -a
-sudo podman rmi "$(sudo podman images -qa)" -f
-
+# Stop and delete minikube cluster
 minikube stop
 minikube delete --all --purge
+
+# Stop and delete containers
+containers=("sushy-tools" "ironic-ipa-downloader" "ironic" "keepalived" "registry" "ironic-client")
+for container in "${containers[@]}"; do
+    echo "Deleting the container: $container"
+    sudo podman stop "$container" &>/dev/null
+    sudo podman rm "$container" &>/dev/null
+done
