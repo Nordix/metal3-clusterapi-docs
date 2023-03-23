@@ -8,7 +8,7 @@ IMAGE_NAMES=(
     "quay.io/metal3-io/ironic-client"
     "quay.io/metal3-io/keepalived"
 )
-${quay.io/metal3-io/sushy-tools##*/}
+
 # Attach provisioning and baremetal network interfaces to minikube domain
 virsh attach-interface --domain minikube --model virtio --source provisioning --type network --config
 virsh attach-interface --domain minikube --model virtio --source baremetal --type network --config
