@@ -13,7 +13,6 @@ data:
   DHCP_RANGE: 172.22.0.10,172.22.0.100
   HTTP_PORT: "6180"
   INSPECTOR_REVERSE_PROXY_SETUP: "false"
-  IRONIC_ENDPOINT: http://172.22.0.2:6385/v1/
   IRONIC_FAST_TRACK: "true"
   IRONIC_INSPECTOR_ENDPOINT: http://172.22.0.2:5050/v1/
   IRONIC_KERNEL_PARAMS: console=ttyS0
@@ -22,6 +21,9 @@ data:
   PROVISIONING_INTERFACE: ironicendpoint
   PROVISIONING_IP: 172.22.0.2
   RESTART_CONTAINER_CERTIFICATE_UPDATED: "false"
+  NUMWORKERS: "20"
+  IRONIC_ENDPOINT: http://172.22.0.2:6385/v1/
+  IRONIC_LISTEN_PORT: "6385"
 kind: ConfigMap
 metadata:
   name: baremetal-operator-ironic-bmo-configmap-kf5k84ff8c
@@ -58,7 +60,7 @@ spec:
       - envFrom:
         - configMapRef:
             name: baremetal-operator-ironic-bmo-configmap-kf5k84ff8c
-        image: 172.22.0.1:5000/localimages/keepalived
+        image: 172.22.0.1:5000/localimages/keepalived:v0.2.0
         name: ironic-endpoint-keepalived
         securityContext:
           capabilities:
@@ -122,6 +124,15 @@ spec:
         image: 172.22.0.1:5000/localimages/ironic
         imagePullPolicy: Always
         name: ironic-httpd
+        volumeMounts:
+        - mountPath: /shared
+          name: ironic-data-volume
+      - command:
+        - /usr/bin/tcpdump
+        args: [ "-i", "ironicendpoint", "port", "6385", "-w", "/shared/6385.log" ]
+        image: 172.22.0.1:5000/localimages/netshoot
+        imagePullPolicy: Always
+        name: netshoot
         volumeMounts:
         - mountPath: /shared
           name: ironic-data-volume

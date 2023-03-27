@@ -28,9 +28,11 @@ minikube stop
 minikube delete --all --purge
 
 # Stop and delete containers
-containers=("sushy-tools" "ironic-ipa-downloader" "ironic" "keepalived" "registry" "ironic-client")
+containers=("sushy-tools" "ironic-ipa-downloader" "ironic" "keepalived" "registry" "ironic-client" "fake-ipa")
 for container in "${containers[@]}"; do
     echo "Deleting the container: $container"
     sudo podman stop "$container" &>/dev/null
     sudo podman rm "$container" &>/dev/null
 done
+
+rm -rf macgens uuids node.json nodes.json batch.json
