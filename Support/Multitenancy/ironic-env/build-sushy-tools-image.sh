@@ -7,10 +7,10 @@ SUSHYTOOLS_IMAGE="127.0.0.1:5000/localimages/sushy-tools"
 # fi
 
 SUSHYTOOLS_DIR="$HOME/sushy-tools"
-rm -rf "$SUSHYTOOLS_DIR"
-git clone https://opendev.org/openstack/sushy-tools.git "$SUSHYTOOLS_DIR"
+# rm -rf "$SUSHYTOOLS_DIR"
+# git clone https://opendev.org/openstack/sushy-tools.git "$SUSHYTOOLS_DIR"
 cd "$SUSHYTOOLS_DIR"
-git fetch https://review.opendev.org/openstack/sushy-tools refs/changes/66/875366/18 && git cherry-pick FETCH_HEAD
+# git fetch https://review.opendev.org/openstack/sushy-tools refs/changes/66/875366/18 && git cherry-pick FETCH_HEAD
 
 pip3 install build
 python3 -m build
@@ -50,4 +50,4 @@ CMD ["sushy-emulator", "-i", "::", "--config", "/root/sushy/conf.py"]
 EOF
 
 sudo podman build -t 127.0.0.1:5000/localimages/sushy-tools .
-rm -rf "$SUSHYTOOLS_DIR"
+# rm -rf "$SUSHYTOOLS_DIR"

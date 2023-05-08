@@ -9,7 +9,7 @@ while /bin/true; do
     break
   fi
   sudo su -l -c 'minikube delete --all --purge' "${USER}"
-  sudo ip link delete virbr0
+  sudo ip link delete virbr0 | true
 done   
 minikube stop
 

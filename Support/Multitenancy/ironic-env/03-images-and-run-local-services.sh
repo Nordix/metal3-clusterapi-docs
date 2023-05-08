@@ -10,7 +10,7 @@ IMAGE_NAMES=(
     "quay.io/metal3-io/ironic:latest"
     "quay.io/metal3-io/ironic-client"
     "quay.io/metal3-io/keepalived:v0.2.0"
-    "docker.io/nicolaka/netshoot"
+    "quay.io/metal3-io/mariadb:latest"
 )
 
 
@@ -40,10 +40,18 @@ podman push --tls-verify=false 127.0.0.1:5000/localimages/sushy-tools
 IRONIC_IMAGE="127.0.0.1:5000/localimages/ironic:latest"
 SUSHY_TOOLS_IMAGE="127.0.0.1:5000/localimages/sushy-tools"
 LIBVIRT_URI="qemu+ssh://root@192.168.111.1/system?&keyfile=/root/ssh/id_rsa_virt_power&no_verify=1&no_tty=1"
-API_URL="http://173.22.0.2:6385"
+API_URL="http://172.22.0.2:6385"
 CALLBACK_URL="http://172.22.0.2:5050/v1/continue"
 ADVERTISE_HOST="192.168.111.1"
 ADVERTISE_PORT="9999"
+
+# if [[ "${IRONIC_TLS_SETUP}" == "true" ]]; then
+API_URL="https://172.22.0.2:6385"
+CALLBACK_URL="https://172.22.0.2:5050/v1/continue"
+__dir__=$(realpath $(dirname $0))
+"$__dir__/ironic_tls_setup.sh"
+# fi
+    
 
 # Create directories
 DIRECTORIES=(
