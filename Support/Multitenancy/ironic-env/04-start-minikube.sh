@@ -7,7 +7,12 @@ minikube start --insecure-registry 172.22.0.1:5000
 sudo su -l -c "minikube ssh sudo brctl addbr ironicendpoint" "${USER}"
 sudo su -l -c "minikube ssh sudo  ip link set ironicendpoint up" "${USER}"
 sudo su -l -c "minikube ssh sudo  brctl addif  ironicendpoint eth2" "${USER}"
-sudo su -l -c "minikube ssh sudo  ip addr add 172.22.0.2/24 dev ironicendpoint" "${USER}"
+
+IRONIC_ENDPOINTS=$1
+read -ra PROVISIONING_IPS <<< "${IRONIC_ENDPOINTS}"
+for PROVISIONING_IP in "${PROVISIONING_IPS[@]}"; do
+  sudo su -l -c "minikube ssh sudo  ip addr add ${PROVISIONING_IP}/24 dev ironicendpoint" "${USER}"
+done
 
 # Firewall rules
 for i in 8000 80 9999 6385 5050 6180 53 5000; do sudo firewall-cmd --zone=public --add-port=${i}/tcp; done

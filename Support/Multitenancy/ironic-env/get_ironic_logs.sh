@@ -1,8 +1,22 @@
 #!/bin/bash
 #
-container_name=${1:-ironic}
 NS="baremetal-operator-system"
-podName=$(kubectl -n "$NS" get pod -o json | jq -r '.items | .[].metadata.name' | grep "ironic" )
+dir="logs"
+mkdir -p $dir
+rm -rf $dir/*
 
-rm -f "${container_name}.log"
-kubectl -n "$NS" logs "$podName" -c "${container_name}" > "${container_name}.log"
+
+get_container_log() {
+  container_name=$1
+  podRegex=$2
+  podNames=($(kubectl -n "$NS" get pod -o json | jq -r '.items | .[].metadata.name' | grep "${podRegex}" ))
+
+  for podName in ${podNames[@]}; do
+    echo "Getting logs $podName/$container_name"
+    fileName=${dir}/${podName}-${container_name}-log.txt
+    rm -f ${fileName}
+    kubectl -n "$NS" logs "$podName" -c "${container_name}" > ${fileName}
+  done
+}
+get_container_log "ironic" "ironic-[[:digit:]]"
+get_container_log "ironic-inspector" "ironic-common"

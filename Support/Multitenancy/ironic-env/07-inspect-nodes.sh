@@ -45,7 +45,7 @@ function inspect_batch() {
       if [[ "$provisioning_state" == "inspect failed" ]]; then
         echo "${ironic_client}: ${node_name} was failed in inspection"
         # ${ironic_client} node inspect $node_name
-        inspected_nodes="${inspected_nodes} ${node_name}"
+        inspected_nodes+=("${node_name}")
         if [[ $(echo "$inspected_nodes" | wc -w) == "$current_batch_size" ]]; then
           echo "${ironic_client}: Done batch"
           return

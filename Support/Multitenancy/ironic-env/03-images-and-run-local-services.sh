@@ -7,7 +7,7 @@ IMAGE_NAMES=(
 # For now, sushy-tools needs to be compiled locally with https://review.opendev.org/c/openstack/sushy-tools/+/875366
     # "quay.io/metal3-io/sushy-tools"
     "quay.io/metal3-io/ironic-ipa-downloader"
-    "quay.io/metal3-io/ironic:latest"
+    # "quay.io/metal3-io/ironic:latest"
     "quay.io/metal3-io/ironic-client"
     "quay.io/metal3-io/keepalived:v0.2.0"
     "quay.io/metal3-io/mariadb:latest"
@@ -35,6 +35,7 @@ for NAME in "${IMAGE_NAMES[@]}"; do
 done
 
 podman push --tls-verify=false 127.0.0.1:5000/localimages/sushy-tools
+podman push --tls-verify=false 127.0.0.1:5000/localimages/ironic:latest
 
 # Define variables for repeated values
 IRONIC_IMAGE="127.0.0.1:5000/localimages/ironic:latest"

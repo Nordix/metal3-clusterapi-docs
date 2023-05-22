@@ -6,15 +6,17 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 kubectl -n cert-manager wait --for=condition=available deployment/cert-manager-webhook --timeout=300s
 kubectl -n cert-manager wait --for=condition=available deployment/cert-manager-cainjector --timeout=300s
 kubectl -n cert-manager wait --for=condition=available deployment/cert-manager --timeout=300s
-# kubectl apply -f "$WORKING_DIR/ironic-cacert.yaml"
-# Apply ironic
-kubectl create ns baremetal-operator-system
-kubectl apply -f manifests/ironic.yaml -n baremetal-operator-system
-kubectl -n baremetal-operator-system wait --for=condition=available deployment/baremetal-operator-ironic --timeout=300s
+
+if [[ ! -f ~/.ssh/id_rsa.pub ]]; then
+  ssh-keygen -t ed25519
+fi
+# Install ironic
+IRONIC_ENDPOINTS=$1
+read -ra PROVISIONING_IPS <<< "${IRONIC_ENDPOINTS}"
+helm install ironic ironic --set sshKey="$(cat ~/.ssh/id_rsa.pub)" --set ironicReplicas={$(echo $IRONIC_ENDPOINTS | sed 's/ /\,/g')} --wait
 
 openstack_dir="${PWD}/_clouds_yaml"
 ironic_client="ironicclient.sh"
-ironic_port=6385
 
 cat << EOT >"${ironic_client}"
 #!/bin/bash
@@ -24,7 +26,7 @@ DIR="$(dirname "$(readlink -f "$0")")"
 if [ -d $openstack_dir ]; then
   MOUNTDIR=$openstack_dir
 else
-  echo 'cannot find '$openstack_dir
+  echo 'cannot find $openstack_dir'
   exit 1
 fi
 
@@ -47,8 +49,7 @@ cat << EOT >"${openstack_dir}/clouds.yaml"
 clouds:
   metal3:
     auth_type: none
-    # cacert: /etc/openstack/ironic-ca.crt
-    baremetal_endpoint_override: https://172.22.0.2:${ironic_port}
+    baremetal_endpoint_override: https://172.22.0.2:6385
     baremetal_introspection_endpoint_override: https://172.22.0.2:5050
     verify: false
 EOT

@@ -1,0 +1,175 @@
+{{- range $index, $ipValue := $.Values.ironicReplicas }}
+---
+apiVersion: v1
+data:
+  IRONIC_REVERSE_PROXY_SETUP: "true"
+  INSPECTOR_REVERSE_PROXY_SETUP: "true"
+  IRONIC_USE_MARIADB: "true"
+  PROVISIONING_IP: {{ $ipValue }}
+  IRONIC_INSPECTOR_BASE_URL: {{ $.Values.global.ironicInspectorBaseUrl }}
+  IRONIC_INSPECTOR_ENDPOINT: {{ $.Values.global.ironicInspectorBaseUrl }}/v1/
+  IRONIC_EXPOSE_JSON_RPC: "true"
+kind: ConfigMap
+metadata:
+  name: baremetal-operator-ironic-{{ $index }}-configmap
+  namespace: {{ $.Values.global.namespace }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: baremetal-operator-ironic-{{ $index }}
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  minReadySeconds: 10
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ironic
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: ironic
+    spec:
+      containers:
+      - command:
+        - /bin/runironic
+        env:
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: baremetal-operator-mariadb-password
+        envFrom:
+        - configMapRef:
+            name: baremetal-operator-ironic-bmo-configmap
+        - configMapRef:
+            name: baremetal-operator-ironic-{{ $index }}-configmap
+        - secretRef:
+            name: baremetal-operator-ironic-htpasswd
+        image: 172.22.0.1:5000/localimages/ironic
+        imagePullPolicy: Always
+        name: ironic
+        volumeMounts:
+        - mountPath: /certs/ca/mariadb
+          name: cert-mariadb-ca
+          readOnly: true
+        - mountPath: /auth/ironic
+          name: ironic-auth-config
+          readOnly: true
+        - mountPath: /auth/ironic-inspector
+          name: ironic-inspector-auth-config
+          readOnly: true
+        - mountPath: /certs/ironic
+          name: cert-ironic
+          readOnly: true
+        - mountPath: /certs/ironic-inspector
+          name: cert-ironic-inspector
+          readOnly: true
+        - mountPath: /certs/ca/ironic
+          name: cert-ironic-ca
+          readOnly: true
+        - mountPath: /certs/ca/ironic-inspector
+          name: cert-ironic-inspector-ca
+          readOnly: true
+        - mountPath: /shared
+          name: ironic-data-volume
+      - command:
+        - /bin/runlogwatch.sh
+        image: 172.22.0.1:5000/localimages/ironic
+        imagePullPolicy: Always
+        name: ironic-log-watch
+        volumeMounts:
+        - mountPath: /auth/ironic
+          name: ironic-auth-config
+          readOnly: true
+        - mountPath: /auth/ironic-inspector
+          name: ironic-inspector-auth-config
+          readOnly: true
+        - mountPath: /certs/ironic
+          name: cert-ironic
+          readOnly: true
+        - mountPath: /certs/ironic-inspector
+          name: cert-ironic-inspector
+          readOnly: true
+        - mountPath: /certs/ca/ironic
+          name: cert-ironic-ca
+          readOnly: true
+        - mountPath: /certs/ca/ironic-inspector
+          name: cert-ironic-inspector-ca
+          readOnly: true
+        - mountPath: /shared
+          name: ironic-data-volume
+      - command:
+        - /bin/runhttpd
+        envFrom:
+        - configMapRef:
+            name: baremetal-operator-ironic-bmo-configmap
+        - configMapRef:
+            name: baremetal-operator-ironic-{{ $index }}-configmap
+        image: 172.22.0.1:5000/localimages/ironic
+        imagePullPolicy: Always
+        name: ironic-httpd
+        volumeMounts:
+        - mountPath: /auth/ironic
+          name: ironic-auth-config
+          readOnly: true
+        - mountPath: /auth/ironic-inspector
+          name: ironic-inspector-auth-config
+          readOnly: true
+        - mountPath: /certs/ironic
+          name: cert-ironic
+          readOnly: true
+        - mountPath: /certs/ironic-inspector
+          name: cert-ironic-inspector
+          readOnly: true
+        - mountPath: /certs/ca/ironic
+          name: cert-ironic-ca
+          readOnly: true
+        - mountPath: /certs/ca/ironic-inspector
+          name: cert-ironic-inspector-ca
+          readOnly: true
+        - mountPath: /shared
+          name: ironic-data-volume
+      hostNetwork: true
+      initContainers:
+      - command:
+        - /usr/local/bin/get-resource.sh
+        envFrom:
+        - configMapRef:
+            name: baremetal-operator-ironic-bmo-configmap
+        image: 172.22.0.1:5000/localimages/ironic-ipa-downloader
+        imagePullPolicy: Always
+        name: ironic-ipa-downloader
+        volumeMounts:
+        - mountPath: /shared
+          name: ironic-data-volume
+      volumes:
+      - name: cert-mariadb
+        secret:
+          secretName: mariadb-cert
+      - name: cert-mariadb-ca
+        secret:
+          secretName: ironic-cacert
+      - name: ironic-auth-config
+        secret:
+          secretName: baremetal-operator-ironic-auth-config
+      - name: ironic-inspector-auth-config
+        secret:
+          secretName: baremetal-operator-ironic-inspector-auth-config
+      - name: cert-ironic-ca
+        secret:
+          secretName: ironic-cacert
+      - name: cert-ironic-inspector-ca
+        secret:
+          secretName: ironic-cacert
+      - name: cert-ironic
+        secret:
+          secretName: ironic-cert
+      - name: cert-ironic-inspector
+        secret:
+          secretName: ironic-inspector-cert
+      - emptyDir: {}
+        name: ironic-data-volume
+{{- end }}

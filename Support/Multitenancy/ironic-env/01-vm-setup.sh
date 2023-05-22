@@ -97,3 +97,14 @@ install minikube-linux-amd64 /usr/local/bin/minikube
 # Install kubectl
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# Install Helm
+helm_api="https://api.github.com/repos/helm/helm/releases"
+curl -sL "${helm_api}" > helm_releases.txt
+helm_release_tag="$(cat helm_releases.txt | jq -r ".[].tag_name" | head -n 1 )"
+rm -f helm_releases.txt
+filename="helm-${helm_release_tag}-linux-amd64.tar.gz"
+wget -O $filename.tar.gz "https://get.helm.sh/${filename}"
+tar -xf $filename.tar.gz
+install -o root -g root -m 0755 linux-amd64/helm /usr/local/bin/helm
+rm -rf $filename.tar.gz linux-amd64 minikube-linux-amd64 kubectl
