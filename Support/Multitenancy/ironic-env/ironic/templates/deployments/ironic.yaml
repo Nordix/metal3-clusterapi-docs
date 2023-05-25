@@ -9,6 +9,11 @@ data:
   IRONIC_INSPECTOR_BASE_URL: {{ $.Values.global.ironicInspectorBaseUrl }}
   IRONIC_INSPECTOR_ENDPOINT: {{ $.Values.global.ironicInspectorBaseUrl }}/v1/
   IRONIC_EXPOSE_JSON_RPC: "true"
+  # IRONIC_EXPOSE_OSLO_RPC: "true"
+  IRONIC_RAMDISK_HEARTBEAT_TIMEOUT: "3000"
+  IRONIC_RPC_RESPONSE_TIMEOUT: "600"
+  IRONIC_NODE_LOCKED_RETRY_INTERVAL: {{ $.Values.global.ironicNodeLockedRetryInterval | default "1" | quote }}
+  IRONIC_NODE_LOCKED_RETRY_ATTEMPTS: {{ $.Values.global.ironicNodeLockedRetryAttempts | default "5" | quote }}
 kind: ConfigMap
 metadata:
   name: baremetal-operator-ironic-{{ $index }}-configmap
@@ -31,6 +36,8 @@ spec:
     metadata:
       labels:
         name: ironic
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
     spec:
       containers:
       - command:

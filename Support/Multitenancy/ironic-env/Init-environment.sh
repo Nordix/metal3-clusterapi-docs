@@ -9,4 +9,7 @@ sudo ./01-vm-setup.sh
 sudo ./03-images-and-run-local-services.sh "$N_NODES"
 ./04-start-minikube.sh "${IRONIC_ENDPOINTS}"
 ./05-apply-manifests.sh "${IRONIC_ENDPOINTS}"
-./06-create-nodes.sh 0 "$NODE_CREATE_BATCH_SIZE" "$NODE_INSPECT_BATCH_SIZE"
+# ./06-create-nodes.sh 0 "$NODE_CREATE_BATCH_SIZE" "$NODE_INSPECT_BATCH_SIZE"
+python create_nodes.py
+cp nodes.json batch.json
+./07-inspect-nodes.sh "${NODE_INSPECT_BATCH_SIZE}"
