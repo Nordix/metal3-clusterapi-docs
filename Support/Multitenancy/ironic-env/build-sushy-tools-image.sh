@@ -1,23 +1,17 @@
 #!/bin/bash
 #
-SUSHYTOOLS_IMAGE="127.0.0.1:5000/localimages/sushy-tools"
-
-# if [[ $(sudo podman images | grep "$SUSHYTOOLS_IMAGE") != "" ]]4; then
-#     exit 0
-# fi
-
 SUSHYTOOLS_DIR="$HOME/sushy-tools"
 rm -rf "$SUSHYTOOLS_DIR"
 git clone https://opendev.org/openstack/sushy-tools.git "$SUSHYTOOLS_DIR"
-cd "$SUSHYTOOLS_DIR"
-git fetch https://review.opendev.org/openstack/sushy-tools refs/changes/66/875366/19 && git cherry-pick FETCH_HEAD
+cd "$SUSHYTOOLS_DIR" || exit
+git fetch https://review.opendev.org/openstack/sushy-tools refs/changes/66/875366/21 && git cherry-pick FETCH_HEAD
 
 pip3 install build
 python3 -m build
 
-cd dist
-WHEEL_FILENAME=$(ls *.whl)
-echo $WHEEL_FILENAME
+cd dist || exit
+WHEEL_FILENAME=$(ls ./*.whl)
+echo "$WHEEL_FILENAME"
 
 cd ..
 

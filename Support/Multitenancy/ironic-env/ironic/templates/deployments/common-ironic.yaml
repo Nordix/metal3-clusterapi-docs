@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: baremetal-operator-ironic-common
-  namespace: {{ .Values.global.namespace }}
+  namespace: {{.Values.global.namespace}}
 spec:
   minReadySeconds: 10
   replicas: 1
@@ -114,18 +114,6 @@ spec:
           name: ironic-auth-config
           readOnly: true
       hostNetwork: true
-      initContainers:
-      - command:
-        - /usr/local/bin/get-resource.sh
-        envFrom:
-        - configMapRef:
-            name: baremetal-operator-ironic-bmo-configmap
-        image: 172.22.0.1:5000/localimages/ironic-ipa-downloader
-        imagePullPolicy: Always
-        name: ironic-ipa-downloader
-        volumeMounts:
-        - mountPath: /shared
-          name: ironic-data-volume
       volumes:
       - name: cert-mariadb
         secret:

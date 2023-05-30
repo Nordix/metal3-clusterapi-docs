@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 minikube config set driver kvm2
 minikube config set memory 4096

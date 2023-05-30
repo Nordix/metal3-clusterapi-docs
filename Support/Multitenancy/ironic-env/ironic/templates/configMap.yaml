@@ -18,8 +18,8 @@ data:
   NUMWORKERS: "20"
   IRONIC_ENDPOINT: https://172.22.0.2:6385/v1/
   IRONIC_LISTEN_PORT: "6385"
-  IRONIC_RAMDISK_SSH_KEY: {{ .Values.sshKey }}
+  IRONIC_RAMDISK_SSH_KEY: {{.Values.sshKey}}
 kind: ConfigMap
 metadata:
   name: baremetal-operator-ironic-bmo-configmap
-  namespace: {{ .Values.global.namespace }}
+  namespace: {{.Values.global.namespace}}

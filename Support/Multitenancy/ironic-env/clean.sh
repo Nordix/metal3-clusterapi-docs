@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC1091
+. ./config.sh
 # Delete network connections
 sudo nmcli con delete baremetal provisioning
 
@@ -28,11 +30,14 @@ minikube stop
 minikube delete --all --purge
 
 # Stop and delete containers
-containers=("sushy-tools" "ironic-ipa-downloader" "ironic" "keepalived" "registry" "ironic-client" "fake-ipa")
+containers=("ironic-ipa-downloader" "ironic" "keepalived" "registry" "ironic-client" "fake-ipa" "openstack-client" "httpd-infra")
+for i in $(seq 1 "$N_SUSHY"); do
+    containers+=("sushy-tools-$i")
+done
 for container in "${containers[@]}"; do
     echo "Deleting the container: $container"
     sudo podman stop "$container" &>/dev/null
     sudo podman rm "$container" &>/dev/null
 done
 
-rm -rf macgens uuids node.json nodes.json batch.json
+rm -rf macaddrs uuids node.json nodes.json batch.json

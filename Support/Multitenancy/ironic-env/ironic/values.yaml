@@ -1,3 +1,4 @@
+---
 global:
   ironicInspectorBaseUrl: "https://172.22.0.2:5050"
   namespace: baremetal-operator-system
