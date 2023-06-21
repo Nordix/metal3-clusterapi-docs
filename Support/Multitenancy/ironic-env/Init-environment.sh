@@ -13,4 +13,4 @@ sudo ./handle-images.sh
 ./start_containers.sh
 ./04-start-minikube.sh
 ./05-apply-manifests.sh
-python create_nodes.py
+python create_and_inspect_nodes.py
