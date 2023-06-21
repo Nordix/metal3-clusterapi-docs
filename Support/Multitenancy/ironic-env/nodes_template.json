@@ -1,8 +1,0 @@
-{
-	"uuid": "foo-uuid",
-	"name": "foo-name",
-	"power_state": "Off",
-	"nics": [
-		{"mac": "foo-address", "ip": "172.0.0.100"}
-	]
-}
