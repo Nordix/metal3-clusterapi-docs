@@ -1,0 +1,12 @@
+*.xml
+*.json
+*.log
+ironicclient.sh
+_clouds_yaml/*
+kubectl
+minikube-linux-amd64
+macaddrs
+uuids
+sushy-tools-conf/*
+logs/*
+bmc-*.yaml
