@@ -1,0 +1,81 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: baremetal-operator-ironic-common
+  namespace: {{ .Values.global.namespace }}
+spec:
+  minReadySeconds: 10
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ironic-common
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: ironic-common
+    spec:
+      containers:
+      - command:
+        - /bin/rundnsmasq
+        envFrom:
+        - configMapRef:
+            name: baremetal-operator-ironic-bmo-configmap
+        image: quay.io/metal3-io/ironic:v26.0.1
+        imagePullPolicy: IfNotPresent
+        name: ironic-dnsmasq
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+            - NET_RAW
+        volumeMounts:
+        - mountPath: /auth/ironic
+          name: ironic-auth-config
+          readOnly: true
+        - mountPath: /certs/ironic
+          name: cert-ironic
+          readOnly: true
+        - mountPath: /certs/ca/ironic
+          name: cert-ironic-ca
+          readOnly: true
+        - mountPath: /shared
+          name: ironic-data-volume
+      - command:
+        - /bin/runlogwatch.sh
+        image: quay.io/metal3-io/ironic:v26.0.1
+        imagePullPolicy: IfNotPresent
+        name: ironic-log-watch
+        volumeMounts:
+        - mountPath: /auth/ironic
+          name: ironic-auth-config
+          readOnly: true
+        - mountPath: /certs/ironic
+          name: cert-ironic
+          readOnly: true
+        - mountPath: /certs/ca/ironic
+          name: cert-ironic-ca
+          readOnly: true
+        - mountPath: /shared
+          name: ironic-data-volume
+      hostNetwork: true
+      volumes:
+      - name: cert-mariadb
+        secret:
+          secretName: mariadb-cert
+      - name: cert-mariadb-ca
+        secret:
+          secretName: ironic-cacert
+      - name: ironic-auth-config
+        secret:
+          secretName: baremetal-operator-ironic-auth-config
+      - name: cert-ironic-ca
+        secret:
+          secretName: ironic-cacert
+      - name: cert-ironic
+        secret:
+          secretName: ironic-cert
+      - emptyDir: {}
+        name: ironic-data-volume
