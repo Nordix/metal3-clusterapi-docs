@@ -1,0 +1,101 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: baremetal-operator-ironic-mariadb
+  namespace: {{ .Values.global.namespace }}
+spec:
+  minReadySeconds: 10
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ironic-mariadb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: ironic-mariadb
+    spec:
+      containers:
+      - env:
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: baremetal-operator-mariadb-password
+        - name: RESTART_CONTAINER_CERTIFICATE_UPDATED
+          valueFrom:
+            configMapKeyRef:
+              key: RESTART_CONTAINER_CERTIFICATE_UPDATED
+              name: baremetal-operator-ironic-bmo-configmap
+        image: 172.22.0.1:5000/localimages/mariadb:latest
+        imagePullPolicy: Always
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - mysqladmin status -uironic -p$(printenv MARIADB_PASSWORD)
+          failureThreshold: 10
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 10
+        name: mariadb
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - mysqladmin status -uironic -p$(printenv MARIADB_PASSWORD)
+          failureThreshold: 10
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 10
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          runAsGroup: 27
+          runAsUser: 27
+        volumeMounts:
+        - mountPath: /shared
+          name: ironic-data-volume
+        - mountPath: /certs/mariadb
+          name: cert-mariadb
+          readOnly: true
+        - mountPath: /certs/ca/mariadb
+          name: cert-mariadb-ca
+          readOnly: true
+      hostNetwork: true
+      volumes:
+      - name: cert-mariadb
+        secret:
+          secretName: mariadb-cert
+      - name: cert-mariadb-ca
+        secret:
+          secretName: ironic-cacert
+      - name: ironic-auth-config
+        secret:
+          secretName: baremetal-operator-ironic-auth-config
+      - name: ironic-inspector-auth-config
+        secret:
+          secretName: baremetal-operator-ironic-inspector-auth-config
+      - name: cert-ironic-ca
+        secret:
+          secretName: ironic-cacert
+      - name: cert-ironic-inspector-ca
+        secret:
+          secretName: ironic-cacert
+      - name: cert-ironic
+        secret:
+          secretName: ironic-cert
+      - name: cert-ironic-inspector
+        secret:
+          secretName: ironic-inspector-cert
+      - emptyDir: {}
+        name: ironic-data-volume
