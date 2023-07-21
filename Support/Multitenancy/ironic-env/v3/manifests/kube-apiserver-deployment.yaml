@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-kube-apiserver
+  labels:
+    app: test-kube-apiserver
+spec:
+  ports:
+    - port: 6443
+      name: https
+  selector:
+    app: test-kube-apiserver
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: test-kube-apiserver
+  name: test-kube-apiserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-kube-apiserver
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: test-kube-apiserver
+    spec:
+      containers:
+        - image: registry.k8s.io/kube-apiserver:v1.25.3
+          name: kube-apiserver
+          ports:
+            - containerPort: 6443
+              name: https
+              protocol: TCP
+          command:
+            - kube-apiserver
+            - --allow-privileged=true
+            - --authorization-mode=Node,RBAC
+            - --client-ca-file=/etc/kubernetes/pki/ca/tls.crt
+            # - --enable-admission-plugins=NodeRestriction
+            - --enable-bootstrap-token-auth=true
+            - --etcd-cafile=/etc/kubernetes/pki/etcd-ca/tls.crt
+            - --etcd-certfile=/etc/kubernetes/pki/etcd/tls.crt
+            - --etcd-keyfile=/etc/kubernetes/pki/etcd/tls.key
+            - --etcd-servers=https://etcd-server.etcd-system.svc.cluster.local:2379
+            - --etcd-prefix=/CLUSTER
+            # - --runtime-config=
+            - --service-account-issuer=https://kubernetes.default.svc.cluster.local
+            - --service-account-key-file=/etc/kubernetes/pki/sa/tls.crt
+            - --service-account-signing-key-file=/etc/kubernetes/pki/sa/tls.key
+            - --service-cluster-ip-range=10.96.0.0/16
+            - --tls-cert-file=/etc/kubernetes/pki/k8s/tls.crt
+            - --tls-private-key-file=/etc/kubernetes/pki/k8s/tls.key
+            - --etcd-compaction-interval=0
+            # Attempt at reducing memory usage below
+            - --profiling=false
+            - --watch-cache=false
+            - --etcd-count-metric-poll-period=0
+            - --etcd-db-metric-poll-interval=0
+            - --enable-garbage-collector=false
+            - --enable-priority-and-fairness=false
+            - --runtime-config=api/alpha=false
+            # Enable AlwaysAdmit and disable everything else
+            - --enable-admission-plugins=AlwaysAdmit
+            - --disable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,TaintNodesByCondition,PodSecurity,Priority,DefaultTolerationSeconds,DefaultStorageClass,StorageObjectInUseProtection,PersistentVolumeClaimResize,RuntimeClass,CertificateApproval,CertificateSigning,CertificateSubjectRestriction,DefaultIngressClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/kubernetes/pki/etcd-ca
+              name: etcd-certs
+              readOnly: true
+            - mountPath: /etc/kubernetes/pki/etcd
+              name: etcd-client
+              readOnly: true
+            - mountPath: /etc/kubernetes/pki/ca/tls.crt
+              name: ca
+              subPath: tls.crt
+              readOnly: true
+            - mountPath: /etc/kubernetes/pki/sa
+              name: sa-certs
+              readOnly: true
+            - mountPath: /etc/kubernetes/pki/k8s
+              name: k8s-certs
+              readOnly: true
+      volumes:
+        - name: etcd-certs
+          secret:
+            secretName: CLUSTER-etcd
+        - name: etcd-client
+          secret:
+            secretName: CLUSTER-apiserver-etcd-client
+        - name: ca
+          secret:
+            secretName: CLUSTER-ca
+        - name: sa-certs
+          secret:
+            secretName: CLUSTER-sa
+        - name: k8s-certs
+          secret:
+            secretName: apiserver
+status: {}
