@@ -121,6 +121,20 @@ This config means that there will be, in total, 1000 (fake) nodes created, of wh
 
 __NOTE__: To clean up everything, you can run the `./cleanup.sh` script.
 
+# Multiple ironics setup with BMO
+
+In the version 2 of this experiment, we explore the possibility of adding BMO to the process. The steps are pretty straight-forward: compared to the ones we've already had, there're a couple of changes:
+- We need to populate BMO manifest for each of the nodes we have.
+- We no longer use the ironic client (`baremetal`) to connect to ironic, instead, we apply BMH manifests and let BMO handle the heavy works.
+- This time, the nodes will get to `available` state.
+
+## Steps
+We will still use all steps we listed in the previous section to configure ironic, sushy-tools and fake-ipa. The only exception is that as we no longer contact `ironic` directly, we no longer run the `create_and_inspect_nodes.py` script. Instead, we install BMO with `install-bmo.sh` script, and then run the `create_nodes.py` script, which will generate the manifest for each of the BMHs, apply it and wait for the bmh to be available. (The use of python is, again, to speed things up. Also due to limitation in resources, we don't want to apply all the BMH manifests at once).
+
+Now, if you open another terminal and run `kubectl -n metal3 get BMH --watch`, you will be able to observe how the BMHs are being created and inspected, a process that can be as well seen from running `watch baremetal node list`. Depending on how many nodes you choose and how fast your environment is, after a while, most/all of them should exist in ironic with state `available`. The states will also be available in the BMH objects.
+
+Just like before, all of the steps can be ran at once by running the `./Init-environment-v2.sh` script. This script also respects configuration in `config.sh`.
+
 # Requirements
 
 This study was conducted on a VM with the following specs:
