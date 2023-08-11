@@ -31,14 +31,18 @@ minikube stop
 minikube delete --all --purge
 
 # Stop and delete containers
-containers=("ironic-ipa-downloader" "ironic" "keepalived" "registry" "ironic-client" "fake-ipa" "openstack-client" "httpd-infra")
-for i in $(seq 1 "$N_SUSHY"); do
-    containers+=("sushy-tools-$i")
-done
-for container in "${containers[@]}"; do
-    echo "Deleting the container: $container"
-    sudo podman stop "$container" &>/dev/null
-    sudo podman rm "$container" &>/dev/null
+declare -a running_containers=($(sudo podman ps --all --format json | jq -r '.[].Names[0]'))
+echo ${running_containers[0]}
+declare -a containers=("ipa-downloader" "ironic" "keepalived" "registry" "ironic-client" "openstack-client" "httpd-infra")
+
+for container in "${running_containers[@]}"; do
+    if [[ "${containers[@]}" =~  "${container}" || "${container}" =~ "sushy-tools-"* || "${container}" =~ "fake-ipa-"* ]]; then
+        echo "Deleting the container: ${container}"
+        sudo podman stop "$container" &>/dev/null
+        sudo podman rm "$container" &>/dev/null
+    fi
 done
 
-rm -rf macaddrs uuids node.json nodes.json batch.json
+rm -rf bmc-*.yaml
+
+rm -rf macaddrs uuids node.json nodes.json batch.json in-memory-development.yaml sushy-tools-conf ironic.env

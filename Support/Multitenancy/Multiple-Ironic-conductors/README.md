@@ -135,6 +135,19 @@ Now, if you open another terminal and run `kubectl -n metal3 get BMH --watch`, y
 
 Just like before, all of the steps can be ran at once by running the `./Init-environment-v2.sh` script. This script also respects configuration in `config.sh`.
 
+# Multiple ironics - full setup
+
+With BMO already working, we can now proceed to making the multiple ironic conductor and fake ipa work with CAPI and CAPM3, i.e. we will aim to "create" clusters with these fake nodes. Since we do not have any nodes to install the k8s apiserver onto, we will attempt to install the apiserver directly on top of the management cluster, using the great research and experiment that was done by our colleague Lennart Jern, which can be read in full [here](https://github.com/metal3-io/metal3-io.github.io/blob/0592e636bb10b1659437790b38f85cc49c552239/_posts/2023-05-17-Scaling_part_2.md)
+
+In short, for this story to work, you will need to install `kubeadm` and `clustctl` on your system. To simulate the `etcd` server, we added the script `start_fake_etcd.sh` into the equation.
+
+All the setup steps can be run at once with the script `Init-environment-v3.sh`. After that, each time we run the script `create-cluster.sh`, a new BMH man ifest will be applied, and a new 1-node cluster will be created (the 1 node is, of course, coming with 1 kcp object, 1 `Machine` object, and 1 `Metal3Machine` object as usual).
+
+Compared to Lennart's setup, ours has a couple of differences and notes:
+- Our BMO doesn't run in test mode. Instead, we use `fake-ipa` to "trick" `ironic` to think that it is talking with real nodes.
+- We don't expose the apiservers using the domain `test-kube-apiserver.NAMESPACE.svc.cluster.local` (in fact, we still do, but it doesn't seem to expose anything). Instead, we use the ClusterIP ip of the apiserver service.
+- We also bump into the issue of lacking resources due to apiservers taking up too much, so the number of nodes/clusters we can simulate will not be too high. (So far, we have not been able to try running these apiservers on external VMs yet.) Another way to solve this issue might be to come up with some sort of apiserver simulation, the kind of things we already did with `fake-ipa`.
+
 # Requirements
 
 This study was conducted on a VM with the following specs:

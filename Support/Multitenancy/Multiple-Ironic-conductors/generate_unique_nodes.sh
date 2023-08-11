@@ -23,7 +23,7 @@ echo '[]' > nodes.json
 for i in $(seq 1 "${N_NODES:-100}"); do
   uuid=$(generate_unique uuidgen uuids)
   macaddr=$(generate_unique macgen macaddrs)
-  name="fake${i}" 
+  name="test${i}" 
   jq --arg node_name "${name}" \
     --arg uuid "${uuid}" \
     --arg macaddr "${macaddr}" \

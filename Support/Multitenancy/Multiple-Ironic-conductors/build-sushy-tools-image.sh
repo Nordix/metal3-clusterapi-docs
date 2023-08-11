@@ -1,10 +1,19 @@
 #!/bin/bash
 #
-SUSHYTOOLS_DIR="$HOME/sushy-tools"
+IMAGE_NAME="127.0.0.1:5000/localimages/sushy-tools"
+if [[ ${1:-""} == "-f" ]]; then
+    sudo podman rmi "${IMAGE_NAME}"
+fi
+
+if [[ $(sudo podman images | grep ${IMAGE_NAME}) != "" ]]; then
+    sudo podman push --tls-verify=false "${IMAGE_NAME}"
+    exit 0
+fi
+SUSHYTOOLS_DIR="/tmp/sushy-tools"
 rm -rf "$SUSHYTOOLS_DIR"
 git clone https://opendev.org/openstack/sushy-tools.git "$SUSHYTOOLS_DIR"
 cd "$SUSHYTOOLS_DIR" || exit
-git fetch https://review.opendev.org/openstack/sushy-tools refs/changes/66/875366/35 && git cherry-pick FETCH_HEAD
+git fetch https://review.opendev.org/openstack/sushy-tools refs/changes/66/875366/36 && git cherry-pick FETCH_HEAD
 
 pip3 install build
 python3 -m build
@@ -43,5 +52,5 @@ RUN mkdir -p /root/sushy
 CMD ["sushy-emulator", "-i", "::", "--config", "/root/sushy/conf.py"]
 EOF
 
-sudo podman build -t 127.0.0.1:5000/localimages/sushy-tools .
-rm -rf "$SUSHYTOOLS_DIR"
+sudo podman build -t "${IMAGE_NAME}" .
+sudo podman push --tls-verify=false "${IMAGE_NAME}"

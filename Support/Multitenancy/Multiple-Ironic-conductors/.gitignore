@@ -9,3 +9,6 @@ macaddrs
 uuids
 sushy-tools-conf/*
 bmc-*.yaml
+ironic.env
+ironic_logs/*
+track.csv
