@@ -7,7 +7,7 @@ IMAGE_NAMES=(
 # For now, sushy-tools needs to be compiled locally with https://review.opendev.org/c/openstack/sushy-tools/+/875366
     # "quay.io/metal3-io/sushy-tools"
     "quay.io/metal3-io/ironic-ipa-downloader"
-    "quay.io/metal3-io/ironic:latest"
+    "quay.io/metal3-io/ironic"
     "quay.io/metal3-io/ironic-client"
     "quay.io/metal3-io/keepalived:v0.2.0"
     "quay.io/metal3-io/mariadb:latest"
@@ -29,13 +29,10 @@ podman pod create -n ironic-pod || true
 for NAME in "${IMAGE_NAMES[@]}"; do
     # Pull and tag the image
     podman pull "$NAME"
-    podman tag "$NAME" 127.0.0.1:"$REGISTRY_PORT"/localimages/"${NAME##*/}"
+    podman tag "$NAME" 127.0.0.1:"${REGISTRY_PORT}"/localimages/"${NAME##*/}"
     # Push the image to the local registry
-    podman push --tls-verify=false 127.0.0.1:5000/localimages/"${NAME##*/}"
+    podman push --tls-verify=false 127.0.0.1:"${REGISTRY_PORT}"/localimages/"${NAME##*/}"
 done
-
-# This image was built earlier, but can only be pushed now, after the network was setup
-podman push --tls-verify=false 127.0.0.1:5000/localimages/sushy-tools
 
 __dir__=$(realpath "$(dirname "$0")")
 "$__dir__/ironic_tls_setup.sh"

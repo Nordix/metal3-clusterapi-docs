@@ -5,3 +5,5 @@ global:
   ironicNodeLockedRetryAttempts: "15"
 sshKey: <fill-me>
 ironicReplicas: []
+mariadb:
+  max_connections: "300"

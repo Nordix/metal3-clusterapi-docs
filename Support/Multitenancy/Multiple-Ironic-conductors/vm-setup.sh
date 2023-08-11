@@ -91,19 +91,3 @@ EOF
 chmod 600 /etc/NetworkManager/system-connections/baremetal.nmconnection
 nmcli con load /etc/NetworkManager/system-connections/baremetal.nmconnection
 nmcli con up baremetal
-
-# install minikube
-curl -LO https://storage.googleapis.com/minikube/releases/v1.25.2/minikube-linux-amd64
-install minikube-linux-amd64 /usr/local/bin/minikube
-# Install kubectl
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-
-# Install Helm
-helm_api="https://api.github.com/repos/helm/helm/releases"
-helm_release_tag="$(curl -sL "${helm_api}" | jq -r ".[].tag_name" | head -n 1 )"
-filename="helm-${helm_release_tag}-linux-amd64.tar.gz"
-wget -O "$filename.tar.gz" "https://get.helm.sh/${filename}"
-tar -xf "$filename.tar.gz"
-install -o root -g root -m 0755 linux-amd64/helm /usr/local/bin/helm
-rm -rf "$filename.tar.gz" linux-amd64 minikube-linux-amd64 kubectl

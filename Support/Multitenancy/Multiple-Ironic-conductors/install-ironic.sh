@@ -1,19 +1,20 @@
 #!/bin/bash
 set -e
 
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.0/cert-manager.yaml
+. ./config.sh
 
-kubectl -n cert-manager wait --for=condition=available deployment/cert-manager-webhook --timeout=300s
-kubectl -n cert-manager wait --for=condition=available deployment/cert-manager-cainjector --timeout=300s
-kubectl -n cert-manager wait --for=condition=available deployment/cert-manager --timeout=300s
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+
+kubectl -n cert-manager wait --for=condition=available deployment/cert-manager-webhook --timeout=500s
+kubectl -n cert-manager wait --for=condition=available deployment/cert-manager-cainjector --timeout=500s
+kubectl -n cert-manager wait --for=condition=available deployment/cert-manager --timeout=500s
 
 if [[ ! -f ~/.ssh/id_rsa.pub ]]; then
   ssh-keygen -t ed25519
 fi
+
 # Install ironic
-# read -ra PROVISIONING_IPS <<< "${IRONIC_ENDPOINTS}"
-# helm install ironic ironic --set sshKey="$(cat ~/.ssh/id_rsa.pub)" --set ironicReplicas="{$(echo "$IRONIC_ENDPOINTS" | sed 's/ /\,/g')}" --wait
-helm install ironic ironic --set sshKey="$(cat ~/.ssh/id_rsa.pub)" --set ironicReplicas="{${IRONIC_ENDPOINTS// /\,}}" --wait
+helm install ironic ironic --set sshKey="$(cat ~/.ssh/id_rsa.pub)" --set ironicReplicas="{${IRONIC_ENDPOINTS// /\,}}" --wait --timeout 20m
 
 ironic_client="ironicclient.sh"
 openstack_dir="${PWD}/_clouds_yaml"

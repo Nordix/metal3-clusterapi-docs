@@ -29,6 +29,8 @@ spec:
             configMapKeyRef:
               key: RESTART_CONTAINER_CERTIFICATE_UPDATED
               name: baremetal-operator-ironic-bmo-configmap
+        - name: MARIADB_MAX_CONNECTIONS
+          value: {{ .Values.mariadb.max_connections | quote }}
         image: 172.22.0.1:5000/localimages/mariadb:latest
         imagePullPolicy: Always
         livenessProbe:

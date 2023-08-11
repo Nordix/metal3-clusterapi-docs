@@ -139,18 +139,20 @@ spec:
         - mountPath: /shared
           name: ironic-data-volume
       hostNetwork: true
-      initContainers:
-      - command:
-        - /usr/local/bin/get-resource.sh
-        envFrom:
-        - configMapRef:
-            name: baremetal-operator-ironic-bmo-configmap
-        image: 172.22.0.1:5000/localimages/ironic-ipa-downloader
-        imagePullPolicy: Always
-        name: ironic-ipa-downloader
-        volumeMounts:
-        - mountPath: /shared
-          name: ironic-data-volume
+      # This was removed thanks to a hack in hostPath. Needs reconsideration if taken to
+      # production.
+      # initContainers:
+      # - command:
+      #   - touch /shared/ironic-python-agent.kernel /shared/ironic-python-agent.initramfs
+      #   envFrom:
+      #   - configMapRef:
+      #       name: baremetal-operator-ironic-bmo-configmap
+      #   image: ubuntu
+      #   imagePullPolicy: Always
+      #   name: fake-ironic-ipa-downloader
+      #   volumeMounts:
+      #   - mountPath: /shared
+      #     name: ironic-data-volume
       volumes:
       - name: cert-mariadb
         secret:
@@ -176,6 +178,8 @@ spec:
       - name: cert-ironic-inspector
         secret:
           secretName: ironic-inspector-cert
-      - emptyDir: {}
-        name: ironic-data-volume
+      - name: ironic-data-volume
+        hostPath:
+          path: /shared
+          type: Directory
 {{- end }}
