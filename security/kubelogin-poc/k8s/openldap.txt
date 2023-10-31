@@ -1,0 +1,43 @@
+$ ldapsearch -H ldap://127.0.0.1:1389 -x -b "dc=example,dc=org" -D "cn=admin,dc=example,dc=org" -w adminpassword -LLL "objectclass=*"
+
+dn: dc=example,dc=org
+objectClass: dcObject
+objectClass: organization
+dc: example
+o: example
+
+dn: ou=users,dc=example,dc=org
+objectClass: organizationalUnit
+ou: users
+
+dn: cn=customuser,ou=users,dc=example,dc=org
+cn: User1
+cn: customuser
+sn: Bar1
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+userPassword:: Y3VzdG9tcGFzc3dvcmQ=
+uid: customuser
+uidNumber: 1000
+gidNumber: 1000
+homeDirectory: /home/customuser
+
+dn: cn=foo,ou=users,dc=example,dc=org
+cn: User2
+cn: foo
+sn: Bar2
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+userPassword:: YmFy
+uid: foo
+uidNumber: 1001
+gidNumber: 1001
+homeDirectory: /home/foo
+
+dn: cn=readers,ou=users,dc=example,dc=org
+cn: readers
+objectClass: groupOfNames
+member: cn=customuser,ou=users,dc=example,dc=org
+member: cn=foo,ou=users,dc=example,dc=org
