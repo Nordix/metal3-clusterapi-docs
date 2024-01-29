@@ -51,27 +51,58 @@ TLS version is not configurable with flags.
 
 For Ironic, it should be noted that:
 
-- Ironic external endpoints are secured, while pod-internal traffic is not.
-  `httpd` (Apache) handles TLS termination.
-- IPA image serving from `httpd` port `6180` might be insecure due to PXE
-  limitations (to be verified)
-- Node image server is deployment specific. IPA client accessing the image
-  server is limited to TLS 1.2 (see Oslo below)
+- IPA image serving from `httpd` port `6180` might be insecure due to BMC or
+  (i)PXE firmware limitations, the user has to enable TLS for both
+  iPXE and virtual media. In case of iPXE, custom iPXE firmware building
+  is required. If TLS is enabled for virtual media and iPXE, additional
+  TLS enabled ports will be opened in the form of `8083` and `8084`
+  respectively.
 
-Ports:
+- The `node image server` could use `HTTPS` but that would require an IPA build
+  process that injects the relevant certificate to the IPA. In addition to IPA,
+  Ironic would also need access to the node image server certificates. Once the
+  certificates are supplied, both IPA and Ironic supports TLS 1.3 during the
+  `node image download` workflow, the process is facilitated via the third
+  party request [library](https://pypi.org/project/requests/), same library is
+  used by Ironic for `validating the node images`. Currently there is no way to
+  enable TLS support for the `node image server` in case `ironic-image` is used
+  to provide the `node image server` functionality.
 
-- Port `5049`: HTTP (Ironic Inspector API)
+- Ironic external endpoints are secured via `httpd` (Apache) that handles TLS
+  termination. Between the `http proxy` and Ironic/Inspector the communication
+  could go via UNIX socket or http depending on configuration. Ironic and
+  Ironic Inspector internal http ports can be substituted with `UNIX sockets`
+  if `IRONIC_INSPECTOR_PRIVATE_PORT` and the `IRONIC_PROVIATE_PORT` environment
+  variables are configured to have the special `unix` string value.
+
+- Currently Ironic pod is attached to the host network thus the internal
+  ports are available from the host machine as well as from within the pod.
+
+Ironic Ports:
+
+- Port `5049`: HTTP (Ironic Inspector API) replaceable with UNIX socket
 - Port `5050`: TLS 1.2, TLS 1.3 (httpd - Inspector endpoint)
-- Port `6180`: HTTP (httpd - serving IPA images)
+- Port `6180`: HTTP (httpd - serving IPA images) .
+- Port `80`: HTTP (httpd - deployed externally to the Ironic pod, hosts node
+  images)
+- Port `8083`: TLS 1.2, TLS 1.3 (httpd - serving IPA via vmedia+TLS)
+- Port `8084`: TLS 1.2, TLS 1.3 (httpd - serving IPA via custom iPXE+TLS)
 - Port `6385`: TLS 1.2, TLS 1.3 (httpd - Ironic endpoint)
-- Port `6388`: HTTP (Ironic API)
+- Port `6388`: HTTP (Ironic API) replaceable with UNIX socket
 
 Ironic endpoints support setting minimum and maximum TLS versions.
 
+Ironic Python Agent ports:
+
+- Port `9999`: TLS 1.2/1.3 auto-negotiation by default,
+  TLS 1.3 exclusive connection can't be enforced
+
 More info:
 
-- [OSLO library does not support](https://docs.openstack.org/oslo.service/latest/configuration/index.html#ssl.version)
-  TLS newer than 1.2 yet, TLS 1.3 support is planned
+- [OSLO library](https://docs.openstack.org/oslo.service/latest/configuration/index.html#ssl.version)
+  officially does not mention TLS 1.3 support but by default TLS 1.2 and
+  TLS 1.3 are enabled with auto negotiation ability thus TLS 1.3 is supported
+  but can't be enforced.
 - [IPA TLS configuration documentation](https://docs.openstack.org//ironic-python-agent/latest/doc-ironic-python-agent.pdf)
 
 ### CAPI
@@ -140,16 +171,16 @@ TLS version is not configurable with flags.
 **etcd**:
 
 For etcd, TLS 1.3 support was
-[contributed by EST](https://github.com/etcd-io/etcd/pull/15156) and is expected
-to be in the next patch release of etcd 3.5.x (estimated March 2023). Etcd
-versions from `3.5.0` to `3.5.7` have hardcoded TLS 1.2 version. Some versions
-of etcd `3.4.x` have support for TLS 1.3 as they lack this hardcoding of TLS
-version, and using new enough Golang enables TLS 1.3 for them.
+[contributed by EST](https://github.com/etcd-io/etcd/pull/15156) and was added
+to the 3.5.8 (April 13 2023). Etcd versions from `3.5.0` to `3.5.7` have
+hardcoded TLS 1.2 version. Some versions of etcd `3.4.x` have support for
+TLS 1.3 as they lack this hardcoding of TLS version, and using new enough
+Golang enables TLS 1.3 for them. TLS 1.3 can be explicitly enabled starting
+from `3.4.25` in case of `3.4.x` series is used or starting from `3.5.8` in
+case `3.5.x` series is used.
 
-`etcd` will support setting minimum and maximum TLS version in the next release.
-
-- Port `2379`: TLS 1.2
-- Port `2380`: TLS 1.2
+- Port `2379`: TLS 1.2, TLS 1.3
+- Port `2380`: TLS 1.2, TLS 1.3
 
 **apiserver**:
 
@@ -210,10 +241,25 @@ hinder developer experience. Development environment is not for production use.
 
 ## Summary
 
-TLS 1.3 is well supported in Metal3 ecosystem, with two exceptions:
+TLS 1.3 is well supported in Metal3 ecosystem, with a few caveats
+as of 29.1.2024:
 
-- `etcd` where TLS 1.3 support is coming in the next release
-- Ironic, where the Oslo library is not supporting TLS 1.3 (discussion on-going)
+- Ironic Python Agent (IPA), where the Oslo library is not
+  supporting TLS 1.3 officially but because of implementation characteristics
+  of `oslo.service` and the nature of Python 3 (from 3.7 up to 3.12) TLS 1.3
+  and 1.2 auto-negotiation is enabled by default but TLS 1.3 exclusive
+  connection can't be enforced.
 
-However, not all projects fully support configuration of TLS versions in case
-TLS 1.3 would need to be enforced as the only supported TLS version.
+- Ironic and Ironic Inspector internal ports are available via HTTP from
+  within the pod or the host machine by default, but could be switched to
+  utilize `UNIX sockets`.
+
+- httpd node image server doesn't support https but that is not an inherent
+  limitation of either the Ironic, IPA or httpd but only how ironic-image httpd
+  configuration is implemented as it expects the default IPA to lack
+  necessary certificates. In production environments node images can be
+  hosted from a https enabled server if the user builds and uses a custom IPA
+  and provides the necessary certificates during IPA build.
+
+- TLS support for virtual media and iPXE IPA boot process has to be enabled
+  manually.
