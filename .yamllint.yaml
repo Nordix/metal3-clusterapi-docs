@@ -1,7 +1,7 @@
 yaml-files:
-  - '*.yaml'
-  - '*.yml'
-  - '.yamllint'
+- '*.yaml'
+- '*.yml'
+- '.yamllint'
 
 rules:
   trailing-spaces: enable

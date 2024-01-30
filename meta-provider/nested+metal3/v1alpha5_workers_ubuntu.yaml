@@ -57,42 +57,42 @@ spec:
   clusterName: cluster-sample
   metaData:
     ipAddressesFromIPPool:
-      - key: provisioningIP
-        name: provisioning-pool
+    - key: provisioningIP
+      name: provisioning-pool
     objectNames:
-      - key: name
-        object: machine
-      - key: local-hostname
-        object: machine
-      - key: local_hostname
-        object: machine
+    - key: name
+      object: machine
+    - key: local-hostname
+      object: machine
+    - key: local_hostname
+      object: machine
     prefixesFromIPPool:
-      - key: provisioningCIDR
-        name: provisioning-pool
+    - key: provisioningCIDR
+      name: provisioning-pool
   networkData:
     links:
       ethernets:
-        - id: enp1s0
-          macAddress:
-            fromHostInterface: enp1s0
-          type: phy
-        - id: enp2s0
-          macAddress:
-            fromHostInterface: enp2s0
-          type: phy
+      - id: enp1s0
+        macAddress:
+          fromHostInterface: enp1s0
+        type: phy
+      - id: enp2s0
+        macAddress:
+          fromHostInterface: enp2s0
+        type: phy
     networks:
       ipv4:
-        - id: baremetalv4
-          ipAddressFromIPPool: baremetalv4-pool
-          link: enp2s0
-          routes:
-            - gateway:
-                fromIPPool: baremetalv4-pool
-              network: 0.0.0.0
-              prefix: 0
+      - id: baremetalv4
+        ipAddressFromIPPool: baremetalv4-pool
+        link: enp2s0
+        routes:
+        - gateway:
+            fromIPPool: baremetalv4-pool
+          network: 0.0.0.0
+          prefix: 0
     services:
       dns:
-        - 8.8.8.8
+      - 8.8.8.8
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
 kind: KubeadmConfigTemplate
@@ -103,25 +103,25 @@ spec:
   template:
     spec:
       files:
-        - content: |
-            network:
-              version: 2
-              renderer: networkd
-              bridges:
-                ironicendpoint:
-                  interfaces: [enp1s0]
-                  addresses:
-                  - {{ ds.meta_data.provisioningIP }}/{{ ds.meta_data.provisioningCIDR }}
-          owner: root:root
-          path: /etc/netplan/52-ironicendpoint.yaml
-          permissions: "0644"
-        - content: |
-            [registries.search]
-            registries = ['docker.io']
+      - content: |
+          network:
+            version: 2
+            renderer: networkd
+            bridges:
+              ironicendpoint:
+                interfaces: [enp1s0]
+                addresses:
+                - {{ ds.meta_data.provisioningIP }}/{{ ds.meta_data.provisioningCIDR }}
+        owner: root:root
+        path: /etc/netplan/52-ironicendpoint.yaml
+        permissions: "0644"
+      - content: |
+          [registries.search]
+          registries = ['docker.io']
 
-            [registries.insecure]
-            registries = ['192.168.111.1:5000']
-          path: /etc/containers/registries.conf
+          [registries.insecure]
+          registries = ['192.168.111.1:5000']
+        path: /etc/containers/registries.conf
       joinConfiguration:
         nodeRegistration:
           kubeletExtraArgs:
@@ -134,16 +134,15 @@ spec:
             runtime-request-timeout: 5m
           name: "{{ ds.meta_data.name }}"
       preKubeadmCommands:
-        - netplan apply
-        - systemctl enable --now crio kubelet
-        - echo "172.18.255.200 cluster-sample-apiserver" >> /etc/hosts
+      - netplan apply
+      - systemctl enable --now crio kubelet
+      - echo "172.18.255.200 cluster-sample-apiserver" >> /etc/hosts
       users:
-        - name: metal3
-          sshAuthorizedKeys:
-            - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC48zS2PJKInW6O8QxA1Ugvhad1qkl01XydfdTNR4deqAAiwn8KdHftQCwOTPmrK2QFEf6Pax86gSbcBmFRQwgS/1WkkAa00e+btTKD7BFDuMTXwDNiQLtFdpoWnWVj93Vb5cTIRDG3biaVup2koqODyzpshUvlT9POEQ+ri18LhC/Klk4JA4M7tW9e/gdptAKjyYPMQygrkeuwATrocEMxBrbypQzDkRfqgIXPqcENLBrtt7bDuv94/bUzHq5CLi9M+WJfItTdGNkezkonmDlf2DSMTTgx/ApRmnGsAqjIZnKYN44u8b1ax4oUAqd6lei0Ed3lAm1DQZAh4sApUEBpZdzSOZnoK51XvI36586kSwk5BnrqtpmiIWc77zebIedEc0N0PppD50gNKYKPNkYpwcIwzTU6Ds4ets8V0P96yyxMkEHxgqvFM5uNrfnYNPUTTxICsdd5NN+e1qs4XJ3RaF3bnEQOYSTtKF5gIgzXiBm8JCV0LVar4l0NVMGySAM=
-              ubuntu@lennart-test
-          sudo: ALL=(ALL) NOPASSWD:ALL
-          lockPassword: false
-          # generate with mkpasswd --method=SHA-512 --rounds=4096
-          # nerdvendor
-          passwd: $6$rounds=4096$EhcyaSgedVn6D9Qm$WTqrBEESsX6Qe0huYzEy0i13xEfLecPGGB184HvkiFm4SNxLq3WeVE0AA4.hWQz8CXkxqb7J05I6DErQ6qvvi1
+      - name: metal3
+        sshAuthorizedKeys:
+        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC48zS2PJKInW6O8QxA1Ugvhad1qkl01XydfdTNR4deqAAiwn8KdHftQCwOTPmrK2QFEf6Pax86gSbcBmFRQwgS/1WkkAa00e+btTKD7BFDuMTXwDNiQLtFdpoWnWVj93Vb5cTIRDG3biaVup2koqODyzpshUvlT9POEQ+ri18LhC/Klk4JA4M7tW9e/gdptAKjyYPMQygrkeuwATrocEMxBrbypQzDkRfqgIXPqcENLBrtt7bDuv94/bUzHq5CLi9M+WJfItTdGNkezkonmDlf2DSMTTgx/ApRmnGsAqjIZnKYN44u8b1ax4oUAqd6lei0Ed3lAm1DQZAh4sApUEBpZdzSOZnoK51XvI36586kSwk5BnrqtpmiIWc77zebIedEc0N0PppD50gNKYKPNkYpwcIwzTU6Ds4ets8V0P96yyxMkEHxgqvFM5uNrfnYNPUTTxICsdd5NN+e1qs4XJ3RaF3bnEQOYSTtKF5gIgzXiBm8JCV0LVar4l0NVMGySAM= ubuntu@lennart-test
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        lockPassword: false
+        # generate with mkpasswd --method=SHA-512 --rounds=4096
+        # nerdvendor
+        passwd: $6$rounds=4096$EhcyaSgedVn6D9Qm$WTqrBEESsX6Qe0huYzEy0i13xEfLecPGGB184HvkiFm4SNxLq3WeVE0AA4.hWQz8CXkxqb7J05I6DErQ6qvvi1

@@ -1,7 +1,6 @@
----
 - hosts: all
   # strategy: free
   roles:
-    - backing-cluster
+  - backing-cluster
   tags:
-    - backing-cluster
+  - backing-cluster

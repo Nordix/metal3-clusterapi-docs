@@ -13,7 +13,7 @@ spec:
   commonName: ironic-ca
   isCA: true
   ipAddresses:
-    - MINIKUBE_IP
+  - MINIKUBE_IP
   issuerRef:
     kind: Issuer
     name: selfsigned-issuer
@@ -34,7 +34,7 @@ metadata:
 spec:
   commonName: ironic-cert
   ipAddresses:
-    - MINIKUBE_IP
+  - MINIKUBE_IP
   issuerRef:
     kind: Issuer
     name: ca-issuer
@@ -47,7 +47,7 @@ metadata:
 spec:
   commonName: ironic-inspector-cert
   ipAddresses:
-    - MINIKUBE_IP
+  - MINIKUBE_IP
   issuerRef:
     kind: Issuer
     name: ca-issuer

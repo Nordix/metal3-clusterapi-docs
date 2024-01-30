@@ -1,43 +1,43 @@
 status:
   conditions:
-    - lastProbeTime: null
-      lastTransitionTime: "2023-01-23T07:16:29Z"
-      status: "True"
-      type: Initialized
-    - lastProbeTime: null
-      lastTransitionTime: "2023-01-23T07:17:12Z"
-      status: "True"
-      type: Ready
-    - lastProbeTime: null
-      lastTransitionTime: "2023-01-23T07:17:12Z"
-      status: "True"
-      type: ContainersReady
-    - lastProbeTime: null
-      lastTransitionTime: "2023-01-23T07:16:29Z"
-      status: "True"
-      type: PodScheduled
+  - lastProbeTime: null
+    lastTransitionTime: "2023-01-23T07:16:29Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2023-01-23T07:17:12Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2023-01-23T07:17:12Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2023-01-23T07:16:29Z"
+    status: "True"
+    type: PodScheduled
   containerStatuses:
-    - containerID: containerd://88b6b6253e67c76792febb961b081898e3741e23d699a26d52226a074263d54f
-      image: registry.k8s.io/kube-scheduler:v1.25.3
-      imageID: docker.io/library/import-2022-10-25@sha256:409b0e81d9aecf59df96df445a3171f43e2ae834ef6c9e77b1492c4d19bfd78d
-      lastState:
-        terminated:
-          containerID: containerd://16e3c912b3c689fd04bc7351d88da0de31ebf426996771ddefd8ce57e6e04e96
-          exitCode: 1
-          finishedAt: "2023-01-23T07:16:56Z"
-          reason: Error
-          startedAt: "2023-01-23T07:16:16Z"
-      name: kube-scheduler
-      ready: true
-      restartCount: 1
-      started: true
-      state:
-        running:
-          startedAt: "2023-01-23T07:16:58Z"
+  - containerID: containerd://88b6b6253e67c76792febb961b081898e3741e23d699a26d52226a074263d54f
+    image: registry.k8s.io/kube-scheduler:v1.25.3
+    imageID: docker.io/library/import-2022-10-25@sha256:409b0e81d9aecf59df96df445a3171f43e2ae834ef6c9e77b1492c4d19bfd78d
+    lastState:
+      terminated:
+        containerID: containerd://16e3c912b3c689fd04bc7351d88da0de31ebf426996771ddefd8ce57e6e04e96
+        exitCode: 1
+        finishedAt: "2023-01-23T07:16:56Z"
+        reason: Error
+        startedAt: "2023-01-23T07:16:16Z"
+    name: kube-scheduler
+    ready: true
+    restartCount: 1
+    started: true
+    state:
+      running:
+        startedAt: "2023-01-23T07:16:58Z"
   hostIP: 172.18.0.4
   phase: Running
   podIP: 172.18.0.4
   podIPs:
-    - ip: 172.18.0.4
+  - ip: 172.18.0.4
   qosClass: Burstable
   startTime: "2023-01-23T07:16:29Z"

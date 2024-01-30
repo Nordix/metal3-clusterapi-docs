@@ -2,18 +2,18 @@ apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 apiServer:
   certSANs:
-    - localhost
-    - 127.0.0.1
-    - 0.0.0.0
-    - HOST
+  - localhost
+  - 127.0.0.1
+  - 0.0.0.0
+  - HOST
 clusterName: test
 controlPlaneEndpoint: HOST:6443
 etcd:
   local:
     # https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-LocalEtcd
     serverCertSANs:
-      - etcd-server.etcd-system.svc.cluster.local
+    - etcd-server.etcd-system.svc.cluster.local
     peerCertSANs:
-      - etcd-0.etcd.etcd-system.svc.cluster.local
+    - etcd-0.etcd.etcd-system.svc.cluster.local
 kubernetesVersion: v1.25.3
 certificatesDir: /tmp/CLUSTER/pki

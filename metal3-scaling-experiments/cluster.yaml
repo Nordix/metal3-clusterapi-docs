@@ -7,10 +7,10 @@ spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-        - 192.168.0.0/18
+      - 192.168.0.0/18
     services:
       cidrBlocks:
-        - 10.96.0.0/12
+      - 10.96.0.0/12
   controlPlaneRef:
     apiVersion: controlplane.cluster.x-k8s.io/v1beta1
     kind: KubeadmControlPlane
@@ -55,16 +55,16 @@ spec:
       controlPlaneEndpoint: test-kube-apiserver.metal3.svc.cluster.local:6443
       apiServer:
         certSANs:
-          - localhost
-          - 127.0.0.1
-          - 0.0.0.0
-          - test-kube-apiserver.metal3.svc.cluster.local
+        - localhost
+        - 127.0.0.1
+        - 0.0.0.0
+        - test-kube-apiserver.metal3.svc.cluster.local
       etcd:
         local:
           serverCertSANs:
-            - etcd-server.metal3.cluster.svc.local
+          - etcd-server.metal3.cluster.svc.local
           peerCertSANs:
-            - etcd-0.etcd.metal3.cluster.svc.local
+          - etcd-0.etcd.metal3.cluster.svc.local
   machineTemplate:
     infrastructureRef:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta1

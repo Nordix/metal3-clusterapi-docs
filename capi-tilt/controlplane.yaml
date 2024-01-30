@@ -26,11 +26,11 @@ spec:
           # Appropriate for testing or development only.
           enable-hostpath-provisioner: "true"
 ---
-  apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
-  kind: DockerMachineTemplate
-  metadata:
-    name: my-controlplane
-    namespace: default
-  spec:
-    template:
-      spec: {}
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: DockerMachineTemplate
+metadata:
+  name: my-controlplane
+  namespace: default
+spec:
+  template:
+    spec: {}

@@ -13,7 +13,7 @@ kind: Component
 #     - password=ironic-inspector-password
 
 patches:
-  - path: credentials_patch.yaml
-    target:
-      kind: Deployment
-      name: controller-manager
+- path: credentials_patch.yaml
+  target:
+    kind: Deployment
+    name: controller-manager

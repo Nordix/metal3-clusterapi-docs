@@ -8,11 +8,11 @@ spec:
       containers:
       - name: ironic
         readinessProbe:
-         exec:
-           command: ["sh", "-c", "curl -sSf http://127.0.0.1:6388"]
+          exec:
+            command: ["sh", "-c", "curl -sSf http://127.0.0.1:6388"]
         livenessProbe:
-         exec:
-           command: ["sh", "-c", "curl -sSf http://127.0.0.1:6388"]
+          exec:
+            command: ["sh", "-c", "curl -sSf http://127.0.0.1:6388"]
         env:
         - name: IRONIC_REVERSE_PROXY_SETUP
           value: "true"
@@ -27,11 +27,11 @@ spec:
           readOnly: true
       - name: ironic-httpd
         livenessProbe:
-         exec:
-           command: ["sh", "-c", "curl -sSfk https://127.0.0.1:6385"]
+          exec:
+            command: ["sh", "-c", "curl -sSfk https://127.0.0.1:6385"]
         readinessProbe:
-         exec:
-           command: ["sh", "-c", "curl -sSfk https://127.0.0.1:6385"]
+          exec:
+            command: ["sh", "-c", "curl -sSfk https://127.0.0.1:6385"]
         env:
         - name: IRONIC_REVERSE_PROXY_SETUP
           value: "true"

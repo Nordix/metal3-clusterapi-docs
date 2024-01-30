@@ -11,14 +11,14 @@ components:
 - ../../components/tls
 
 secretGenerator:
-  - name: ironic-credentials
-    literals:
-    - username=admin
-    - password=password
-  - name: ironic-inspector-credentials
-    literals:
-    - username=inspector
-    - password=password
+- name: ironic-credentials
+  literals:
+  - username=admin
+  - password=password
+- name: ironic-inspector-credentials
+  literals:
+  - username=inspector
+  - password=password
 
 configMapGenerator:
 - name: ironic

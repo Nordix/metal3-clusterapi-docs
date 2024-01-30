@@ -17,15 +17,15 @@ spec:
           cores: 4
         devices:
           disks:
-            - name: containervolume
-              disk:
-                bus: virtio
-            - name: mypvcdisk
-              disk:
-                bus: virtio
-            - name: cloudinitvolume
-              disk:
-                bus: virtio
+          - name: containervolume
+            disk:
+              bus: virtio
+          - name: mypvcdisk
+            disk:
+              bus: virtio
+          - name: cloudinitvolume
+            disk:
+              bus: virtio
           interfaces:
           - name: default
             bridge: {}
@@ -37,18 +37,18 @@ spec:
       - name: default
         pod: {}
       volumes:
-        - name: containervolume
-          containerDisk:
-            image: tedezed/ubuntu-container-disk:16.0
-        - name: mypvcdisk
-          persistentVolumeClaim:
-            claimName: kubevirt-pv-claim
-        - name: cloudinitvolume
-          cloudInitNoCloud:
-            userData: |-
-              #cloud-config
-              chpasswd:
-                list: |
-                  ubuntu:mypassword
-                  root:root
-                expire: False
+      - name: containervolume
+        containerDisk:
+          image: tedezed/ubuntu-container-disk:16.0
+      - name: mypvcdisk
+        persistentVolumeClaim:
+          claimName: kubevirt-pv-claim
+      - name: cloudinitvolume
+        cloudInitNoCloud:
+          userData: |-
+            #cloud-config
+            chpasswd:
+              list: |
+                ubuntu:mypassword
+                root:root
+              expire: False

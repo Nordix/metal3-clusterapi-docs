@@ -18,13 +18,13 @@ metadata:
 spec:
   podCIDR: 10.244.0.0/24
   podCIDRs:
-    - 10.244.0.0/24
+  - 10.244.0.0/24
 status:
   addresses:
-    - address: 172.20.0.2
-      type: InternalIP
-    - address: fake-node
-      type: Hostname
+  - address: 172.20.0.2
+    type: InternalIP
+  - address: fake-node
+    type: Hostname
   allocatable:
     cpu: "8"
     ephemeral-storage: 488876072Ki
@@ -40,30 +40,30 @@ status:
     memory: 32599664Ki
     pods: "110"
   conditions:
-    - lastHeartbeatTime: "2022-12-14T06:46:55Z"
-      lastTransitionTime: "2022-12-13T07:34:20Z"
-      message: kubelet has sufficient memory available
-      reason: KubeletHasSufficientMemory
-      status: "False"
-      type: MemoryPressure
-    - lastHeartbeatTime: "2022-12-14T06:46:55Z"
-      lastTransitionTime: "2022-12-13T07:34:20Z"
-      message: kubelet has no disk pressure
-      reason: KubeletHasNoDiskPressure
-      status: "False"
-      type: DiskPressure
-    - lastHeartbeatTime: "2022-12-14T06:46:55Z"
-      lastTransitionTime: "2022-12-13T07:34:20Z"
-      message: kubelet has sufficient PID available
-      reason: KubeletHasSufficientPID
-      status: "False"
-      type: PIDPressure
-    - lastHeartbeatTime: "2022-12-14T06:46:55Z"
-      lastTransitionTime: "2022-12-13T07:34:45Z"
-      message: kubelet is posting ready status
-      reason: KubeletReady
-      status: "True"
-      type: Ready
+  - lastHeartbeatTime: "2022-12-14T06:46:55Z"
+    lastTransitionTime: "2022-12-13T07:34:20Z"
+    message: kubelet has sufficient memory available
+    reason: KubeletHasSufficientMemory
+    status: "False"
+    type: MemoryPressure
+  - lastHeartbeatTime: "2022-12-14T06:46:55Z"
+    lastTransitionTime: "2022-12-13T07:34:20Z"
+    message: kubelet has no disk pressure
+    reason: KubeletHasNoDiskPressure
+    status: "False"
+    type: DiskPressure
+  - lastHeartbeatTime: "2022-12-14T06:46:55Z"
+    lastTransitionTime: "2022-12-13T07:34:20Z"
+    message: kubelet has sufficient PID available
+    reason: KubeletHasSufficientPID
+    status: "False"
+    type: PIDPressure
+  - lastHeartbeatTime: "2022-12-14T06:46:55Z"
+    lastTransitionTime: "2022-12-13T07:34:45Z"
+    message: kubelet is posting ready status
+    reason: KubeletReady
+    status: "True"
+    type: Ready
   daemonEndpoints:
     kubeletEndpoint:
       Port: 10250

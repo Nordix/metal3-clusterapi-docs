@@ -7,20 +7,20 @@ spec:
   networkData:
     links:
       ethernets:
-        - type: phy
-          id: enp1s0
-          macAddress:
-            fromHostInterface: enp1s0
+      - type: phy
+        id: enp1s0
+        macAddress:
+          fromHostInterface: enp1s0
     networks:
       ipv4:
-        - id: kcpv4
-          link: enp1s0
-          ipAddressFromIPPool: kcp
-          routes:
-            - network: 0.0.0.0
-              prefix: 0
-              gateway:
-                fromIPPool: kcp
+      - id: kcpv4
+        link: enp1s0
+        ipAddressFromIPPool: kcp
+        routes:
+        - network: 0.0.0.0
+          prefix: 0
+          gateway:
+            fromIPPool: kcp
     services:
       dns:
-        - 8.8.8.8
+      - 8.8.8.8

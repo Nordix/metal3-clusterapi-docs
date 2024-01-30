@@ -2,13 +2,13 @@ apiVersion: kustomize.config.k8s.io/v1alpha1
 kind: Component
 
 resources:
-  - certificate.yaml
+- certificate.yaml
 
 patches:
-  - path: tls.yaml
-    target:
-      kind: Deployment
-      name: ironic
+- path: tls.yaml
+  target:
+    kind: Deployment
+    name: ironic
 
 configurations:
-  - kustomizeconfig.yaml
+- kustomizeconfig.yaml
