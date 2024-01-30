@@ -16,9 +16,9 @@ done
 
 # Delete libvirt networks
 for net in provisioning baremetal; do
-    if sudo virsh net-info $net &>/dev/null; then
-        sudo virsh net-destroy $net
-        sudo virsh net-undefine $net
+    if virsh -c qemu:///system net-info $net &>/dev/null; then
+        virsh -c qemu:///system net-destroy $net
+        virsh -c qemu:///system net-undefine $net
     fi
 done
 
@@ -31,18 +31,21 @@ minikube stop
 minikube delete --all --purge
 
 # Stop and delete containers
-declare -a running_containers=($(sudo podman ps --all --format json | jq -r '.[].Names[0]'))
+declare -a running_containers=($(podman ps --all --format json | jq -r '.[].Names[0]'))
 echo ${running_containers[0]}
 declare -a containers=("ipa-downloader" "ironic" "keepalived" "registry" "ironic-client" "openstack-client" "httpd-infra")
 
 for container in "${running_containers[@]}"; do
     if [[ "${containers[@]}" =~  "${container}" || "${container}" =~ "sushy-tools-"* || "${container}" =~ "fake-ipa-"* ]]; then
         echo "Deleting the container: ${container}"
-        sudo podman stop "$container" &>/dev/null
-        sudo podman rm "$container" &>/dev/null
+        podman stop "$container" &>/dev/null
+        podman rm "$container" &>/dev/null
     fi
 done
 
 rm -rf bmc-*.yaml
 
 rm -rf macaddrs uuids node.json nodes.json batch.json in-memory-development.yaml sushy-tools-conf ironic.env
+
+podman pod rm infra-pod ironic-pod
+sudo rm -rf opt/metal3-dev-env/ironic/html

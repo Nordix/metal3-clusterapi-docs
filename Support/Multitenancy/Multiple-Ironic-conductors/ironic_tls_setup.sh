@@ -2,7 +2,8 @@
 
 # Create certificates and related files for TLS
 CLUSTER_BARE_METAL_PROVISIONER_HOST="172.22.0.2"
-WORKING_DIR="/opt/metal3-dev-env/ironic"
+__dir__=$(realpath "$(dirname "$0")")
+WORKING_DIR="${__dir__}/opt/metal3-dev-env/ironic"
 mkdir -p $WORKING_DIR
 pushd "${WORKING_DIR}" || exit
 mkdir -p "${WORKING_DIR}/certs"

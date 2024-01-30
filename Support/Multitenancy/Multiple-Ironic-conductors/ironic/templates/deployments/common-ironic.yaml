@@ -21,7 +21,7 @@ spec:
       - envFrom:
         - configMapRef:
             name: baremetal-operator-ironic-bmo-configmap
-        image: 172.22.0.1:5000/localimages/keepalived:v0.2.0
+        image: 127.0.0.1:5000/localimages/keepalived:v0.2.0
         name: ironic-endpoint-keepalived
         securityContext:
           capabilities:
@@ -33,8 +33,8 @@ spec:
         envFrom:
         - configMapRef:
             name: baremetal-operator-ironic-bmo-configmap
-        image: 172.22.0.1:5000/localimages/ironic
-        imagePullPolicy: Always
+        image: 127.0.0.1:5000/localimages/ironic:latest
+        imagePullPolicy: Never
         name: ironic-dnsmasq
         securityContext:
           capabilities:
@@ -64,8 +64,8 @@ spec:
           name: ironic-data-volume
       - command:
         - /bin/runlogwatch.sh
-        image: 172.22.0.1:5000/localimages/ironic
-        imagePullPolicy: Always
+        image: 127.0.0.1:5000/localimages/ironic:latest
+        imagePullPolicy: Never
         name: ironic-log-watch
         volumeMounts:
         - mountPath: /auth/ironic
@@ -100,8 +100,8 @@ spec:
             name: baremetal-operator-ironic-inspector-htpasswd
         - configMapRef:
             name: baremetal-operator-ironic-bmo-configmap
-        image: 172.22.0.1:5000/localimages/ironic
-        imagePullPolicy: Always
+        image: 127.0.0.1:5000/localimages/ironic:latest
+        imagePullPolicy: Never
         name: ironic-inspector
         volumeMounts:
         - mountPath: /certs/ca/ironic

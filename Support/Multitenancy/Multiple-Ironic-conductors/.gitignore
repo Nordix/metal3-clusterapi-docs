@@ -12,3 +12,4 @@ bmc-*.yaml
 ironic.env
 ironic_logs/*
 track.csv
+opt/*

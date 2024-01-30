@@ -5,17 +5,10 @@ import random
 import os
 from multiprocessing import Pool
 
+N_SUSHY_CONTAINERS=int(os.environ.get("N_SUSHY", 2))
+
 with open("nodes.json") as f:
     nodes = json.load(f)
-
-def generate_random_mac():
-    # Generate a random MAC address
-    mac = [random.randint(0x00, 0xff) for _ in range(6)]
-    # Set the locally administered address bit (2nd least significant bit of the 1st byte) to 1
-    mac[0] |= 0x02
-    # Format the MAC address
-    mac_address = ':'.join('%02x' % b for b in mac)
-    return mac_address
 
 def query_k8s_obj(namespace, obj_type, obj_name):
     try:
@@ -28,8 +21,8 @@ def create_node(node):
     uuid = node["uuid"]
     name = node["name"]
     namespace = "metal3"
-    port = 8001 + (int(name.strip("fake")) - 1) % int(os.environ.get("N_SUSHY", 10))
-    random_mac = generate_random_mac()
+    port = 8001 + ((int(name.strip("test")) - 1) % N_SUSHY_CONTAINERS)
+    random_mac = node["nics"][0]["mac"]
     manifest = f"""---
 apiVersion: v1
 kind: Secret
@@ -52,7 +45,7 @@ metadata:
 spec:
   online: true
   bmc:
-    address: redfish+http://192.168.111.1:{port}/redfish/v1/Systems/{uuid}
+    address: redfish+http://host.minikube.internal:{port}/redfish/v1/Systems/{uuid}
     credentialsName: {name}-bmc-secret
   bootMACAddress: {random_mac}
   bootMode: legacy
