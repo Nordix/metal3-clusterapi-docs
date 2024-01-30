@@ -3,7 +3,7 @@ set -e
 
 # sudo install minikube
 if [[ $(ls /usr/local/bin/minikube) == "" ]]; then
-  curl -LO https://storage.googleapis.com/minikube/releases/v1.31.0/minikube-linux-amd64
+  curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
   sudo install minikube-linux-amd64 /usr/local/bin/minikube
 fi
 # sudo install kubectl

@@ -2,18 +2,18 @@
 #
 IMAGE_NAME="127.0.0.1:5000/localimages/sushy-tools"
 if [[ ${1:-""} == "-f" ]]; then
-    sudo podman rmi "${IMAGE_NAME}"
+    podman rmi "${IMAGE_NAME}"
 fi
 
-if [[ $(sudo podman images | grep ${IMAGE_NAME}) != "" ]]; then
-    sudo podman push --tls-verify=false "${IMAGE_NAME}"
+if [[ $(podman images | grep ${IMAGE_NAME}) != "" ]]; then
+    podman push --tls-verify=false "${IMAGE_NAME}"
     exit 0
 fi
 SUSHYTOOLS_DIR="/tmp/sushy-tools"
 rm -rf "$SUSHYTOOLS_DIR"
 git clone https://opendev.org/openstack/sushy-tools.git "$SUSHYTOOLS_DIR"
 cd "$SUSHYTOOLS_DIR" || exit
-git fetch https://review.opendev.org/openstack/sushy-tools refs/changes/66/875366/36 && git cherry-pick FETCH_HEAD
+git fetch https://review.opendev.org/openstack/sushy-tools refs/changes/66/875366/39 && git cherry-pick FETCH_HEAD
 
 pip3 install build
 python3 -m build
@@ -47,10 +47,9 @@ ENV FLASK_DEBUG=1
 RUN mkdir -p /root/sushy
 
 # Set the default command to run when starting the container
-# CMD ["python3", "app.py"]
-# CMD ["sleep", "infinity"]
 CMD ["sushy-emulator", "-i", "::", "--config", "/root/sushy/conf.py"]
 EOF
+podman push --tls-verify=false
 
-sudo podman build -t "${IMAGE_NAME}" .
-sudo podman push --tls-verify=false "${IMAGE_NAME}"
+podman build -t "${IMAGE_NAME}" .
+podman push --tls-verify=false "${IMAGE_NAME}"

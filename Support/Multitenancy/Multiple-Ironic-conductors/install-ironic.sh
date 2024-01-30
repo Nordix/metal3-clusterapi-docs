@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eux
 
 . ./config.sh
 
@@ -20,7 +20,8 @@ ironic_client="ironicclient.sh"
 openstack_dir="${PWD}/_clouds_yaml"
 rm -rf "${openstack_dir}"
 mkdir -p "${openstack_dir}"
-cp /opt/metal3-dev-env/ironic/certs/ironic-ca.pem "${openstack_dir}/ironic-ca.crt"
+__dir__=$(realpath "$(dirname "$0")")
+cp ${__dir__}/opt/metal3-dev-env/ironic/certs/ironic-ca.pem "${openstack_dir}/ironic-ca.crt"
 cat << EOT >"${openstack_dir}/clouds.yaml"
 clouds:
   metal3:
@@ -30,7 +31,7 @@ clouds:
     verify: false
 EOT
 
-sudo podman run --net=host --tls-verify=false \
+podman run --net=host --tls-verify=false \
   --name openstack-client \
   --detach \
   --entrypoint='["/bin/sleep", "inf"]' \
@@ -56,7 +57,7 @@ if [ \$1 == "baremetal" ] ; then
 fi
 
 # shellcheck disable=SC2086
-sudo podman exec openstack-client /usr/bin/baremetal "\$@"
+podman exec openstack-client /usr/bin/baremetal "\$@"
 EOT
 
 sudo chmod a+x "${ironic_client}"

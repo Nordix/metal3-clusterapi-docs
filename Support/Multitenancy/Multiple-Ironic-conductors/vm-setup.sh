@@ -1,10 +1,22 @@
 #!/bin/bash
-set -e
+set -eux
+
 #install kvm for minikube
-dnf -y install qemu-kvm libvirt virt-install net-tools podman firewalld
-systemctl enable --now libvirtd
-systemctl start firewalld
-systemctl enable firewalld
+sudo dnf -y install qemu-kvm libvirt virt-install net-tools podman firewalld
+
+# Allow podman to run non-sudo
+sudo usermod --add-subuids 200000-265536 --add-subgids 200000-265536 $(whoami)
+
+REGISTRY_NAME="registry"
+REGISTRY_PORT="5000"
+# Start podman registry if it's not already running
+if ! podman ps | grep -q "$REGISTRY_NAME"; then
+    podman run -d -p "$REGISTRY_PORT":"$REGISTRY_PORT" --name "$REGISTRY_NAME" docker.io/library/registry:2.7.1
+fi
+
+sudo systemctl enable --now libvirtd
+sudo systemctl start firewalld
+sudo systemctl enable firewalld
 # create provisioning network
 cat <<EOF >provisioning.xml
 <network
@@ -20,7 +32,7 @@ cat <<EOF >provisioning.xml
 EOF
 
 cat <<EOF >baremetal.xml
-<network xmlns:dnsmasq='http://libvirt.org/schemas/network/dnsmasq/1.0'>
+<network>
   <name>baremetal</name>
   <forward mode='nat'>
     <nat>
@@ -28,35 +40,22 @@ cat <<EOF >baremetal.xml
     </nat>
   </forward>
   <bridge name='baremetal' stp='on' delay='0'/>
-  <domain name='ostest.test.metalkube.org' localOnly='yes'/>
-  <dns>
-    <forwarder domain='apps.ostest.test.metalkube.org' addr='127.0.0.1'/>
-  </dns>
   <ip address='192.168.111.1' netmask='255.255.255.0'>
     <dhcp>
       <range start='192.168.111.20' end='192.168.111.60'/>
-      <host mac='00:5c:52:31:3b:9c' name='node-0' ip='192.168.111.20'>
-        <lease expiry='60' unit='minutes'/>
-      </host>
-      <host mac='00:5c:52:31:3b:ad' name='node-1' ip='192.168.111.21'>
-        <lease expiry='60' unit='minutes'/>
-      </host>
     </dhcp>
   </ip>
-  <dnsmasq:options>
-    <dnsmasq:option value='cache-size=0'/>
-  </dnsmasq:options>
 </network>
 EOF
-# define networks
-virsh net-define baremetal.xml
-virsh net-start baremetal
-virsh net-autostart baremetal
 
-virsh net-define provisioning.xml
-virsh net-start provisioning
-virsh net-autostart provisioning
-tee -a /etc/NetworkManager/system-connections/provisioning.nmconnection <<EOF
+# define networks
+for net in baremetal provisioning; do
+  virsh -c qemu:///system net-define "${net}.xml"
+  virsh -c qemu:///system net-start "${net}"
+  virsh -c qemu:///system net-autostart "${net}"
+done
+
+sudo tee -a /etc/NetworkManager/system-connections/provisioning.nmconnection <<EOF
 [connection]
 id=provisioning
 type=bridge
@@ -71,11 +70,11 @@ addr-gen-mode=eui64
 method=disabled
 EOF
 
-chmod 600 /etc/NetworkManager/system-connections/provisioning.nmconnection
-nmcli con load /etc/NetworkManager/system-connections/provisioning.nmconnection
-nmcli con up provisioning
+sudo chmod 600 /etc/NetworkManager/system-connections/provisioning.nmconnection
+sudo nmcli con load /etc/NetworkManager/system-connections/provisioning.nmconnection
+sudo nmcli con up provisioning
 
-tee /etc/NetworkManager/system-connections/baremetal.nmconnection <<EOF
+sudo tee /etc/NetworkManager/system-connections/baremetal.nmconnection <<EOF
 [connection]
 id=baremetal
 type=bridge
@@ -88,6 +87,9 @@ addr-gen-mode=stable-privacy
 method=ignore
 EOF
 
-chmod 600 /etc/NetworkManager/system-connections/baremetal.nmconnection
-nmcli con load /etc/NetworkManager/system-connections/baremetal.nmconnection
-nmcli con up baremetal
+sudo chmod 600 /etc/NetworkManager/system-connections/baremetal.nmconnection
+sudo nmcli con load /etc/NetworkManager/system-connections/baremetal.nmconnection
+sudo nmcli con up baremetal
+
+podman pod create -n infra-pod || true
+podman pod create -n ironic-pod || true

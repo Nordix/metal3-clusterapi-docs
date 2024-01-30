@@ -5,18 +5,18 @@ __dir__=$(realpath "$(dirname "$0")")
 # shellcheck disable=SC1091
 . ./config.sh
 # This is temporarily required since https://review.opendev.org/c/openstack/sushy-tools/+/875366 has not been merged.
-sudo ./vm-setup.sh
+./vm-setup.sh
 ./install-tools.sh
-./configure-minikube.sh
-sudo ./handle-images.sh
 ./build-sushy-tools-image.sh
 ./generate_unique_nodes.sh
 ./start_containers.sh
-./start-minikube.sh
-./build-api-server-container-image.sh
+./handle-images.sh
+./configure-minikube.sh
 
 ./install-ironic.sh
 ./install-bmo.sh
+
+./build-api-server-container-image.sh
 
 python create_nodes_v3.py
 

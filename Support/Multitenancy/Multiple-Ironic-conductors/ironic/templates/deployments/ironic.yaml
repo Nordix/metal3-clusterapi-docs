@@ -54,8 +54,8 @@ spec:
             name: baremetal-operator-ironic-{{ $index }}-configmap
         - secretRef:
             name: baremetal-operator-ironic-htpasswd
-        image: 172.22.0.1:5000/localimages/ironic
-        imagePullPolicy: Always
+        image: 127.0.0.1:5000/localimages/ironic:latest
+        imagePullPolicy: Never
         name: ironic
         volumeMounts:
         - mountPath: /certs/ca/mariadb
@@ -83,8 +83,8 @@ spec:
           name: ironic-data-volume
       - command:
         - /bin/runlogwatch.sh
-        image: 172.22.0.1:5000/localimages/ironic
-        imagePullPolicy: Always
+        image: 127.0.0.1:5000/localimages/ironic:latest
+        imagePullPolicy: Never
         name: ironic-log-watch
         volumeMounts:
         - mountPath: /auth/ironic
@@ -114,8 +114,8 @@ spec:
             name: baremetal-operator-ironic-bmo-configmap
         - configMapRef:
             name: baremetal-operator-ironic-{{ $index }}-configmap
-        image: 172.22.0.1:5000/localimages/ironic
-        imagePullPolicy: Always
+        image: 127.0.0.1:5000/localimages/ironic:latest
+        imagePullPolicy: Never
         name: ironic-httpd
         volumeMounts:
         - mountPath: /auth/ironic
