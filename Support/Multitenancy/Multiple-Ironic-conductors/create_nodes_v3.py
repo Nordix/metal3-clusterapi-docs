@@ -46,7 +46,7 @@ metadata:
 spec:
   online: true
   bmc:
-    address: redfish+http://192.168.111.1:{port}/redfish/v1/Systems/{uuid}
+    address: redfish+http://192.168.222.1:{port}/redfish/v1/Systems/{uuid}
     credentialsName: {name}-bmc-secret
   bootMACAddress: {random_mac}
   bootMode: legacy

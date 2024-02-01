@@ -20,7 +20,7 @@ def query_k8s_obj(namespace, obj_type, obj_name):
 def create_node(node):
     uuid = node["uuid"]
     name = node["name"]
-    namespace = "metal3"
+    namespace = "default"
     port = 8001 + ((int(name.strip("test")) - 1) % N_SUSHY_CONTAINERS)
     random_mac = node["nics"][0]["mac"]
     manifest = f"""---
@@ -45,7 +45,7 @@ metadata:
 spec:
   online: true
   bmc:
-    address: redfish+http://host.minikube.internal:{port}/redfish/v1/Systems/{uuid}
+    address: redfish+http://192.168.222.1:{port}/redfish/v1/Systems/{uuid}
     credentialsName: {name}-bmc-secret
   bootMACAddress: {random_mac}
   bootMode: legacy
@@ -58,7 +58,10 @@ spec:
             ["kubectl", "apply", "-f", manifest_file],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL)
-    time.sleep(5)
+
+def wait_node(node):
+    name = node["name"]
+    namespace = "default"
     while True:
         status = query_k8s_obj(namespace, "bmh", name)
         if status == {}:

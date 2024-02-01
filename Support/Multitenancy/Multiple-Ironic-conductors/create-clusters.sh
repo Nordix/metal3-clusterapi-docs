@@ -36,7 +36,8 @@ create_cluster() {
   api_server_idx=$(( $bmh_index % ${N_APISERVER_PODS} ))
   api_server_port=$(( 3333 + ${api_server_idx} ))
 
-  export IMAGE_URL="http://192.168.111.1:${fake_ipa_port}/images/rhcos-ootpa-latest.qcow2"
+  export IMAGE_URL="http://192.168.222.1:${fake_ipa_port}/images/rhcos-ootpa-latest.qcow2"
+  # export IMAGE_URL="http://192.168.111.1:8080/rhcos-ootpa-latest.qcow2"
 
   api_server_name=$(kubectl get pods -l app=capim -o jsonpath="{.items[${api_server_idx}].metadata.name}")
 

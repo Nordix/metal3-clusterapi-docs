@@ -2,16 +2,16 @@
 set -eux
 
 #install kvm for minikube
-sudo dnf -y install qemu-kvm libvirt virt-install net-tools podman firewalld
+sudo dnf -y install qemu-kvm libvirt virt-install net-tools docker firewalld
 
-# Allow podman to run non-sudo
+# Allow docker to run non-sudo
 sudo usermod --add-subuids 200000-265536 --add-subgids 200000-265536 $(whoami)
 
 REGISTRY_NAME="registry"
 REGISTRY_PORT="5000"
-# Start podman registry if it's not already running
-if ! podman ps | grep -q "$REGISTRY_NAME"; then
-    podman run -d -p "$REGISTRY_PORT":"$REGISTRY_PORT" --name "$REGISTRY_NAME" docker.io/library/registry:2.7.1
+# Start docker registry if it's not already running
+if ! docker ps | grep -q "$REGISTRY_NAME"; then
+    docker run -d -p "$REGISTRY_PORT":"$REGISTRY_PORT" --name "$REGISTRY_NAME" docker.io/library/registry:2.7.1
 fi
 
 sudo systemctl enable --now libvirtd
@@ -91,5 +91,5 @@ sudo chmod 600 /etc/NetworkManager/system-connections/baremetal.nmconnection
 sudo nmcli con load /etc/NetworkManager/system-connections/baremetal.nmconnection
 sudo nmcli con up baremetal
 
-podman pod create -n infra-pod || true
-podman pod create -n ironic-pod || true
+docker pod create -n infra-pod || true
+docker pod create -n ironic-pod || true

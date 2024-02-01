@@ -31,8 +31,8 @@ spec:
               name: baremetal-operator-ironic-bmo-configmap
         - name: MARIADB_MAX_CONNECTIONS
           value: {{ .Values.mariadb.max_connections | quote }}
-        image: 127.0.0.1:5000/localimages/mariadb:latest
-        imagePullPolicy: Never
+        image: quay.io/metal3-io/mariadb:latest
+        imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
             command:

@@ -6,8 +6,8 @@ metadata:
     app: manager
 spec:
   containers:
-    - image: 172.22.0.1:5000/localimages/capim
-      imagePullPolicy: Always
+    - image: quay.io/metal3-io/api-server:latest
+      imagePullPolicy: IfNotPresent
       name: capim
       env:
       - name: POD_IP
