@@ -18,23 +18,13 @@ spec:
         name: ironic-common
     spec:
       containers:
-      - envFrom:
-        - configMapRef:
-            name: baremetal-operator-ironic-bmo-configmap
-        image: 127.0.0.1:5000/localimages/keepalived:v0.2.0
-        name: ironic-endpoint-keepalived
-        securityContext:
-          capabilities:
-            add:
-            - NET_ADMIN
-            - NET_RAW
       - command:
         - /bin/rundnsmasq
         envFrom:
         - configMapRef:
             name: baremetal-operator-ironic-bmo-configmap
-        image: 127.0.0.1:5000/localimages/ironic:latest
-        imagePullPolicy: Never
+        image: quay.io/metal3-io/ironic:latest
+        imagePullPolicy: IfNotPresent
         name: ironic-dnsmasq
         securityContext:
           capabilities:
@@ -64,8 +54,8 @@ spec:
           name: ironic-data-volume
       - command:
         - /bin/runlogwatch.sh
-        image: 127.0.0.1:5000/localimages/ironic:latest
-        imagePullPolicy: Never
+        image: quay.io/metal3-io/ironic:latest
+        imagePullPolicy: IfNotPresent
         name: ironic-log-watch
         volumeMounts:
         - mountPath: /auth/ironic
@@ -100,8 +90,8 @@ spec:
             name: baremetal-operator-ironic-inspector-htpasswd
         - configMapRef:
             name: baremetal-operator-ironic-bmo-configmap
-        image: 127.0.0.1:5000/localimages/ironic:latest
-        imagePullPolicy: Never
+        image: quay.io/metal3-io/ironic:latest
+        imagePullPolicy: IfNotPresent
         name: ironic-inspector
         volumeMounts:
         - mountPath: /certs/ca/ironic

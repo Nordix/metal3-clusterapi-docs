@@ -12,4 +12,13 @@ bmc-*.yaml
 ironic.env
 ironic_logs/*
 track.csv
-opt/*
+Metal3/*
+*/ironic-username
+*/ironic-password
+*/ironic-inspector-username
+*/ironic-inspector-password
+*-tpl
+ironic/ironic-auth-config
+ironic/ironic-htpasswd
+ironic/ironic-inspector-auth-config
+ironic/ironic-inspector-htpasswd

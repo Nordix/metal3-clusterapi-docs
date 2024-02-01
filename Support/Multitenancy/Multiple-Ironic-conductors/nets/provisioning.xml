@@ -1,0 +1,10 @@
+<network
+	xmlns:dnsmasq='http://libvirt.org/schemas/network/dnsmasq/1.0'>
+	<dnsmasq:options>
+		<!-- Risk reduction for CVE-2020-25684, CVE-2020-25685, and CVE-2020-25686. See: https://access.redhat.com/security/vulnerabilities/RHSB-2021-001 -->
+		<dnsmasq:option value="cache-size=0"/>
+	</dnsmasq:options>
+	<name>provisioning</name>
+	<bridge name='provisioning'/>
+	<forward mode='bridge'></forward>
+</network>

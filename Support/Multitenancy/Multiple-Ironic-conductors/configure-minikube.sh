@@ -18,7 +18,7 @@ __dir__=$(realpath "$(dirname "$0")")
 IRONIC_DATA_DIR="${__dir__}/opt/metal3-dev-env/ironic"
 mkdir -p "${IRONIC_DATA_DIR}"
 IPA_DOWNLOADER_IMAGE="quay.io/metal3-io/ironic-ipa-downloader"
-podman run -d --net host --privileged --name ipa-downloader \
+docker run -d --net host --privileged --name ipa-downloader \
   --env-file ironic.env \
   -v "${IRONIC_DATA_DIR}:/shared" "${IPA_DOWNLOADER_IMAGE}" /usr/local/bin/get-resource.sh
 
@@ -46,7 +46,7 @@ minikube stop
 # minikube start --insecure-registry 127.0.0.1:5000
 minikube start --driver=kvm2
 
-podman wait ipa-downloader
+docker wait ipa-downloader
 
 IMAGE_NAMES=(
   quay.io/jetstack/cert-manager-controller:v1.13.0

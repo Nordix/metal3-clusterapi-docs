@@ -32,7 +32,7 @@ for i in $(seq 1 "${N_NODES:-100}"); do
       "name": $node_name,
       "power_state": "Off",
       "nics": [
-	{"mac": $macaddr, "ip": "172.0.0.100"}
+	{"mac": $macaddr, "ip": "192.168.0.100"}
       ]
     }' nodes_template.json > node.json
 

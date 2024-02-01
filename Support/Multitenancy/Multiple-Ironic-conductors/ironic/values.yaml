@@ -1,5 +1,5 @@
 global:
-  ironicInspectorBaseUrl: "https://172.22.0.2:5050"
+  ironicInspectorBaseUrl: "https://192.168.222.100:5050"
   namespace: baremetal-operator-system
   ironicNodeLockedRetryInterval: "2"
   ironicNodeLockedRetryAttempts: "15"
@@ -7,3 +7,9 @@ sshKey: <fill-me>
 ironicReplicas: []
 mariadb:
   max_connections: "300"
+secrets:
+  ironicAuthConfig: ""
+  ironicHtpasswd: ""
+  ironicInspectorAuthConfig: ""
+  ironicInspectorHtpasswd: ""
+  mariadb: "changeme"

@@ -3,8 +3,8 @@
 # shellcheck disable=SC1091
 . ./config.sh
 # Delete network connections
-sudo systemctl enable --now libvirtd
-sudo nmcli con delete baremetal provisioning
+# sudo systemctl enable --now libvirtd
+# sudo nmcli con delete baremetal provisioning
 
 # Disable and delete bridge interfaces
 for iface in baremetal provisioning; do
@@ -31,21 +31,17 @@ minikube stop
 minikube delete --all --purge
 
 # Stop and delete containers
-declare -a running_containers=($(podman ps --all --format json | jq -r '.[].Names[0]'))
-echo ${running_containers[0]}
-declare -a containers=("ipa-downloader" "ironic" "keepalived" "registry" "ironic-client" "openstack-client" "httpd-infra")
+declare -a running_containers=($(docker ps --all --format json | jq -r '.Names'))
+declare -a containers=("ipa-downloader" "ironic" "keepalived" "registry" "ironic-client" "openstack-client" "httpd-infra" "image-server")
 
 for container in "${running_containers[@]}"; do
     if [[ "${containers[@]}" =~  "${container}" || "${container}" =~ "sushy-tools-"* || "${container}" =~ "fake-ipa-"* ]]; then
         echo "Deleting the container: ${container}"
-        podman stop "$container" &>/dev/null
-        podman rm "$container" &>/dev/null
+        docker stop "$container" &>/dev/null
+        docker rm "$container" &>/dev/null
     fi
 done
 
 rm -rf bmc-*.yaml
 
-rm -rf macaddrs uuids node.json nodes.json batch.json in-memory-development.yaml sushy-tools-conf ironic.env
-
-podman pod rm infra-pod ironic-pod
-sudo rm -rf opt/metal3-dev-env/ironic/html
+rm -rf macaddrs uuids node.json nodes.json batch.json in-memory-development.yaml sushy-tools-conf
