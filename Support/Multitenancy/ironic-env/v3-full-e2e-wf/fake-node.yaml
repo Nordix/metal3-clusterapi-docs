@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Node
+metadata:
+  annotations:
+    kubeadm.alpha.kubernetes.io/cri-socket: unix:///run/containerd/containerd.sock
+    node.alpha.kubernetes.io/ttl: "0"
+    volumes.kubernetes.io/controller-managed-attach-detach: "true"
+  labels:
+    beta.kubernetes.io/arch: amd64
+    beta.kubernetes.io/os: linux
+    kubernetes.io/arch: amd64
+    kubernetes.io/hostname: fake-node
+    kubernetes.io/os: linux
+    # node-role.kubernetes.io/control-plane: ""
+    node.kubernetes.io/exclude-from-external-load-balancers: ""
+    metal3.io/uuid: fake-uuid
+  name: fake-node
+spec:
+  podCIDR: 10.244.0.0/24
+  podCIDRs:
+    - 10.244.0.0/24
+status:
+  addresses:
+    - address: 172.20.0.2
+      type: InternalIP
+    - address: fake-node
+      type: Hostname
+  allocatable:
+    cpu: "8"
+    ephemeral-storage: 488876072Ki
+    hugepages-1Gi: "0"
+    hugepages-2Mi: "0"
+    memory: 32599664Ki
+    pods: "110"
+  capacity:
+    cpu: "8"
+    ephemeral-storage: 488876072Ki
+    hugepages-1Gi: "0"
+    hugepages-2Mi: "0"
+    memory: 32599664Ki
+    pods: "110"
+  conditions:
+    - lastHeartbeatTime: "2022-12-14T06:46:55Z"
+      lastTransitionTime: "2022-12-13T07:34:20Z"
+      message: kubelet has sufficient memory available
+      reason: KubeletHasSufficientMemory
+      status: "False"
+      type: MemoryPressure
+    - lastHeartbeatTime: "2022-12-14T06:46:55Z"
+      lastTransitionTime: "2022-12-13T07:34:20Z"
+      message: kubelet has no disk pressure
+      reason: KubeletHasNoDiskPressure
+      status: "False"
+      type: DiskPressure
+    - lastHeartbeatTime: "2022-12-14T06:46:55Z"
+      lastTransitionTime: "2022-12-13T07:34:20Z"
+      message: kubelet has sufficient PID available
+      reason: KubeletHasSufficientPID
+      status: "False"
+      type: PIDPressure
+    - lastHeartbeatTime: "2022-12-14T06:46:55Z"
+      lastTransitionTime: "2022-12-13T07:34:45Z"
+      message: kubelet is posting ready status
+      reason: KubeletReady
+      status: "True"
+      type: Ready
+  daemonEndpoints:
+    kubeletEndpoint:
+      Port: 10250
+  nodeInfo:
+    architecture: amd64
+    bootID: a4254236-e1e3-4462-97ed-4a25b8b29884
+    containerRuntimeVersion: containerd://1.6.9
+    kernelVersion: 5.14.0-1048-oem
+    kubeProxyVersion: v1.26.0
+    kubeletVersion: v1.26.0
+    machineID: 461b11199a4e4b59aac8b5ae3cfb8371
+    operatingSystem: linux
+    osImage: Ubuntu 22.04.1 LTS
+    systemUUID: 1ce97e94-730c-42b7-98da-f7dcc0b58e93

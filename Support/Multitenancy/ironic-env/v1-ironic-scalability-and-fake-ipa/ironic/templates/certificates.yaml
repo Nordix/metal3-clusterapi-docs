@@ -1,0 +1,71 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: baremetal-operator-ironic-cacert
+  namespace: {{.Values.global.namespace}}
+spec:
+  commonName: ironic-ca
+  ipAddresses: {{.Values.ironicReplicas | toYaml | trim | nindent 2}}
+  isCA: true
+  issuerRef:
+    kind: Issuer
+    name: baremetal-operator-selfsigned-issuer
+  secretName: ironic-cacert
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: baremetal-operator-ironic-cert
+  namespace: {{.Values.global.namespace}}
+spec:
+  commonName: ironic-cert
+  ipAddresses: {{.Values.ironicReplicas | toYaml | trim | nindent 2}}
+  issuerRef:
+    kind: Issuer
+    name: baremetal-operator-ca-issuer
+  secretName: ironic-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: baremetal-operator-ironic-inspector-cert
+  namespace: {{.Values.global.namespace}}
+spec:
+  commonName: ironic-inspector-cert
+  ipAddresses: {{.Values.ironicReplicas | toYaml | trim | nindent 2}}
+  issuerRef:
+    kind: Issuer
+    name: baremetal-operator-ca-issuer
+  secretName: ironic-inspector-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: baremetal-operator-mariadb-cert
+  namespace: {{.Values.global.namespace}}
+spec:
+  commonName: mariadb-cert
+  ipAddresses:
+    - 127.0.0.1
+  issuerRef:
+    kind: Issuer
+    name: baremetal-operator-ca-issuer
+  secretName: mariadb-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: baremetal-operator-ca-issuer
+  namespace: {{.Values.global.namespace}}
+spec:
+  ca:
+    secretName: ironic-cacert
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: baremetal-operator-selfsigned-issuer
+  namespace: {{.Values.global.namespace}}
+spec:
+  selfSigned: {}
