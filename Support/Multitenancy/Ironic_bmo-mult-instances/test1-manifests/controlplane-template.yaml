@@ -156,8 +156,7 @@ spec:
     users:
     - name: metal3
       sshAuthorizedKeys:
-      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCWL9EOaqZjHE86+ORcwviHMCtrlMc8c28KSXoYa2H8w4R0+LVpMg6srMA0wvrUmhVk+qhvmGRV/AwjTORKFl6BD6XLrFzRwPc6RweVKEkexZvqa/eGJ9ri5NCvZwj0RHW7NuyE+xWP3/gmhikkx0hKNPnf2uXg6SnJgPayh4UYHxO2/vdx5GBUwYEqysvJi2a4M8Lq82XXoktlqfWkooep6W5XIg42i/kkMflai49T4ZRg5U4311FcKV6eiqznmgCpdm9IymeihHXgiE8g0q2N/3jfrqgOQDIAEG/ZwBeZ87iNOdokzg/suNGVVgyuMj7yC6MMXaOrYgAxAm9Gx5g16YYZqtMf3nWw4jKjvB+KnV9aVLia/8ZBVTDvz/Jeislk0xFn3f0PXbN+aTELGfk1w+45Tkj8Z+zL3syvBHh4hgS8f5rMNMHc8vmVapbo8Vt0/FgNNuZ2AcWxcrr/8OJOu3HELSQ4xTe7S10k9eeTpc5JSpnZOuec0LrqQb5+CqU=
-        centos@mohammed-gentemp.openstacklocal
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCWL9EOaqZjHE86+ORcwviHMCtrlMc8c28KSXoYa2H8w4R0+LVpMg6srMA0wvrUmhVk+qhvmGRV/AwjTORKFl6BD6XLrFzRwPc6RweVKEkexZvqa/eGJ9ri5NCvZwj0RHW7NuyE+xWP3/gmhikkx0hKNPnf2uXg6SnJgPayh4UYHxO2/vdx5GBUwYEqysvJi2a4M8Lq82XXoktlqfWkooep6W5XIg42i/kkMflai49T4ZRg5U4311FcKV6eiqznmgCpdm9IymeihHXgiE8g0q2N/3jfrqgOQDIAEG/ZwBeZ87iNOdokzg/suNGVVgyuMj7yC6MMXaOrYgAxAm9Gx5g16YYZqtMf3nWw4jKjvB+KnV9aVLia/8ZBVTDvz/Jeislk0xFn3f0PXbN+aTELGfk1w+45Tkj8Z+zL3syvBHh4hgS8f5rMNMHc8vmVapbo8Vt0/FgNNuZ2AcWxcrr/8OJOu3HELSQ4xTe7S10k9eeTpc5JSpnZOuec0LrqQb5+CqU= centos@mohammed-gentemp.openstacklocal
       sudo: ALL=(ALL) NOPASSWD:ALL
   machineTemplate:
     infrastructureRef:

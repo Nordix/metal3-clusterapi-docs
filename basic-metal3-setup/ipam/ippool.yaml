@@ -1,4 +1,3 @@
----
 apiVersion: ipam.metal3.io/v1alpha1
 kind: IPPool
 metadata:
@@ -7,7 +6,7 @@ spec:
   clusterName: my-cluster
   namePrefix: my-cluster-kcp
   pools:
-    - start: 192.168.122.200
-      end: 192.168.122.200
+  - start: 192.168.122.200
+    end: 192.168.122.200
   prefix: 24
   gateway: 192.168.122.1

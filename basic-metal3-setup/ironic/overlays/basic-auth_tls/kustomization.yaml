@@ -3,47 +3,47 @@ kind: Kustomization
 namespace: baremetal-operator-system
 # namePrefix: baremetal-operator-
 resources:
-  # - https://github.com/metal3-io/baremetal-operator/ironic-deployment/base
-  - ../../base
-  - namespace.yaml
+# - https://github.com/metal3-io/baremetal-operator/ironic-deployment/base
+- ../../base
+- namespace.yaml
 
 components:
-  # Note: These can not be used directly from github since files are missing (e.g. ironic-htpasswd)
-  - ../../components/basic-auth
-  - ../../components/tls
+# Note: These can not be used directly from github since files are missing (e.g. ironic-htpasswd)
+- ../../components/basic-auth
+- ../../components/tls
 
 patches:
-  # When using TLS, the ironic-httpd container is acting as a reverse-proxy.
-  # This means that we need to add the basic-auth related environment
-  # variables on ironic-httpd with this patch.
-  - path: basic-auth_tls.yaml
-    target:
-      kind: Deployment
-      name: ironic
-  # Make volume persistent by changing to hostPath
-  # Remove unused dnsmasq container
-  - path: ironic-patch.yaml
-    target:
-      kind: Deployment
-      name: ironic
+# When using TLS, the ironic-httpd container is acting as a reverse-proxy.
+# This means that we need to add the basic-auth related environment
+# variables on ironic-httpd with this patch.
+- path: basic-auth_tls.yaml
+  target:
+    kind: Deployment
+    name: ironic
+# Make volume persistent by changing to hostPath
+# Remove unused dnsmasq container
+- path: ironic-patch.yaml
+  target:
+    kind: Deployment
+    name: ironic
 
 configMapGenerator:
-  - name: ironic-bmo-configmap
-    envs:
-      - ironic_bmo_configmap.env
-  - name: ironic-htpasswd
-    behavior: create
-    envs:
-      - ironic-htpasswd
-  - name: ironic-inspector-htpasswd
-    behavior: create
-    envs:
-      - ironic-inspector-htpasswd
+- name: ironic-bmo-configmap
+  envs:
+  - ironic_bmo_configmap.env
+- name: ironic-htpasswd
+  behavior: create
+  envs:
+  - ironic-htpasswd
+- name: ironic-inspector-htpasswd
+  behavior: create
+  envs:
+  - ironic-inspector-htpasswd
 
 secretGenerator:
-  - name: ironic-auth-config
-    files:
-      - auth-config=ironic-auth-config
-  - name: ironic-inspector-auth-config
-    files:
-      - auth-config=ironic-inspector-auth-config
+- name: ironic-auth-config
+  files:
+  - auth-config=ironic-auth-config
+- name: ironic-inspector-auth-config
+  files:
+  - auth-config=ironic-inspector-auth-config

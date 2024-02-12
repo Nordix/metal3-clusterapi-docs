@@ -16,12 +16,12 @@ spec:
     spec:
       hostNetwork: true
       containers:
-        - image: haproxy
-          name: haproxy
-          volumeMounts:
-            - mountPath: /usr/local/etc/haproxy
-              name: haproxy-cfg
+      - image: haproxy
+        name: haproxy
+        volumeMounts:
+        - mountPath: /usr/local/etc/haproxy
+          name: haproxy-cfg
       volumes:
-        - name: haproxy-cfg
-          configMap:
-            name: haproxy-cfg
+      - name: haproxy-cfg
+        configMap:
+          name: haproxy-cfg

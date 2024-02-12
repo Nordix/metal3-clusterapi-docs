@@ -6,11 +6,11 @@ spec:
   template:
     spec:
       containers:
-        - name: ironic-dnsmasq
-          $patch: delete
+      - name: ironic-dnsmasq
+        $patch: delete
       volumes:
-        - name: ironic-data-volume
-          emptyDir:
-            $patch: delete
-          hostPath:
-            path: /opt/minikube
+      - name: ironic-data-volume
+        emptyDir:
+          $patch: delete
+        hostPath:
+          path: /opt/minikube

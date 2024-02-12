@@ -27,9 +27,9 @@ spec:
       - image: quay.io/metal3-io/vbmc
         name: vbmc
         volumeMounts:
-          - name: ssh
-            mountPath: /home/docker/.ssh
-      volumes:
         - name: ssh
-          hostPath:
-            path: /home/docker/.ssh
+          mountPath: /home/docker/.ssh
+      volumes:
+      - name: ssh
+        hostPath:
+          path: /home/docker/.ssh

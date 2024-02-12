@@ -167,8 +167,7 @@ spec:
     users:
     - name: metal3
       sshAuthorizedKeys:
-      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCpobtItGp5RgVT5zZoTg8mnjxq5mvHlI9KnVAtHFF1U9OhxFVUswq/XJf55yguJeZq0iZPD1ejT1VFa8OiaKVZxDfjspa4vzWXshh77/HMvlJ/uHQKhLdmibZ7+8vU0GMKhmH1kYD/A0U36oIyUwtl9F7R2eNEsMSbKonNw50ZA/YmSqJRahZVXDuTR6u31GynHWnUEFtj0PKGapL4pB5sNfxc5gkca9EDnUobDLfFpqO1mlyG0rR+NzxbnAoCOFjiVoVYZuhOyFeti+QDZwo6m2G4sCy0b8n0dkt816OdZdQH8NcH0lDfuZuN5zls121w8ULmCA5us3VJyQptOXlOXOxrSuUIsp37UG0WlvDcUN2fmWFUG2ALtrKz9yY3D3nGTNugl/LydXGTXTHbz+lC/vnNLdetJ5cPEYqqaohXX1qJd44iWxX3w5q5kE4mmPHTmP6sDkSTaYhYkFvsmT9fDEqWELFF11x6aM4pA48bKTmeGKbIZAd+3eJht2yMD+M=
-        cloud-user@mohammed-v1a4.openstacklocal
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCpobtItGp5RgVT5zZoTg8mnjxq5mvHlI9KnVAtHFF1U9OhxFVUswq/XJf55yguJeZq0iZPD1ejT1VFa8OiaKVZxDfjspa4vzWXshh77/HMvlJ/uHQKhLdmibZ7+8vU0GMKhmH1kYD/A0U36oIyUwtl9F7R2eNEsMSbKonNw50ZA/YmSqJRahZVXDuTR6u31GynHWnUEFtj0PKGapL4pB5sNfxc5gkca9EDnUobDLfFpqO1mlyG0rR+NzxbnAoCOFjiVoVYZuhOyFeti+QDZwo6m2G4sCy0b8n0dkt816OdZdQH8NcH0lDfuZuN5zls121w8ULmCA5us3VJyQptOXlOXOxrSuUIsp37UG0WlvDcUN2fmWFUG2ALtrKz9yY3D3nGTNugl/LydXGTXTHbz+lC/vnNLdetJ5cPEYqqaohXX1qJd44iWxX3w5q5kE4mmPHTmP6sDkSTaYhYkFvsmT9fDEqWELFF11x6aM4pA48bKTmeGKbIZAd+3eJht2yMD+M= cloud-user@mohammed-v1a4.openstacklocal
       sudo: ALL=(ALL) NOPASSWD:ALL
   machineTemplate:
     infrastructureRef:

@@ -27,15 +27,15 @@ spec:
       - name: haproxy-container
         image: mikkos73/haproxy11:latest
         ports:
-          - name: http
-            containerPort: 7777
-          - name: https
-            containerPort: 443
-          - name: stat
-            containerPort: 1024
+        - name: http
+          containerPort: 7777
+        - name: https
+          containerPort: 443
+        - name: stat
+          containerPort: 1024
         volumeMounts:
-          - mountPath: /usr/local/etc/haproxy
-            name:  shared-data
+        - mountPath: /usr/local/etc/haproxy
+          name: shared-data
       - name: sidecar-container
         image: alpine
         volumeMounts:
@@ -65,4 +65,3 @@ spec:
   # None will allow the service to distribute to all masters
   sessionAffinity: None
   type: NodePort
-
