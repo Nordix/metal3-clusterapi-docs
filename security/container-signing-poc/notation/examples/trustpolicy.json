@@ -1,0 +1,20 @@
+{
+    "version": "1.0",
+    "trustPolicies": [
+        {
+            "name": "custom-plugin-policy",
+            "registryScopes": [
+                "*"
+            ],
+            "signatureVerification": {
+                "level": "strict"
+            },
+            "trustStores": [
+                "ca:external"
+            ],
+            "trustedIdentities": [
+                "*"
+            ]
+        }
+    ]
+}
