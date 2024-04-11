@@ -1,0 +1,55 @@
+apiVersion: kyverno.io/v2beta1
+kind: ClusterPolicy
+metadata:
+  name: check-image-notary
+spec:
+  validationFailureAction: Enforce
+  webhookTimeoutSeconds: 30
+  failurePolicy: Fail
+  rules:
+  - name: verify-signature-notary
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    verifyImages:
+    - type: Notary
+      imageReferences:
+      - "172.19.0.3:*/*"
+      attestors:
+      - count: 1
+        entries:
+        - certificates:
+            cert: |-
+              -----BEGIN CERTIFICATE-----
+              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
+              YOSTqfr9ajXGL54v9rWfQjw=
+              -----END CERTIFICATE-----
