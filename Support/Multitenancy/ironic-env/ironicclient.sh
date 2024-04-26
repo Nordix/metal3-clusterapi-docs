@@ -14,4 +14,4 @@ fi
 # shellcheck disable=SC2086
 sudo podman run --net=host --tls-verify=false \
   -v "${MOUNTDIR}:/etc/openstack" --rm \
-  -e OS_CLOUD="${OS_CLOUD:-metal3}" "172.22.0.1:5000/localimages/ironic-client" "$@"
+  -e OS_CLOUD="${OS_CLOUD:-metal3}" 127.0.0.1:5000/localimages/ironic-client "$@"

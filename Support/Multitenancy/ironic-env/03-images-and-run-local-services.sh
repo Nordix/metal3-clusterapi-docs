@@ -3,10 +3,7 @@ REGISTRY_NAME="registry"
 REGISTRY_PORT="5000"
 IMAGE_NAMES=(
     #    "quay.io/metal3-io/sushy-tools"
-    "quay.io/metal3-io/ironic-ipa-downloader"
-    "quay.io/metal3-io/ironic:latest"
     "quay.io/metal3-io/ironic-client"
-    "quay.io/metal3-io/keepalived"
 )
 
 # Attach provisioning and baremetal network interfaces to minikube domain
@@ -27,19 +24,17 @@ for NAME in "${IMAGE_NAMES[@]}"; do
     # Push the image to the local registry
     podman push --tls-verify=false 127.0.0.1:5000/localimages/"${NAME##*/}"
 done
-podman pull quay.io/metal3-io/keepalived:v0.2.0
-podman tag quay.io/metal3-io/keepalived:v0.2.0 127.0.0.1:5000/localimages/keepalived:latest
-podman push --tls-verify=false 127.0.0.1:5000/localimages/keepalived:latest
+
 ./build-sushytools-image-with-fakeipa-changes.sh
 
 # Define variables for repeated values
-IRONIC_IMAGE="127.0.0.1:5000/localimages/ironic:latest"
 SUSHY_TOOLS_IMAGE="127.0.0.1:5000/localimages/sushy-tools"
 
 # Create directories
 DIRECTORIES=(
     "/opt/metal3-dev-env/ironic/virtualbmc"
     "/opt/metal3-dev-env/ironic/virtualbmc/sushy-tools"
+    "/opt/metal3-dev-env/ironic/html/images"
 )
 for DIR in "${DIRECTORIES[@]}"; do
     mkdir -p "$DIR"
@@ -53,7 +48,7 @@ podman run -d --net host --name httpd-infra \
     -e PROVISIONING_INTERFACE=provisioning \
     -e LISTEN_ALL_INTERFACES=false \
     --entrypoint /bin/runhttpd \
-    "$IRONIC_IMAGE"
+    quay.io/metal3-io/ironic:latest
 # Set configuration options
 cp conf.py "$HOME/sushy-tools/conf.py"
 

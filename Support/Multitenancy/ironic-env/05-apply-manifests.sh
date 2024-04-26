@@ -1,6 +1,34 @@
 set -e
 # Apply ironic
-kubectl apply -f manifests/ironic.yaml -n baremetal-operator-system
+# Clone bmo
+git clone https://github.com/metal3-io/baremetal-operator.git
+
+cd baremetal-operator/
+
+# Ironic config file
+cat <<'EOF' >ironic-deployment/default/ironic_bmo_configmap.env
+HTTP_PORT=6180
+PROVISIONING_IP=172.22.0.2
+DEPLOY_KERNEL_URL=http://172.22.0.2:6180/images/ironic-python-agent.kernel
+DEPLOY_RAMDISK_URL=http://172.22.0.2:6180/images/ironic-python-agent.initramfs
+IRONIC_ENDPOINT=https://172.22.0.2:6385/v1/
+CACHEURL=http://172.22.0.2/images
+IRONIC_FAST_TRACK=true
+IRONIC_KERNEL_PARAMS=console=ttyS0
+IRONIC_INSPECTOR_VLAN_INTERFACES=all
+PROVISIONING_CIDR=172.22.0.1/24
+PROVISIONING_INTERFACE=ironicendpoint
+DHCP_RANGE=172.22.0.10,172.22.0.100
+IRONIC_INSPECTOR_ENDPOINT=http://172.22.0.2:5050/v1/
+RESTART_CONTAINER_CERTIFICATE_UPDATED="false"
+IRONIC_RAMDISK_SSH_KEY=ssh-rsa
+IRONIC_USE_MARIADB=false
+EOF
+
+# Apply default ironic manifest without tls or authentication for simplicity
+kubectl apply -k config/namespace/
+kubectl apply -k ironic-deployment/default
+
 kubectl -n baremetal-operator-system wait --for=condition=available deployment/baremetal-operator-ironic --timeout=300s
 cat <<'EOF' >ironicclient.sh
 #!/bin/bash
@@ -21,7 +49,7 @@ fi
 # shellcheck disable=SC2086
 sudo podman run --net=host --tls-verify=false \
   -v "${MOUNTDIR}:/etc/openstack" --rm \
-  -e OS_CLOUD="${OS_CLOUD:-metal3}" "172.22.0.1:5000/localimages/ironic-client" "$@"
+  -e OS_CLOUD="${OS_CLOUD:-metal3}" 127.0.0.1:5000/localimages/ironic-client "$@"
 EOF
 
 mkdir _clouds_yaml
@@ -37,8 +65,6 @@ sudo chmod a+x ironicclient.sh
 sudo ln -sf "$PWD/ironicclient.sh" "/usr/local/bin/baremetal"
 
 # Create ironic node
-
-mkdir /opt/metal3-dev-env/ironic/html/images || true
 touch /opt/metal3-dev-env/ironic/html/images/image.qcow2
 
 baremetal node create --driver redfish --driver-info \
