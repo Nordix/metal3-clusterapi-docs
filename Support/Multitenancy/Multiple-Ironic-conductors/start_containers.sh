@@ -8,7 +8,7 @@ LIBVIRT_URI="qemu+ssh://root@192.168.111.1/system?&keyfile=/root/ssh/id_rsa_virt
 ADVERTISE_HOST="192.168.222.1"
 
 API_URL="https://192.168.222.100:6385"
-CALLBACK_URL="https://192.168.222.100:5050/v1/continue"
+CALLBACK_URL="https://192.168.222.100:6385/v1/continue_inspection"
 
 rm -rf "$SUSHY_CONF_DIR"
 mkdir -p "$SUSHY_CONF_DIR"

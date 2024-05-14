@@ -2,7 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: baremetal-operator-system
 resources:
-- https://github.com/metal3-io/baremetal-operator/config/overlays/basic-auth_tls?ref=release-0.5  
+- https://github.com/metal3-io/baremetal-operator/config/overlays/basic-auth_tls?ref=release-0.6
 
 configMapGenerator:
 - name: ironic
@@ -31,10 +31,6 @@ generatorOptions:
 
 secretGenerator:
   - name: ironic-credentials
-    files:
-    - username=ironic-username
-    - password=ironic-password
-  - name: ironic-inspector-credentials
     files:
     - username=ironic-username
     - password=ironic-password

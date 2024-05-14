@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-export N_NODES=1000
-export N_SUSHY=60
-export N_FAKE_IPA=40
-export N_IRONICS=50
-export N_APISERVER_PODS=5
+export N_NODES=10
+export N_SUSHY=5
+export N_FAKE_IPA=5
+export N_IRONICS=3
+export N_APISERVER_PODS=2
 # export N_NODES=50
 # export N_SUSHY=2
 # export N_FAKE_IPA=2

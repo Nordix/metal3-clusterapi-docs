@@ -4,13 +4,11 @@ set -eux
 # Download ipa image
 cat << EOF >"ironic.env"
 HTTP_PORT=6180
-PROVISIONING_INTERFACE=ironicendpoint
-DHCP_RANGE=172.22.0.10,172.22.0.100
-DEPLOY_KERNEL_URL=http://172.22.0.2:6180/images/ironic-python-agent.kernel
-DEPLOY_RAMDISK_URL=http://172.22.0.2:6180/images/ironic-python-agent.initramfs
-IRONIC_ENDPOINT=https://172.22.0.2:6385/v1/
-IRONIC_INSPECTOR_ENDPOINT=https://172.22.0.2:5050/v1/
-CACHEURL=http://172.22.0.1/images
+DHCP_RANGE=192.168.222.100,192.168.222.200
+DEPLOY_KERNEL_URL=http://192.168.222.100:6180/images/ironic-python-agent.kernel
+DEPLOY_RAMDISK_URL=http://192.168.222.100:6180/images/ironic-python-agent.initramfs
+IRONIC_ENDPOINT=https://192.168.222.100:6385/v1/
+CACHEURL=http://192.168.222.100/images
 IRONIC_FAST_TRACK=true
 EOF
 
@@ -60,15 +58,20 @@ for NAME in "${IMAGE_NAMES[@]}"; do
   minikube image load ${NAME}
 done
 
-# SSH into the Minikube VM and execute the following commands
-minikube ssh "sudo brctl addbr ironicendpoint"
-minikube ssh "sudo ip link set ironicendpoint up"
-minikube ssh "sudo brctl addif ironicendpoint eth1"
+IMAGE_NAME="quay.io/metal3-io/api-server:latest"
+if [[ $(docker images | grep ${IMAGE_NAME}) != "" ]]; then
+  minikube image load "${IMAGE_NAME}"
+fi
 
-minikube ssh "sudo mkdir -p /shared/html/images"
-minikube cp ${IRONIC_DATA_DIR}/html/images/ironic-python-agent.kernel /shared/html/images/
-minikube cp ${IRONIC_DATA_DIR}/html/images/ironic-python-agent.initramfs /shared/html/images/
-minikube cp ${IRONIC_DATA_DIR}/html/images/ironic-python-agent.headers /shared/html/images/
+# SSH into the Minikube VM and execute the following commands
+# minikube ssh "sudo brctl addbr ironicendpoint"
+# minikube ssh "sudo ip link set ironicendpoint up"
+# minikube ssh "sudo brctl addif ironicendpoint eth1"
+
+# minikube ssh "sudo mkdir -p /shared/html/images"
+# minikube cp ${IRONIC_DATA_DIR}/html/images/ironic-python-agent.kernel /shared/html/images/
+# minikube cp ${IRONIC_DATA_DIR}/html/images/ironic-python-agent.initramfs /shared/html/images/
+# minikube cp ${IRONIC_DATA_DIR}/html/images/ironic-python-agent.headers /shared/html/images/
 
 read -ra PROVISIONING_IPS <<< "${IRONIC_ENDPOINTS}"
 for PROVISIONING_IP in "${PROVISIONING_IPS[@]}"; do

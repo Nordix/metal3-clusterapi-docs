@@ -2,17 +2,11 @@
 set -eux
 
 #install kvm for minikube
-sudo dnf -y install qemu-kvm libvirt virt-install net-tools docker firewalld
+sudo apt update
+sudo apt install -y qemu-kvm libvirt-clients libvirt-daemon virtinst net-tools docker firewalld
 
 # Allow docker to run non-sudo
 sudo usermod --add-subuids 200000-265536 --add-subgids 200000-265536 $(whoami)
-
-REGISTRY_NAME="registry"
-REGISTRY_PORT="5000"
-# Start docker registry if it's not already running
-if ! docker ps | grep -q "$REGISTRY_NAME"; then
-    docker run -d -p "$REGISTRY_PORT":"$REGISTRY_PORT" --name "$REGISTRY_NAME" docker.io/library/registry:2.7.1
-fi
 
 sudo systemctl enable --now libvirtd
 sudo systemctl start firewalld
@@ -40,9 +34,9 @@ cat <<EOF >baremetal.xml
     </nat>
   </forward>
   <bridge name='baremetal' stp='on' delay='0'/>
-  <ip address='192.168.111.1' netmask='255.255.255.0'>
+  <ip address='192.168.222.1' netmask='255.255.255.0'>
     <dhcp>
-      <range start='192.168.111.20' end='192.168.111.60'/>
+      <range start='192.168.222.2' end='192.168.222.199'/>
     </dhcp>
   </ip>
 </network>
@@ -55,41 +49,41 @@ for net in baremetal provisioning; do
   virsh -c qemu:///system net-autostart "${net}"
 done
 
-sudo tee -a /etc/NetworkManager/system-connections/provisioning.nmconnection <<EOF
-[connection]
-id=provisioning
-type=bridge
-interface-name=provisioning
-[bridge]
-stp=false
-[ipv4]
-address1=172.22.0.1/24
-method=manual
-[ipv6]
-addr-gen-mode=eui64
-method=disabled
-EOF
-
-sudo chmod 600 /etc/NetworkManager/system-connections/provisioning.nmconnection
-sudo nmcli con load /etc/NetworkManager/system-connections/provisioning.nmconnection
-sudo nmcli con up provisioning
-
-sudo tee /etc/NetworkManager/system-connections/baremetal.nmconnection <<EOF
-[connection]
-id=baremetal
-type=bridge
-interface-name=baremetal
-autoconnect=true
-[bridge]
-stp=false
-[ipv6]
-addr-gen-mode=stable-privacy
-method=ignore
-EOF
-
-sudo chmod 600 /etc/NetworkManager/system-connections/baremetal.nmconnection
-sudo nmcli con load /etc/NetworkManager/system-connections/baremetal.nmconnection
-sudo nmcli con up baremetal
-
-docker pod create -n infra-pod || true
-docker pod create -n ironic-pod || true
+# sudo cat <<EOF >/etc/NetworkManager/system-connections/provisioning.nmconnection
+# [connection]
+# id=provisioning
+# type=bridge
+# interface-name=provisioning
+# [bridge]
+# stp=false
+# [ipv4]
+# address1=172.22.0.1/24
+# method=manual
+# [ipv6]
+# addr-gen-mode=eui64
+# method=disabled
+# EOF
+#
+# sudo chmod 600 /etc/NetworkManager/system-connections/provisioning.nmconnection
+# sudo nmcli con load /etc/NetworkManager/system-connections/provisioning.nmconnection
+# sudo nmcli con up provisioning
+#
+# sudo tee /etc/NetworkManager/system-connections/baremetal.nmconnection <<EOF
+# [connection]
+# id=baremetal
+# type=bridge
+# interface-name=baremetal
+# autoconnect=true
+# [bridge]
+# stp=false
+# [ipv6]
+# addr-gen-mode=stable-privacy
+# method=ignore
+# EOF
+#
+# sudo chmod 600 /etc/NetworkManager/system-connections/baremetal.nmconnection
+# sudo nmcli con load /etc/NetworkManager/system-connections/baremetal.nmconnection
+# sudo nmcli con up baremetal
+#
+# docker pod create -n infra-pod || true
+# docker pod create -n ironic-pod || true

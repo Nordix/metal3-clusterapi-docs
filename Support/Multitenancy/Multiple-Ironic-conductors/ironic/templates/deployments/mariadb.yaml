@@ -84,20 +84,11 @@ spec:
       - name: ironic-auth-config
         secret:
           secretName: baremetal-operator-ironic-auth-config
-      - name: ironic-inspector-auth-config
-        secret:
-          secretName: baremetal-operator-ironic-inspector-auth-config
       - name: cert-ironic-ca
-        secret:
-          secretName: ironic-cacert
-      - name: cert-ironic-inspector-ca
         secret:
           secretName: ironic-cacert
       - name: cert-ironic
         secret:
           secretName: ironic-cert
-      - name: cert-ironic-inspector
-        secret:
-          secretName: ironic-inspector-cert
       - emptyDir: {}
         name: ironic-data-volume

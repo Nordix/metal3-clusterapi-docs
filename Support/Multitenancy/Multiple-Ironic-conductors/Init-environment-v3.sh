@@ -7,9 +7,10 @@ __dir__=$(realpath "$(dirname "$0")")
 # This is temporarily required since https://review.opendev.org/c/openstack/sushy-tools/+/875366 has not been merged.
 # ./vm-setup.sh
 # ./install-tools.sh
-./build-sushy-tools-image.sh
+./start_image_server.sh
+./build-sushy-tools-image.sh -f
 ./dev-setup.sh
-./build-api-server-container-image.sh
+./build-api-server-container-image.sh -f
 ./generate_unique_nodes.sh
 ./start_containers.sh
 # ./handle-images.sh
@@ -29,5 +30,8 @@ yq ".spec.replicas = ${N_APISERVER_PODS}" apiserver-deployments.yaml | kubectl a
 # ./start_image_server.sh
 # Wait for apiserver pod to exists
 sleep 120
+kubectl -n capi-system wait deploy capi-controller-manager --for=condition=available --timeout=600s
+kubectl -n capm3-system wait deploy capm3-controller-manager --for=condition=available --timeout=600s
+kubectl -n capm3-system wait deploy ipam-controller-manager --for=condition=available --timeout=600s
 
 ./create-clusters.sh
