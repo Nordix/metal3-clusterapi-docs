@@ -9,6 +9,7 @@ fi
 #
 IMAGE_NAME="127.0.0.1:5000/localimages/sushy-tools"
 if [[ ${1:-""} == "-f" ]]; then
+    rm -rf "${SUSHYTOOLS_DIR}"
     docker rmi "${IMAGE_NAME}"
 fi
 
@@ -21,7 +22,7 @@ SUSHYTOOLS_DIR="/tmp/sushy-tools"
 if [[ ! -d "${SUSHYTOOLS_DIR}" ]]; then
     git clone https://opendev.org/openstack/sushy-tools.git "$SUSHYTOOLS_DIR"
     cd "$SUSHYTOOLS_DIR" || exit
-    git fetch https://review.opendev.org/openstack/sushy-tools refs/changes/66/875366/39 && git cherry-pick FETCH_HEAD
+    # git fetch https://review.opendev.org/openstack/sushy-tools refs/changes/66/875366/57 && git cherry-pick FETCH_HEAD
 fi
 cd "$SUSHYTOOLS_DIR" || exit
 
@@ -29,26 +30,26 @@ pip3 install build
 python3 -m build
 
 cd dist || exit
-WHEEL_FILENAME=$(ls ./*.whl)
+WHEEL_FILENAME=$(ls *.whl)
 echo "$WHEEL_FILENAME"
 
 cd ..
 
 cat <<EOF > "${SUSHYTOOLS_DIR}/Dockerfile"
-# Use the official Centos image as the base image
+# Use the official ubuntu image as the base image
 FROM ubuntu:22.04
 
 # Install necessary packages
-RUN apt update -y && \
-    apt install -y python3 python3-pip python3-venv && \
-    apt clean all
+RUN apt-get update -y && \
+    apt-get install -y python3 python3-pip python3-venv && \
+    apt-get clean all
 
 WORKDIR /opt
 
 # RUN python3 setup.py install
 
 # Copy the application code to the container
-COPY dist/${WHEEL_FILENAME} .
+COPY "dist/${WHEEL_FILENAME}" .
 
 RUN pip3 install ${WHEEL_FILENAME}
 

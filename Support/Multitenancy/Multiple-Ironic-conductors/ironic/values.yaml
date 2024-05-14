@@ -1,5 +1,4 @@
 global:
-  ironicInspectorBaseUrl: "https://192.168.222.100:5050"
   namespace: baremetal-operator-system
   ironicNodeLockedRetryInterval: "2"
   ironicNodeLockedRetryAttempts: "15"
@@ -10,6 +9,4 @@ mariadb:
 secrets:
   ironicAuthConfig: ""
   ironicHtpasswd: ""
-  ironicInspectorAuthConfig: ""
-  ironicInspectorHtpasswd: ""
   mariadb: "changeme"

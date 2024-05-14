@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
-cd "${REPO_ROOT}" || exit 1
+CURRENT_DIR=$(dirname "${BASH_SOURCE[0]}")
+cd "${CURRENT_DIR}" || exit 1
 
 NUM_BMH=${NUM_BMH:-"5"}
 
@@ -19,4 +19,4 @@ done
 virsh -c qemu:///system net-destroy baremetal-e2e
 virsh -c qemu:///system net-undefine baremetal-e2e
 
-# rm -rfv "${REPO_ROOT}/Metal3/images"
+rm -rfv "${REPO_ROOT}/Metal3/

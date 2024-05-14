@@ -80,10 +80,10 @@ Notice that to install `ironic`, we use the `helm` tool that we mentioned earlie
 - The `ironic` pod used in `metal3-dev-env`, which consists of several containers, was splited into smaller pods that run separatedly as followed:
 
    - `ironic` pod: consists of `ironic` and `ironic-httpd` containers.
-   - `ironic-inspector` pod: consists of `dnsmasq` and `ironic-inspector` containers.
+   - `ironic-common` pod: consists of `dnsmasq` container.
    - `mariadb` pod: consists of `mariadb` container.
 
-Each of the pods is deployed as a helm's `deployment`, which means we can scale them as we wish. However, `ironic` only supports scaling of the `ironic` component, while the `ironic-inspector` and db will have to be unique.
+Each of the pods is deployed as a helm's `deployment`, which means we can scale them as we wish. However, `ironic` only supports scaling of the `ironic` component, while the `ironic-common` and db will have to be unique.
 
 This chart takes in the `sshKey` value to authenticate the `baremetal` client to connect to ironic, while the `ironicReplicas` value, which is a list of endpoints separated by spaces, determines how many `ironic` pods this deployment will have, and to what endpoints should we contact them. One nice feature from ironic is that we don't need to contact all of these `ironic` instances: since they share the same database, accessing any of them will be enough to query and control all the nodes.
 

@@ -35,20 +35,12 @@ spec:
         - mountPath: /auth/ironic
           name: ironic-auth-config
           readOnly: true
-        - mountPath: /auth/ironic-inspector
-          name: ironic-inspector-auth-config
           readOnly: true
         - mountPath: /certs/ironic
           name: cert-ironic
           readOnly: true
-        - mountPath: /certs/ironic-inspector
-          name: cert-ironic-inspector
-          readOnly: true
         - mountPath: /certs/ca/ironic
           name: cert-ironic-ca
-          readOnly: true
-        - mountPath: /certs/ca/ironic-inspector
-          name: cert-ironic-inspector-ca
           readOnly: true
         - mountPath: /shared
           name: ironic-data-volume
@@ -61,48 +53,15 @@ spec:
         - mountPath: /auth/ironic
           name: ironic-auth-config
           readOnly: true
-        - mountPath: /auth/ironic-inspector
-          name: ironic-inspector-auth-config
-          readOnly: true
         - mountPath: /certs/ironic
           name: cert-ironic
           readOnly: true
-        - mountPath: /certs/ironic-inspector
-          name: cert-ironic-inspector
-          readOnly: true
         - mountPath: /certs/ca/ironic
           name: cert-ironic-ca
           readOnly: true
-        - mountPath: /certs/ca/ironic-inspector
-          name: cert-ironic-inspector-ca
           readOnly: true
         - mountPath: /shared
           name: ironic-data-volume
-      - command:
-        - /bin/runironic-inspector
-        env:
-        - name: IRONIC_REVERSE_PROXY_SETUP
-          value: "true"
-        - name: INSPECTOR_REVERSE_PROXY_SETUP
-          value: "true"
-        envFrom:
-        - secretRef:
-            name: baremetal-operator-ironic-inspector-htpasswd
-        - configMapRef:
-            name: baremetal-operator-ironic-bmo-configmap
-        image: quay.io/metal3-io/ironic:latest
-        imagePullPolicy: IfNotPresent
-        name: ironic-inspector
-        volumeMounts:
-        - mountPath: /certs/ca/ironic
-          name: cert-ironic-ca
-          readOnly: true
-        - mountPath: /certs/ca/ironic-inspector
-          name: cert-ironic-inspector-ca
-          readOnly: true
-        - mountPath: /auth/ironic
-          name: ironic-auth-config
-          readOnly: true
       hostNetwork: true
       volumes:
       - name: cert-mariadb
@@ -114,20 +73,11 @@ spec:
       - name: ironic-auth-config
         secret:
           secretName: baremetal-operator-ironic-auth-config
-      - name: ironic-inspector-auth-config
-        secret:
-          secretName: baremetal-operator-ironic-inspector-auth-config
       - name: cert-ironic-ca
-        secret:
-          secretName: ironic-cacert
-      - name: cert-ironic-inspector-ca
         secret:
           secretName: ironic-cacert
       - name: cert-ironic
         secret:
           secretName: ironic-cert
-      - name: cert-ironic-inspector
-        secret:
-          secretName: ironic-inspector-cert
       - emptyDir: {}
         name: ironic-data-volume

@@ -17,7 +17,7 @@ spec:
         app: capim
     spec:
       containers:
-        - image: quay.io/metal3-io/api-server
+        - image: quay.io/metal3-io/api-server:amd64
           imagePullPolicy: IfNotPresent
           name: capim
           env:

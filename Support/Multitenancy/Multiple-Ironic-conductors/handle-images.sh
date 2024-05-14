@@ -9,19 +9,27 @@ IMAGE_NAMES=(
     "quay.io/metal3-io/ironic-client"
     "quay.io/metal3-io/keepalived:v0.2.0"
     "quay.io/metal3-io/mariadb:latest"
+    "quay.io/metal3-io/api-server:latest"
 )
 
 REGISTRY_PORT="5000"
 # Pull images, tag to local registry, and push to registry
 for NAME in "${IMAGE_NAMES[@]}"; do
     # Pull and tag the image
-    docker pull "$NAME"
+    if [[ $(docker images | grep ${IMAGE_NAME}) == "" ]]; then
+        docker pull "$NAME"
+    fi
     LOCAL_IMAGE_NAME="127.0.0.1:${REGISTRY_PORT}/localimages/${NAME##*/}"
     docker tag "$NAME" "${LOCAL_IMAGE_NAME}"
     # Push the image to the local registry
     docker push "${LOCAL_IMAGE_NAME}"
     minikube image load "${LOCAL_IMAGE_NAME}"
 done
+
+api_server_image="quay.io/metal3-io/api-server:latest"
+if [[ $(docker images | grep ${IMAGE_NAME}) != "" ]]; then
+    minikube image load "${IMAGE_NAME}"
+fi
 
 __dir__=$(realpath "$(dirname "$0")")
 sudo "$__dir__/ironic_tls_setup.sh"

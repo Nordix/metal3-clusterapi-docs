@@ -4,11 +4,12 @@ N_SUSHY=${N_SUSHY:-1}
 __dir__=$(realpath "$(dirname "$0")")
 SUSHY_CONF_DIR="${__dir__}/sushy-tools-conf"
 SUSHY_TOOLS_IMAGE="127.0.0.1:5000/localimages/sushy-tools"
+FAKEIPA_IMAGE="127.0.0.1:5000/localimages/fake-ipa"
 LIBVIRT_URI="qemu+ssh://root@192.168.111.1/system?&keyfile=/root/ssh/id_rsa_virt_power&no_verify=1&no_tty=1"
 ADVERTISE_HOST="192.168.222.1"
 
 API_URL="https://192.168.222.100:6385"
-CALLBACK_URL="https://192.168.222.100:5050/v1/continue"
+CALLBACK_URL="https://192.168.222.100:6385/v1/continue_inspection"
 
 rm -rf "$SUSHY_CONF_DIR"
 mkdir -p "$SUSHY_CONF_DIR"
@@ -61,11 +62,10 @@ done
 for i in $(seq 1 ${N_FAKE_IPA:-1}); do
   port=$(( 9900 + i ))
   ports+=(${port})
-docker run --entrypoint=sushy-fake-ipa \
+docker run \
     -d --net host --name fake-ipa-${i} \
-    -v "$SUSHY_CONF_DIR/sushy-${i}":/root/sushy \
-    "${SUSHY_TOOLS_IMAGE}" \
-    --config /root/sushy/conf.py
+    -v "$SUSHY_CONF_DIR/sushy-${i}":/app \
+    "${FAKEIPA_IMAGE}"
 done
 
 # Firewall rules

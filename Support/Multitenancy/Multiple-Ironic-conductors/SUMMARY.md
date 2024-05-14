@@ -40,5 +40,5 @@ This config means that there will be, in total, 1000 (fake) nodes created, of wh
 - The `ironic` pod used in `metal3-dev-env`, which consists of several containers, was splited into smaller pods that run separatedly as followed:
 
    - First pod: consists of `ironic` and `ironic-httpd` containers.
-   - Second pod: consists of `dnsmasq` and `ironic-inspector` containers.
+   - Second pod: consists of `dnsmasq` container.
    - Third pod: consists of `mariadb` container.

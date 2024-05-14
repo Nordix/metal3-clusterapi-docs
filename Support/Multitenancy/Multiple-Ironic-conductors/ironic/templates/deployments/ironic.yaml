@@ -3,16 +3,13 @@
 apiVersion: v1
 data:
   IRONIC_REVERSE_PROXY_SETUP: "true"
-  INSPECTOR_REVERSE_PROXY_SETUP: "true"
   IRONIC_USE_MARIADB: "true"
   PROVISIONING_IP: {{ $ipValue }}
-  IRONIC_INSPECTOR_BASE_URL: {{ $.Values.global.ironicInspectorBaseUrl }}
-  IRONIC_INSPECTOR_ENDPOINT: {{ $.Values.global.ironicInspectorBaseUrl }}/v1/
   IRONIC_EXPOSE_JSON_RPC: "true"
   # IRONIC_EXPOSE_OSLO_RPC: "true"
   IRONIC_RAMDISK_HEARTBEAT_TIMEOUT: "3000"
   IRONIC_RPC_RESPONSE_TIMEOUT: "600"
-  IRONIC_INSPECTOR_HEARTBEAT_TIMEOUT: "600"
+  IRONIC_ENDPOINT: https://{{ $ipValue }}:6385/v1/
 kind: ConfigMap
 metadata:
   name: baremetal-operator-ironic-{{ $index }}-configmap
@@ -64,20 +61,11 @@ spec:
         - mountPath: /auth/ironic
           name: ironic-auth-config
           readOnly: true
-        - mountPath: /auth/ironic-inspector
-          name: ironic-inspector-auth-config
-          readOnly: true
         - mountPath: /certs/ironic
           name: cert-ironic
           readOnly: true
-        - mountPath: /certs/ironic-inspector
-          name: cert-ironic-inspector
-          readOnly: true
         - mountPath: /certs/ca/ironic
           name: cert-ironic-ca
-          readOnly: true
-        - mountPath: /certs/ca/ironic-inspector
-          name: cert-ironic-inspector-ca
           readOnly: true
         - mountPath: /shared
           name: ironic-data-volume
@@ -90,20 +78,11 @@ spec:
         - mountPath: /auth/ironic
           name: ironic-auth-config
           readOnly: true
-        - mountPath: /auth/ironic-inspector
-          name: ironic-inspector-auth-config
-          readOnly: true
         - mountPath: /certs/ironic
           name: cert-ironic
           readOnly: true
-        - mountPath: /certs/ironic-inspector
-          name: cert-ironic-inspector
-          readOnly: true
         - mountPath: /certs/ca/ironic
           name: cert-ironic-ca
-          readOnly: true
-        - mountPath: /certs/ca/ironic-inspector
-          name: cert-ironic-inspector-ca
           readOnly: true
         - mountPath: /shared
           name: ironic-data-volume
@@ -121,20 +100,11 @@ spec:
         - mountPath: /auth/ironic
           name: ironic-auth-config
           readOnly: true
-        - mountPath: /auth/ironic-inspector
-          name: ironic-inspector-auth-config
-          readOnly: true
         - mountPath: /certs/ironic
           name: cert-ironic
           readOnly: true
-        - mountPath: /certs/ironic-inspector
-          name: cert-ironic-inspector
-          readOnly: true
         - mountPath: /certs/ca/ironic
           name: cert-ironic-ca
-          readOnly: true
-        - mountPath: /certs/ca/ironic-inspector
-          name: cert-ironic-inspector-ca
           readOnly: true
         - mountPath: /shared
           name: ironic-data-volume
@@ -163,21 +133,12 @@ spec:
       - name: ironic-auth-config
         secret:
           secretName: baremetal-operator-ironic-auth-config
-      - name: ironic-inspector-auth-config
-        secret:
-          secretName: baremetal-operator-ironic-inspector-auth-config
       - name: cert-ironic-ca
-        secret:
-          secretName: ironic-cacert
-      - name: cert-ironic-inspector-ca
         secret:
           secretName: ironic-cacert
       - name: cert-ironic
         secret:
           secretName: ironic-cert
-      - name: cert-ironic-inspector
-        secret:
-          secretName: ironic-inspector-cert
       - name: ironic-data-volume
         hostPath:
           path: /shared

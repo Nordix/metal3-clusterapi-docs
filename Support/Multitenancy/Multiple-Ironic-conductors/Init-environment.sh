@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 trap 'trap - SIGTERM && kill -- -'$$'' SIGINT SIGTERM EXIT
 __dir__=$(realpath "$(dirname "$0")")
 # shellcheck disable=SC1091

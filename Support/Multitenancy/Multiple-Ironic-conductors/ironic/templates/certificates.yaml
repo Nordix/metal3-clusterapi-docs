@@ -35,22 +35,6 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: baremetal-operator-ironic-inspector-cert
-  namespace: {{ .Values.global.namespace }}
-spec:
-  commonName: ironic-inspector-cert
-  ipAddresses:
-{{- range $.Values.ironicReplicas }}
-  - {{ . }}
-{{- end }}
-  issuerRef:
-    kind: Issuer
-    name: baremetal-operator-ca-issuer
-  secretName: ironic-inspector-cert
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
   name: baremetal-operator-mariadb-cert
   namespace: {{ .Values.global.namespace }}
 spec:

@@ -36,8 +36,9 @@ create_cluster() {
   api_server_idx=$(( $bmh_index % ${N_APISERVER_PODS} ))
   api_server_port=$(( 3333 + ${api_server_idx} ))
 
-  export IMAGE_URL="http://192.168.222.1:${fake_ipa_port}/images/rhcos-ootpa-latest.qcow2"
+  # export IMAGE_URL="http://192.168.222.200:${fake_ipa_port}/images/rhcos-ootpa-latest.qcow2"
   # export IMAGE_URL="http://192.168.111.1:8080/rhcos-ootpa-latest.qcow2"
+  export IMAGE_URL="http://192.168.111.1:8080/ironic/html/images/ipa-centos9-master-1e894833-617c5e946ee80/ipa-centos9-master.tar.gz"
 
   api_server_name=$(kubectl get pods -l app=capim -o jsonpath="{.items[${api_server_idx}].metadata.name}")
 
@@ -154,7 +155,4 @@ for i in $(seq $START_NUM $N_NODES); do
   done
 done
 
-# Run describe for all clusters
-for i in $(seq $START_NUM $N_NODES); do
-  clusterctl -n "test${i}" describe cluster "test${i}"
-done
+./check-clusters.sh ${START_NUM}
