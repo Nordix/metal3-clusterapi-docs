@@ -1,0 +1,16 @@
+# See the OWNERS docs: https://git.k8s.io/community/contributors/guide/owners.md
+
+aliases:
+  metal3-clusterapi-docs-maintainers:
+  - adilGhaffarDev
+  - furkatgofurov7
+  - kashifest
+  - lentzi90
+  - mboukhalfa
+  - mquhuy
+  - Rozzii
+  - smoshiur1237
+  - Sunnatillo
+  - tuminoid
+
+  metal3-clusterapi-docs-reviewers:
