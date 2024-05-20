@@ -1,13 +1,8 @@
 # See the OWNERS docs at https://go.k8s.io/owners
 
 approvers:
- - adilGhaffarDev
- - furkatgofurov7
- - kashifest
- - lentzi90
- - mboukhalfa
- - mquhuy
- - Rozzii
- - smoshiur1237
- - Sunnatillo
- - tuminoid
+- metal3-clusterapi-docs-maintainers
+
+reviewers:
+- metal3-clusterapi-docs-maintainers
+- metal3-clusterapi-docs-reviewers
