@@ -6,6 +6,16 @@ This experiment is three-fold:
 1. [Moving signatures from one registry to another](oras/README.md)
 1. [Validating the signing with Kyverno, in a Kind cluster](kyverno/README.md)
 
+```mermaid
+flowchart LR
+   notation(Container signing with Notation)
+   oras(Signature relocation with Oras)
+   kyverno(Signature validation with Kyverno)
+
+   notation-->oras
+   oras-->kyverno
+```
+
 ## TL;DR of the POC
 
 Basically, the POC is finding the following:

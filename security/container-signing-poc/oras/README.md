@@ -53,7 +53,7 @@ specifically for this.
 ```shell
 # sign with notation first, then export to oci layout
 # note: use a "tag", not sha in oci layout and include --recursive to copy signatures too
-$ oras cp --recursive --from-plain-http 127.0.0.1:5002/busybox@sha256:db16cd196b8a37ba5f08414e6f6e71003d76665a5eac160cb75ad3759d8b3e29 --to-oci-layout busybox:1.36.1-glibc
+$ oras cp --recursive --from-plain-http 127.0.0.1:5002/busybox@sha256:28e01ab32c9dbcbaae96cf0d5b472f22e231d9e603811857b295e61197e40a9b --to-oci-layout busybox:1.36.1-glibc
 ...
 
 # package the oci-layout into tarball for delivery
@@ -65,16 +65,16 @@ $ tar -xf busybox.tar
 # push from oci-layout to registry
 $ oras cp --recursive --from-oci-layout busybox:1.36.1-glibc --to-plain-http 127.0.0.1:5000/busybox:1.36.1-glibc
 Copied [oci-layout] busybox:1.36.1-glibc => [registry] 127.0.0.1:5000/busybox:1.36.1-glibc
-Digest: sha256:db16cd196b8a37ba5f08414e6f6e71003d76665a5eac160cb75ad3759d8b3e29
+Digest: sha256:28e01ab32c9dbcbaae96cf0d5b472f22e231d9e603811857b295e61197e40a9b
 
 # verify the copied images signatures with notation
-$ notation verify --insecure-registry 127.0.0.1:5000/busybox@sha256:db16cd196b8a37ba5f08414e6f6e71003d76665a5eac160cb75ad3759d8b3e29
-Successfully verified signature for 127.0.0.1:5000/busybox@sha256:db16cd196b8a37ba5f08414e6f6e71003d76665a5eac160cb75ad3759d8b3e29
+$ notation verify --insecure-registry 127.0.0.1:5000/busybox@sha256:28e01ab32c9dbcbaae96cf0d5b472f22e231d9e603811857b295e61197e40a9b
+Successfully verified signature for 127.0.0.1:5000/busybox@sha256:28e01ab32c9dbcbaae96cf0d5b472f22e231d9e603811857b295e61197e40a9b
 
 # inspect signature
-$ notation inspext --insecure-registry 127.0.0.1:5000/busybox
+$ notation inspect --insecure-registry 127.0.0.1:5000/busybox
 Inspecting all signatures for signed artifact
-127.0.0.1:5000/busybox@sha256:db16cd196b8a37ba5f08414e6f6e71003d76665a5eac160cb75ad3759d8b3e29
+127.0.0.1:5000/busybox@sha256:28e01ab32c9dbcbaae96cf0d5b472f22e231d9e603811857b295e61197e40a9b
 └── application/vnd.cncf.notary.signature
     └── sha256:724e90a163d792655803ebd579e61523dc40512099842139f922dc65c3431a4e
         ├── media type: application/jose+json
@@ -97,7 +97,7 @@ Inspecting all signatures for signed artifact
         │       └── expiry: Fri Mar 21 06:54:21 2025
         └── signed artifact
             ├── media type: application/vnd.docker.distribution.manifest.v2+json
-            ├── digest: sha256:db16cd196b8a37ba5f08414e6f6e71003d76665a5eac160cb75ad3759d8b3e29
+            ├── digest: sha256:28e01ab32c9dbcbaae96cf0d5b472f22e231d9e603811857b295e61197e40a9b
             └── size: 527
 
 ```
