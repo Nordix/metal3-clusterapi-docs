@@ -42,11 +42,13 @@ SUSHY_EMULATOR_VMEDIA_VERIFY_SSL = False
 SUSHY_EMULATOR_AUTH_FILE = "/root/sushy/htpasswd"
 SUSHY_EMULATOR_FAKE_DRIVER = True
 SUSHY_EMULATOR_LISTEN_PORT = $(( 8000 + i ))
+EXTERNAL_NOTIFICATION_URL = "http://${ADVERTISE_HOST}:${fake_ipa_port}"
 FAKE_IPA_API_URL = "${API_URL}"
 FAKE_IPA_URL = "http://${ADVERTISE_HOST}:${fake_ipa_port}"
 FAKE_IPA_INSPECTION_CALLBACK_URL = "${CALLBACK_URL}"
 FAKE_IPA_ADVERTISE_ADDRESS_IP = "${ADVERTISE_HOST}"
 FAKE_IPA_ADVERTISE_ADDRESS_PORT = "${fake_ipa_port}"
+FAKE_IPA_CAFILE = "/root/cert/ironic-ca.crt"
 SUSHY_FAKE_IPA_LISTEN_IP = "${ADVERTISE_HOST}"
 SUSHY_FAKE_IPA_LISTEN_PORT = "${fake_ipa_port}"
 SUSHY_EMULATOR_FAKE_IPA = True
@@ -65,6 +67,7 @@ for i in $(seq 1 ${N_FAKE_IPA:-1}); do
 docker run \
     -d --net host --name fake-ipa-${i} \
     -v "$SUSHY_CONF_DIR/sushy-${i}":/app \
+    -v "$(realpath cert)":/root/cert \
     "${FAKEIPA_IMAGE}"
 done
 

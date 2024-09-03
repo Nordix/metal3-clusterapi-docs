@@ -5,7 +5,7 @@
 docker rmi "${IMAGE_NAME}"
 IMAGE_NAME="127.0.0.1:5000/localimages/fake-ipa"
 if [[ ${1:-""} == "-f" ]]; then
-    rm -rf "${FAKEIPA_DIR}"
+    # rm -rf "${FAKEIPA_DIR}"
     docker rmi "${IMAGE_NAME}"
 fi
 

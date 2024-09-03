@@ -7,14 +7,15 @@ __dir__=$(realpath "$(dirname "$0")")
 # This is temporarily required since https://review.opendev.org/c/openstack/sushy-tools/+/875366 has not been merged.
 ./start_image_server.sh
 ./build-sushy-tools-image.sh
-./build-fake-ipa.sh
+./build-fake-ipa.sh -f
 ./dev-setup.sh
 ./build-api-server-container-image.sh
 ./generate_unique_nodes.sh
-./start_containers.sh
+./handle-images.sh
 
 ./install-ironic.sh
 ./install-bmo.sh
+./start_containers.sh
 
 python create_nodes_v3.py
 

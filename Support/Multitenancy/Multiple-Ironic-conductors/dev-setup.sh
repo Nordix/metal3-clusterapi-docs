@@ -37,7 +37,7 @@ curl -O https://raw.githubusercontent.com/metal3-io/baremetal-operator/main/iron
 envsubst < "${REPO_ROOT}/ironic-auth-config-tpl" > \
   "${IRONIC_OVERLAY}/ironic-auth-config"
 
-echo "IRONIC_HTPASSWD=$(htpasswd -n -b -B "${IRONIC_USERNAME}" "${IRONIC_PASSWORD}")" > \
+echo "$(htpasswd -n -b -B "${IRONIC_USERNAME}" "${IRONIC_PASSWORD}")" > \
   "${IRONIC_OVERLAY}/ironic-htpasswd"
 
 if [[ $(which firewall-cmd) == "" ]]; then

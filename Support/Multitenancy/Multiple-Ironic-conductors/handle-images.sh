@@ -3,7 +3,7 @@
 N_NODES=${N_NODES:-1000}
 IMAGE_NAMES=(
 # For now, sushy-tools needs to be compiled locally with https://review.opendev.org/c/openstack/sushy-tools/+/875366
-    # "quay.io/metal3-io/sushy-tools"
+    "quay.io/metal3-io/sushy-tools"
     "quay.io/metal3-io/ironic-ipa-downloader"
     "quay.io/metal3-io/ironic:latest"
     "quay.io/metal3-io/ironic-client"
@@ -12,34 +12,9 @@ IMAGE_NAMES=(
     "quay.io/metal3-io/api-server:latest"
 )
 
-REGISTRY_PORT="5000"
-# Pull images, tag to local registry, and push to registry
-for NAME in "${IMAGE_NAMES[@]}"; do
-    # Pull and tag the image
-    if [[ $(docker images | grep ${IMAGE_NAME}) == "" ]]; then
-        docker pull "$NAME"
+for image in "${IMAGE_NAMES[@]}"; do
+    if [[ ! $(docker images | grep ${image}) != "" ]]; then
+        docker pull ${image}
     fi
-    LOCAL_IMAGE_NAME="127.0.0.1:${REGISTRY_PORT}/localimages/${NAME##*/}"
-    docker tag "$NAME" "${LOCAL_IMAGE_NAME}"
-    # Push the image to the local registry
-    docker push "${LOCAL_IMAGE_NAME}"
-    minikube image load "${LOCAL_IMAGE_NAME}"
+    minikube image load "${image}"
 done
-
-api_server_image="quay.io/metal3-io/api-server:latest"
-if [[ $(docker images | grep ${IMAGE_NAME}) != "" ]]; then
-    minikube image load "${IMAGE_NAME}"
-fi
-
-__dir__=$(realpath "$(dirname "$0")")
-sudo "$__dir__/ironic_tls_setup.sh"
-
-IRONIC_IMAGE="127.0.0.1:5000/localimages/ironic:latest"
-# Run httpd container
-docker run -d --net host --name httpd-infra \
-    --pod infra-pod \
-    -v "${__dir__}/opt/metal3-dev-env/ironic":/shared \
-    -e PROVISIONING_INTERFACE=provisioning \
-    -e LISTEN_ALL_INTERFACES=false \
-    --entrypoint /bin/runhttpd \
-    "$IRONIC_IMAGE"

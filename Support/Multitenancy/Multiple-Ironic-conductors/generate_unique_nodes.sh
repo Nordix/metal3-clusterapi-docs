@@ -31,6 +31,7 @@ for i in $(seq 1 "${N_NODES:-100}"); do
       "uuid": $uuid,
       "name": $node_name,
       "power_state": "Off",
+      "external_notifier": "True",
       "nics": [
 	{"mac": $macaddr, "ip": "192.168.0.100"}
       ]

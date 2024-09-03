@@ -22,3 +22,4 @@ ironic/ironic-auth-config
 ironic/ironic-htpasswd
 ironic/ironic-inspector-auth-config
 ironic/ironic-inspector-htpasswd
+cert/*

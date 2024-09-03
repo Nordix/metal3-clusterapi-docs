@@ -45,3 +45,5 @@ done
 rm -rf bmc-*.yaml
 
 rm -rf macaddrs uuids node.json nodes.json batch.json in-memory-development.yaml sushy-tools-conf
+
+rm -rf cert

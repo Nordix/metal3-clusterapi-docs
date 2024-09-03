@@ -26,7 +26,7 @@ kubectl -n cert-manager wait --for=condition=available deployment/cert-manager-w
 kubectl -n cert-manager wait --for=condition=available deployment/cert-manager-cainjector --timeout=500s
 kubectl -n cert-manager wait --for=condition=available deployment/cert-manager --timeout=500s
 
-if [[ ! -f ~/.ssh/id_rsa.pub ]]; then
+if [[ ! -f ~/.ssh/id_ed25519.pub ]]; then
   ssh-keygen -t ed25519
 fi
 
@@ -59,3 +59,7 @@ helm install ironic ironic --set sshKey="$(cat ~/.ssh/id_rsa.pub)" \
   --set secrets.ironicAuthConfig="$(cat ironic/ironic-auth-config)" \
   --set secrets.ironicHtpasswd="$(cat ironic/ironic-htpasswd)" \
   --wait --timeout 20m --create-namespace
+
+mkdir cert
+
+kubectl get secret -n baremetal-operator-system ironic-cert -o json -o=jsonpath="{.data.ca\.crt}" | base64 -d > cert/ironic-ca.crt
