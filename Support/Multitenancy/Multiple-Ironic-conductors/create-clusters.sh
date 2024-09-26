@@ -36,8 +36,6 @@ create_cluster() {
   api_server_idx=$(( $bmh_index % ${N_APISERVER_PODS} ))
   api_server_port=$(( 3333 + ${api_server_idx} ))
 
-  # export IMAGE_URL="http://192.168.222.200:${fake_ipa_port}/images/rhcos-ootpa-latest.qcow2"
-  # export IMAGE_URL="http://192.168.111.1:8080/rhcos-ootpa-latest.qcow2"
   export IMAGE_URL="http://192.168.111.1:8080/ironic/html/images/ipa-centos9-master-1e894833-617c5e946ee80/ipa-centos9-master.tar.gz"
 
   api_server_name=$(kubectl get pods -l app=capim -o jsonpath="{.items[${api_server_idx}].metadata.name}")
@@ -103,7 +101,9 @@ EOF
   echo "Generating cluster ${cluster} with clusterctl"
   clusterctl generate cluster "${cluster}" \
     --from "${CLUSTER_TEMPLATE}" \
-    --target-namespace "${namespace}" > /tmp/${cluster}-cluster.yaml
+    --target-namespace "${namespace}" \
+    --control-plane-machine-count=3 \
+    --worker-machine-count=3 > /tmp/${cluster}-cluster.yaml
   kubectl apply -f /tmp/${cluster}-cluster.yaml
 
   sleep 10
@@ -130,15 +130,16 @@ EOF
 }
 
 START_NUM=${1:-1}
+i=${START_NUM}
 
-for i in $(seq $START_NUM $N_NODES); do
-  namespace="test${i}"
-  if [[ $(kubectl get ns | grep "${namespace}") != "" ]]; then
-    echo "ERROR: Namespace ${namespace} exists. Skip creating cluster"
-    continue
-  fi
-  create_cluster "${i}"
-done
+# for i in $(seq $START_NUM $N_NODES); do
+namespace="test${i}"
+if [[ $(kubectl get ns | grep "${namespace}") != "" ]]; then
+  echo "ERROR: Namespace ${namespace} exists. Skip creating cluster"
+  continue
+fi
+create_cluster "${i}"
+# done
 
 # Wait for all BMHs to be available. Clusters should be more or less ready by then.
 desired_states=("available" "provisioning" "provisioned")
@@ -155,4 +156,4 @@ for i in $(seq $START_NUM $N_NODES); do
   done
 done
 
-./check-clusters.sh ${START_NUM}
+# ./check-clusters.sh ${START_NUM}

@@ -6,9 +6,9 @@ REPO_ROOT=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
 cd "${REPO_ROOT}" || exit 1
 
 # Set up minikube
-minikube config set memory 20000
-minikube config set cpus 14
-minikube start --driver=kvm2
+minikube config set memory 10000
+minikube config set cpus 4
+minikube start --driver=kvm2 --wait-timeout 120s
 
 virsh -c qemu:///system net-define "${REPO_ROOT}/nets/baremetal.xml"
 virsh -c qemu:///system net-start baremetal
@@ -19,7 +19,7 @@ virsh -c qemu:///system attach-interface --domain minikube --mac="52:54:00:6c:3c
 
 # Restart minikube to apply the changes
 minikube stop
-minikube start
+minikube start --wait-timeout 120s
 
 kubectl create namespace baremetal-operator-system
 
