@@ -2,14 +2,13 @@
 #
 N_NODES=${N_NODES:-1000}
 IMAGE_NAMES=(
-# For now, sushy-tools needs to be compiled locally with https://review.opendev.org/c/openstack/sushy-tools/+/875366
-    "quay.io/metal3-io/sushy-tools"
     "quay.io/metal3-io/ironic-ipa-downloader"
-    "quay.io/metal3-io/ironic:latest"
+    "quay.io/metal3-io/ironic:v26.0.1"
     "quay.io/metal3-io/ironic-client"
     "quay.io/metal3-io/keepalived:v0.2.0"
     "quay.io/metal3-io/mariadb:latest"
-    "quay.io/metal3-io/api-server:latest"
+    "gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0"
+    # "quay.io/metal3-io/api-server:latest"
 )
 
 for image in "${IMAGE_NAMES[@]}"; do
@@ -17,4 +16,14 @@ for image in "${IMAGE_NAMES[@]}"; do
         docker pull ${image}
     fi
     minikube image load "${image}"
+done
+
+CONTAINER_IMAGES=(
+    "quay.io/metal3-io/sushy-tools:latest"
+    "quay.io/metal3-io/fake-ipa:latest"
+)
+for image in "${CONTAINER_IMAGES[@]}"; do
+    if [[ ! $(docker images | grep ${image}) != "" ]]; then
+        docker pull ${image}
+    fi
 done

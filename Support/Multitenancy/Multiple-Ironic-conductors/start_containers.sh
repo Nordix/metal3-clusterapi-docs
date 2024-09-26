@@ -4,7 +4,9 @@ N_SUSHY=${N_SUSHY:-1}
 __dir__=$(realpath "$(dirname "$0")")
 SUSHY_CONF_DIR="${__dir__}/sushy-tools-conf"
 SUSHY_TOOLS_IMAGE="127.0.0.1:5000/localimages/sushy-tools"
+# SUSHY_TOOLS_IMAGE="quay.io/metal3-io/sushy-tools:latest"
 FAKEIPA_IMAGE="127.0.0.1:5000/localimages/fake-ipa"
+# FAKEIPA_IMAGE="quay.io/metal3-io/fake-ipa:latest"
 LIBVIRT_URI="qemu+ssh://root@192.168.111.1/system?&keyfile=/root/ssh/id_rsa_virt_power&no_verify=1&no_tty=1"
 ADVERTISE_HOST="192.168.222.1"
 

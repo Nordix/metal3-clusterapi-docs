@@ -8,16 +8,16 @@ set -eux
 # we want to avoid that, as several ipa-downloader downloading the same ipa at the same time might
 # make the server think it was a DDOS.
 # In this script we make a hack by download ipa before installing ironic, then copy it to directory
-# /shared in the minikube VM. In production, another method is required, probably by having a 
+# /shared in the minikube VM. In production, another method is required, probably by having a
 # leader-election mechanism to let an ipa-downloader run only if it's the first one in the node.
 __dir__=$(realpath "$(dirname "$0")")
 IRONIC_DATA_DIR="${__dir__}/Metal3/ironic"
 IPA_DOWNLOADER_IMAGE="quay.io/metal3-io/ironic-ipa-downloader"
 mkdir -p "${IRONIC_DATA_DIR}"
 
-docker run -d --net host --privileged --name ipa-downloader \
-  --env-file ironic.env \
-  -v "${IRONIC_DATA_DIR}:/shared" "${IPA_DOWNLOADER_IMAGE}" /usr/local/bin/get-resource.sh
+# docker run -d --net host --privileged --name ipa-downloader \
+#   --env-file ironic.env \
+#   -v "${IRONIC_DATA_DIR}:/shared" "${IPA_DOWNLOADER_IMAGE}" /usr/local/bin/get-resource.sh
 
 # Install cert-manager while we wait for ipa-downloader
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
@@ -30,7 +30,7 @@ if [[ ! -f ~/.ssh/id_ed25519.pub ]]; then
   ssh-keygen -t ed25519
 fi
 
-docker wait ipa-downloader
+# docker wait ipa-downloader
 
 namespace="baremetal-operator-system"
 
@@ -47,9 +47,9 @@ minikube cp ${IRONIC_DATA_DIR}/html/images/ironic-python-agent.kernel /shared/ht
 minikube cp ${IRONIC_DATA_DIR}/html/images/ironic-python-agent.initramfs /shared/html/images/
 minikube cp ${IRONIC_DATA_DIR}/html/images/ironic-python-agent.headers /shared/html/images/
 
-read -ra PROVISIONING_IPS <<< "${IRONIC_ENDPOINTS}"
+read -ra PROVISIONING_IPS <<<"${IRONIC_ENDPOINTS}"
 for PROVISIONING_IP in "${PROVISIONING_IPS[@]}"; do
-  minikube ssh sudo  ip addr add ${PROVISIONING_IP}/24 dev ironicendpoint
+  minikube ssh sudo ip addr add ${PROVISIONING_IP}/24 dev ironicendpoint
 done
 
 # Install ironic
@@ -62,4 +62,4 @@ helm install ironic ironic --set sshKey="$(cat ~/.ssh/id_rsa.pub)" \
 
 mkdir cert
 
-kubectl get secret -n baremetal-operator-system ironic-cert -o json -o=jsonpath="{.data.ca\.crt}" | base64 -d > cert/ironic-ca.crt
+kubectl get secret -n baremetal-operator-system ironic-cert -o json -o=jsonpath="{.data.ca\.crt}" | base64 -d >cert/ironic-ca.crt

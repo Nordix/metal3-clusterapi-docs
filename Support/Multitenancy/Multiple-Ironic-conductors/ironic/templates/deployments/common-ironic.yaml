@@ -23,7 +23,7 @@ spec:
         envFrom:
         - configMapRef:
             name: baremetal-operator-ironic-bmo-configmap
-        image: quay.io/metal3-io/ironic:latest
+        image: quay.io/metal3-io/ironic:v26.0.1
         imagePullPolicy: IfNotPresent
         name: ironic-dnsmasq
         securityContext:
@@ -46,7 +46,7 @@ spec:
           name: ironic-data-volume
       - command:
         - /bin/runlogwatch.sh
-        image: quay.io/metal3-io/ironic:latest
+        image: quay.io/metal3-io/ironic:v26.0.1
         imagePullPolicy: IfNotPresent
         name: ironic-log-watch
         volumeMounts:

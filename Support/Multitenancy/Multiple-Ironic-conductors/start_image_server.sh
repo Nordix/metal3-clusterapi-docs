@@ -4,7 +4,7 @@ set -x
 
 CURRENT_DIR=$(realpath $(dirname "$0"))
 # Image server variables
-IMAGE_DIR="${CURRENT_DIR}/Metal3/images"
+IMAGE_DIR="${CURRENT_DIR}/Metal3/ironic/html/images"
 mkdir -p "${IMAGE_DIR}"
 
 # Download ipa image
@@ -21,5 +21,5 @@ EOF
 
 ## Run the image server
 docker run --name image-server -d \
-  -p 80:8080 \
-  -v "${IMAGE_DIR}:/usr/share/nginx/html" nginxinc/nginx-unprivileged
+  -p 8080:8080 \
+  -v "${IMAGE_DIR}:/usr/share/nginx/html/images" nginxinc/nginx-unprivileged

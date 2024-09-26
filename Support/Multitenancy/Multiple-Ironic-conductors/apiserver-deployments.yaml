@@ -5,7 +5,7 @@ metadata:
   name: metal3-fake-api-server
   namespace: default
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: capim

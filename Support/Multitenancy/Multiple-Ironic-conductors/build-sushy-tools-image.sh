@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+exit 0
 REGISTRY_NAME="registry"
 REGISTRY_PORT="5000"
 # Start docker registry if it's not already running

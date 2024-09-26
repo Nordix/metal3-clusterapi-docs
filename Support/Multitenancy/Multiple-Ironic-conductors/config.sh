@@ -1,10 +1,10 @@
 #!/bin/bash
 #
 export N_NODES=10
-export N_SUSHY=5
-export N_FAKE_IPA=5
-export N_IRONICS=3
-export N_APISERVER_PODS=2
+export N_SUSHY=3
+export N_FAKE_IPA=3
+export N_IRONICS=1
+export N_APISERVER_PODS=1
 # export N_NODES=50
 # export N_SUSHY=2
 # export N_FAKE_IPA=2
@@ -13,6 +13,6 @@ export N_APISERVER_PODS=2
 # Translating N_IRONICS to IRONIC_ENDPOINTS. Don't change this part
 IRONIC_ENDPOINTS="192.168.222.100"
 for i in $(seq 2 $N_IRONICS); do
-    IRONIC_ENDPOINTS="${IRONIC_ENDPOINTS} 192.168.222.$(( 100+i ))"
+  IRONIC_ENDPOINTS="${IRONIC_ENDPOINTS} 192.168.222.$((100 + i))"
 done
 export IRONIC_ENDPOINTS
