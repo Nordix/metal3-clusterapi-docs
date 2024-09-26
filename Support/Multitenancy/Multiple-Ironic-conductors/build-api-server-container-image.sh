@@ -17,9 +17,7 @@ fi
 CAPM3_DIR="/tmp/cluster-api-provider-metal3"
 
 if [[ ! -d "${CAPM3_DIR}" ]]; then
-    git clone https://github.com/metal3-io/cluster-api-provider-metal3.git "${CAPM3_DIR}"
-    pushd "${CAPM3_DIR}"
-    gh pr checkout 1610
+    git clone -b mquhuy/test --single-branch https://github.com/Nordix/cluster-api-provider-metal3.git "${CAPM3_DIR}"
 fi
 
 pushd "${CAPM3_DIR}"

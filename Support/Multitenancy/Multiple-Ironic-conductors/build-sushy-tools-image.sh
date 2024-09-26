@@ -1,28 +1,22 @@
 #!/bin/bash
 #
+exit 0
 REGISTRY_NAME="registry"
 REGISTRY_PORT="5000"
 # Start docker registry if it's not already running
-if ! docker ps | grep -q "$REGISTRY_NAME"; then
-    docker run -d -p "$REGISTRY_PORT":"$REGISTRY_PORT" --name "$REGISTRY_NAME" docker.io/library/registry:2.7.1
-fi
-#
 IMAGE_NAME="127.0.0.1:5000/localimages/sushy-tools"
+SUSHYTOOLS_DIR="/tmp/sushy-tools"
 if [[ ${1:-""} == "-f" ]]; then
-    rm -rf "${SUSHYTOOLS_DIR}"
-    docker rmi "${IMAGE_NAME}"
+  rm -rf "${SUSHYTOOLS_DIR}"
+  docker rmi "${IMAGE_NAME}"
 fi
 
 if [[ $(docker images | grep ${IMAGE_NAME}) != "" ]]; then
-    # docker push "${IMAGE_NAME}"
-    exit 0
+  exit 0
 fi
-SUSHYTOOLS_DIR="/tmp/sushy-tools"
-# rm -rf "$SUSHYTOOLS_DIR"
 if [[ ! -d "${SUSHYTOOLS_DIR}" ]]; then
-    git clone https://opendev.org/openstack/sushy-tools.git "$SUSHYTOOLS_DIR"
-    cd "$SUSHYTOOLS_DIR" || exit
-    # git fetch https://review.opendev.org/openstack/sushy-tools refs/changes/66/875366/57 && git cherry-pick FETCH_HEAD
+  git clone https://opendev.org/openstack/sushy-tools.git "$SUSHYTOOLS_DIR"
+  cd "$SUSHYTOOLS_DIR" || exit
 fi
 cd "$SUSHYTOOLS_DIR" || exit
 
@@ -35,7 +29,7 @@ echo "$WHEEL_FILENAME"
 
 cd ..
 
-cat <<EOF > "${SUSHYTOOLS_DIR}/Dockerfile"
+cat <<EOF >"${SUSHYTOOLS_DIR}/Dockerfile"
 # Use the official ubuntu image as the base image
 FROM ubuntu:22.04
 
@@ -62,4 +56,3 @@ CMD ["sushy-emulator", "-i", "::", "--config", "/root/sushy/conf.py"]
 EOF
 
 docker build -t "${IMAGE_NAME}" .
-# docker push "${IMAGE_NAME}"

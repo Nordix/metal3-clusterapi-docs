@@ -2,6 +2,7 @@
 #
 # Start docker registry if it's not already running
 #
+exit 0
 docker rmi "${IMAGE_NAME}"
 IMAGE_NAME="127.0.0.1:5000/localimages/fake-ipa"
 if [[ ${1:-""} == "-f" ]]; then

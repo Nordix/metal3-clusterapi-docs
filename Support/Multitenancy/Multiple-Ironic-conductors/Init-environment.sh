@@ -1,15 +1,20 @@
 #!/bin/bash
-set -ex
+set -e
 trap 'trap - SIGTERM && kill -- -'$$'' SIGINT SIGTERM EXIT
 __dir__=$(realpath "$(dirname "$0")")
-# shellcheck disable=SC1091
 . ./config.sh
-./vm-setup.sh
-# This is temporarily required since https://review.opendev.org/c/openstack/sushy-tools/+/875366 has not been merged.
-./build-sushy-tools-image.sh
-./generate_unique_nodes.sh
-./start_containers.sh
+./start_image_server.sh
+./minikube-setup.sh
+./run-ipa-downloader.sh
 ./handle-images.sh
-./configure-minikube.sh
+./install-fkas.sh
 ./install-ironic.sh
-python create_and_inspect_nodes.py
+./install-bmo.sh
+./generate_unique_nodes.sh
+python create-bmhs.py
+./start_containers.sh
+./apply-bmhs.sh
+
+./clusterctl-init.sh
+
+./create-clusters.sh

@@ -20,12 +20,7 @@ def generate_random_mac():
 def create_node(node):
     uuid = node["uuid"]
     name = node["name"]
-    port = 8001 + (int(name.strip("test")) - 1) % int(os.environ.get("N_SUSHY", 10))
-    # subprocess.run(["baremetal", "node", "create", "--driver", "redfish", "--driver-info",
-    # f"redfish_address=http://192.168.111.1:{port}", "--driver-info",
-    # f"redfish_system_id=/redfish/v1/Systems/{uuid}", "--driver-info",
-    # "redfish_username=admin", "--driver-info", "redfish_password=password",
-    #                 "--uuid", uuid, "--name", name], stdout=subprocess.DEVNULL)
+    port = 8001 + (int(name.strip("test")) - 1) % int(os.environ.get("N_FAKE_IPAS", 10))
     random_mac = generate_random_mac()
     manifest = f"""---
 apiVersion: v1

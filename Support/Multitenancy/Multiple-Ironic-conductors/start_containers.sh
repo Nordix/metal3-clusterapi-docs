@@ -1,10 +1,9 @@
 #!/bin/bash
 . ./config.sh
-N_SUSHY=${N_SUSHY:-1}
 __dir__=$(realpath "$(dirname "$0")")
 SUSHY_CONF_DIR="${__dir__}/sushy-tools-conf"
 SUSHY_TOOLS_IMAGE="127.0.0.1:5000/localimages/sushy-tools"
-FAKEIPA_IMAGE="127.0.0.1:5000/localimages/fake-ipa"
+FAKEIPA_IMAGE="quay.io/metal3-io/fake-ipa:latest"
 LIBVIRT_URI="qemu+ssh://root@192.168.111.1/system?&keyfile=/root/ssh/id_rsa_virt_power&no_verify=1&no_tty=1"
 ADVERTISE_HOST="192.168.222.1"
 
@@ -16,22 +15,20 @@ mkdir -p "$SUSHY_CONF_DIR"
 
 mkdir -p "$SUSHY_CONF_DIR/ssh"
 
-# sudo mkdir -p /root/.ssh
-# sudo ssh-keygen -f /root/.ssh/id_rsa_virt_power -P "" -q -y
-# sudo cat /root/.ssh/id_rsa_virt_power.pub | sudo tee /root/.ssh/authorized_keys
-
 ports=(8000 80 6385 5050 6180 53 5000 69 547 546 68 67 5353 6230)
 echo "Starting sushy-tools containers"
 # Start sushy-tools
-for i in $(seq 1 "$N_SUSHY"); do
+for i in $(seq 1 "$N_FAKE_IPAS"); do
   container_conf_dir="$SUSHY_CONF_DIR/sushy-$i"
-  fake_ipa_port=$(( 9901 + (( $i % ${N_FAKE_IPA:-1} )) ))
-  port=$(( 8000 + i ))
+  fake_ipa_port=$((9900 + i))
+  sushy_port=$((8000 + i))
   ports+=(${port})
+  ports+=(${fake_ipa_port})
   mkdir -p "${container_conf_dir}"
-  cat <<'EOF' > "${container_conf_dir}"/htpasswd
+  cat <<'EOF' >"${container_conf_dir}"/htpasswd
 admin:$2b$12$/dVOBNatORwKpF.ss99KB.vESjfyONOxyH.UgRwNyZi1Xs/W2pGVS
 EOF
+
   # Set configuration options
   cat <<EOF >"${container_conf_dir}"/conf.py
 import collections
@@ -41,7 +38,7 @@ SUSHY_EMULATOR_IGNORE_BOOT_DEVICE = False
 SUSHY_EMULATOR_VMEDIA_VERIFY_SSL = False
 SUSHY_EMULATOR_AUTH_FILE = "/root/sushy/htpasswd"
 SUSHY_EMULATOR_FAKE_DRIVER = True
-SUSHY_EMULATOR_LISTEN_PORT = $(( 8000 + i ))
+SUSHY_EMULATOR_LISTEN_PORT = "${sushy_port}"
 EXTERNAL_NOTIFICATION_URL = "http://${ADVERTISE_HOST}:${fake_ipa_port}"
 FAKE_IPA_API_URL = "${API_URL}"
 FAKE_IPA_URL = "http://${ADVERTISE_HOST}:${fake_ipa_port}"
@@ -55,16 +52,12 @@ SUSHY_EMULATOR_FAKE_IPA = True
 SUSHY_EMULATOR_FAKE_SYSTEMS = $(cat nodes.json)
 EOF
 
-docker run -d --net host --name "sushy-tools-${i}" \
+  docker run -d --net host --name "sushy-tools-${i}" \
     -v "${container_conf_dir}":/root/sushy \
     "${SUSHY_TOOLS_IMAGE}"
-done
 
-# Start fake-ipas
-for i in $(seq 1 ${N_FAKE_IPA:-1}); do
-  port=$(( 9900 + i ))
-  ports+=(${port})
-docker run \
+  # Start fake-ipas
+  docker run \
     -d --net host --name fake-ipa-${i} \
     -v "$SUSHY_CONF_DIR/sushy-${i}":/app \
     -v "$(realpath cert)":/root/cert \
@@ -72,10 +65,8 @@ docker run \
 done
 
 # Firewall rules
-# Please enable these lines if you use a firewall. The ports need to be opened
-# for i in "${ports[@]}"; do 
-#   sudo firewall-cmd --zone=public --add-port=${i}/tcp
-#   sudo firewall-cmd --zone=public --add-port=${i}/udp
+# NOTE: Uncomment these lines if you use firewall
+# for i in "${ports[@]}"; do
 #   sudo firewall-cmd --zone=libvirt --add-port=${i}/tcp
 #   sudo firewall-cmd --zone=libvirt --add-port=${i}/udp
 # done

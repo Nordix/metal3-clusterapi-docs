@@ -10,6 +10,7 @@ data:
   IRONIC_RAMDISK_HEARTBEAT_TIMEOUT: "3000"
   IRONIC_RPC_RESPONSE_TIMEOUT: "600"
   IRONIC_ENDPOINT: https://{{ $ipValue }}:6385/v1/
+  OS_AGENT__REQUIRE_TLS: "false"
 kind: ConfigMap
 metadata:
   name: baremetal-operator-ironic-{{ $index }}-configmap
@@ -51,7 +52,7 @@ spec:
             name: baremetal-operator-ironic-{{ $index }}-configmap
         - secretRef:
             name: baremetal-operator-ironic-htpasswd
-        image: quay.io/metal3-io/ironic:latest
+        image: quay.io/metal3-io/ironic:v26.0.1
         imagePullPolicy: IfNotPresent
         name: ironic
         volumeMounts:
@@ -71,7 +72,7 @@ spec:
           name: ironic-data-volume
       - command:
         - /bin/runlogwatch.sh
-        image: quay.io/metal3-io/ironic:latest
+        image: quay.io/metal3-io/ironic:v26.0.1
         imagePullPolicy: IfNotPresent
         name: ironic-log-watch
         volumeMounts:
@@ -93,7 +94,7 @@ spec:
             name: baremetal-operator-ironic-bmo-configmap
         - configMapRef:
             name: baremetal-operator-ironic-{{ $index }}-configmap
-        image: quay.io/metal3-io/ironic:latest
+        image: quay.io/metal3-io/ironic:v26.0.1
         imagePullPolicy: IfNotPresent
         name: ironic-httpd
         volumeMounts:

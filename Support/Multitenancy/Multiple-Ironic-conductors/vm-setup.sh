@@ -3,87 +3,57 @@ set -eux
 
 #install kvm for minikube
 sudo apt update
-sudo apt install -y qemu-kvm libvirt-clients libvirt-daemon virtinst net-tools docker firewalld
-
-# Allow docker to run non-sudo
-sudo usermod --add-subuids 200000-265536 --add-subgids 200000-265536 $(whoami)
+sudo apt install -y qemu-kvm libvirt-clients libvirt-daemon virtinst net-tools
 
 sudo systemctl enable --now libvirtd
-sudo systemctl start firewalld
-sudo systemctl enable firewalld
-# create provisioning network
-cat <<EOF >provisioning.xml
-<network
-	xmlns:dnsmasq='http://libvirt.org/schemas/network/dnsmasq/1.0'>
-	<dnsmasq:options>
-		<!-- Risk reduction for CVE-2020-25684, CVE-2020-25685, and CVE-2020-25686. See: https://access.redhat.com/security/vulnerabilities/RHSB-2021-001 -->
-		<dnsmasq:option value="cache-size=0"/>
-	</dnsmasq:options>
-	<name>provisioning</name>
-	<bridge name='provisioning'/>
-	<forward mode='bridge'></forward>
-</network>
-EOF
 
-cat <<EOF >baremetal.xml
-<network>
-  <name>baremetal</name>
-  <forward mode='nat'>
-    <nat>
-      <port start='1024' end='65535'/>
-    </nat>
-  </forward>
-  <bridge name='baremetal' stp='on' delay='0'/>
-  <ip address='192.168.222.1' netmask='255.255.255.0'>
-    <dhcp>
-      <range start='192.168.222.2' end='192.168.222.199'/>
-    </dhcp>
-  </ip>
-</network>
-EOF
+if [[ ! -f $(which minikube) ]]; then
+  curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+  sudo install minikube-linux-amd64 /usr/local/bin/minikube
+  rm minikube-linux-amd64
+fi
 
-# define networks
-for net in baremetal provisioning; do
-  virsh -c qemu:///system net-define "${net}.xml"
-  virsh -c qemu:///system net-start "${net}"
-  virsh -c qemu:///system net-autostart "${net}"
-done
+if [[ ! -f $(which kubectl) ]]; then
+  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  rm kubectl
+fi
 
-# sudo cat <<EOF >/etc/NetworkManager/system-connections/provisioning.nmconnection
-# [connection]
-# id=provisioning
-# type=bridge
-# interface-name=provisioning
-# [bridge]
-# stp=false
-# [ipv4]
-# address1=172.22.0.1/24
-# method=manual
-# [ipv6]
-# addr-gen-mode=eui64
-# method=disabled
-# EOF
-#
-# sudo chmod 600 /etc/NetworkManager/system-connections/provisioning.nmconnection
-# sudo nmcli con load /etc/NetworkManager/system-connections/provisioning.nmconnection
-# sudo nmcli con up provisioning
-#
-# sudo tee /etc/NetworkManager/system-connections/baremetal.nmconnection <<EOF
-# [connection]
-# id=baremetal
-# type=bridge
-# interface-name=baremetal
-# autoconnect=true
-# [bridge]
-# stp=false
-# [ipv6]
-# addr-gen-mode=stable-privacy
-# method=ignore
-# EOF
-#
-# sudo chmod 600 /etc/NetworkManager/system-connections/baremetal.nmconnection
-# sudo nmcli con load /etc/NetworkManager/system-connections/baremetal.nmconnection
-# sudo nmcli con up baremetal
-#
-# docker pod create -n infra-pod || true
-# docker pod create -n ironic-pod || true
+if [[ ! -f $(which helm) ]]; then
+  helm_api="https://api.github.com/repos/helm/helm/releases"
+  helm_release_tag="$(curl -sL "${helm_api}" | jq -r ".[].tag_name" | head -n 1)"
+  echo $helm_release_tag
+  helm_filename="helm-${helm_release_tag}-linux-amd64.tar.gz"
+  wget -O "$helm_filename" "https://get.helm.sh/${helm_filename}"
+  tar -xf "$helm_filename"
+  sudo install -o root -g root -m 0755 linux-amd64/helm /usr/local/bin/helm
+  rm -rf "${helm_filename}" linux-amd64
+fi
+
+if [[ ! -f $(which kustomize) ]]; then
+  kustomize_api="https://api.github.com/repos/kubernetes-sigs/kustomize/releases"
+  kustomize_release_tag="$(curl -sL "${kustomize_api}" | jq -r ".[].tag_name" | grep "kustomize" | head -n 1)"
+  filename="$(echo $kustomize_release_tag | sed 's/\//_/')_linux_amd64.tar.gz"
+  wget -O "${filename}" "https://github.com/kubernetes-sigs/kustomize/releases/download/${kustomize_release_tag}/${filename}"
+  tar -xf "${filename}"
+  sudo install -o root -g root -m 0755 kustomize /usr/local/bin/kustomize
+  rm "${filename}" kustomize
+fi
+
+if [[ ! -f $(which clusterctl) ]]; then
+  clusterctl_api="https://api.github.com/repos/kubernetes-sigs/cluster-api/releases"
+  clusterctl_release_tag="$(curl -sL "${clusterctl_api}" | jq -r ".[].tag_name" | head -n 1)"
+  filename="clusterctl"
+  wget -O "${filename}" "https://github.com/kubernetes-sigs/cluster-api/releases/download/${clusterctl_release_tag}/clusterctl-linux-amd64"
+  sudo install -o root -g root -m 0755 "${filename}" /usr/local/bin/"${filename}"
+  rm "${filename}"
+fi
+
+if [[ ! -f $(which yq) ]]; then
+  api="https://api.github.com/repos/mikefarah/yq/releases"
+  release_tag="$(curl -sL "${api}" | jq -r ".[].tag_name" | head -n 1)"
+  filename="yq"
+  wget -O "${filename}" "https://github.com/mikefarah/yq/releases/download/${release_tag}/yq_linux_amd64"
+  sudo install -o root -g root -m 0755 "${filename}" /usr/local/bin/"${filename}"
+  rm "${filename}"
+fi
