@@ -1,18 +1,26 @@
 # TLS 1.3 support in Metal3 ecosystem
 
 This document details the status of TLS 1.3 support in Metal3 ecosystem at the
-time of writing (Jan 2023).
+time of writing (Sep 2024). Current releases are:
+
+- CAPM3 v1.8.1
+- IPAM v1.8.0
+- BMO v0.8.0
+- Ironic image v26.0.1
+- CAPI v1.8.3
+- K8s v1.31.0
 
 ## Ecosystem
 
 The Metal3 ecosystem refers to:
 
-- BMO (Baremetal Operator, including Ironic)
+- BMO (Baremetal Operator)
 - CAPI (Cluster API)
 - CAPM3 (Cluster API Provider Metal3)
 - cert-manager (Certificate Manager)
+- Ironic
 - kube-system (Kubernetes)
-- Other (metal3-dev-env)
+- metal3-dev-env
 
 ## Background information
 
@@ -45,7 +53,79 @@ configuration, TLS version negotiation is left to server and the client.
 
 - Port `8443`: TLS 1.2, TLS 1.3
 
-TLS version is not configurable with flags.
+TLS version is configurable with flags `--tls-min-version` and
+`--tls-max-version`. Ciphers for TLS 1.2 are configurable with
+`--tls-cipher-suites` flag. This is implemented in BMO directly.
+
+### CAPI
+
+All CAPI controllers support setting minimum TLS version with flags
+`--tls-min-version`. Ciphers for TLS 1.2 are configurable with
+`--tls-cipher-suites` flag. with the exception of `CAPD` which is a test
+provider.
+
+**capi-kubeadm-bootstrap**:
+
+- Port `9443`: TLS 1.2, TLS 1.3
+- Port `9440`: HTTP (healthz)
+- Port `8080`: HTTP (metrics)
+
+**capi-kubeadm-control-plane**:
+
+- Port `9443`: TLS 1.2, TLS 1.3
+- Port `9440`: HTTP (healthz)
+- Port `8080`: HTTP (metrics)
+
+**capi-controller-manager**:
+
+- Port `9443`: TLS 1.2, TLS 1.3
+- Port `9440`: HTTP (healthz)
+- Port `8080`: HTTP (metrics)
+
+### CAPM3
+
+TLS version is configurable with flags `--tls-min-version`. Ciphers for TLS 1.2
+are configurable with `--tls-cipher-suites` flag. These flags are coming from
+CAPI now.
+
+**capm3-controller-manager**:
+
+- Port `9443`: TLS 1.2, TLS 1.3
+- Port `9440`: HTTP (healthz)
+- Port `8080`: HTTP (metrics)
+
+### IPAM
+
+TLS version is configurable with flags `--tls-min-version`. Ciphers for TLS 1.2
+are configurable with `--tls-cipher-suites` flag. These flags are coming from
+CAPI now.
+
+**ipam-controller-manager**:
+
+- Port `9443`: TLS 1.2, TLS 1.3
+- Port `9440`: HTTP (healthz)
+- Port `8080`: HTTP (metrics)
+
+### cert-manager
+
+Cert-manager webhook supports setting minimum TLS version with flags
+`--tls-min-version`. Ciphers for TLS 1.2 are configurable with
+`--tls-cipher-suites` flag.
+
+**cert-manager**:
+
+- Port `9402`: HTTP (metrics)
+
+**cert-manager-cainjector**:
+
+- no listening ports
+
+**cert-manager-webhook**:
+
+- Port `10250`: TLS 1.2, TLS 1.3
+- Port `6080`: HTTP (healthz)
+
+### Ironic
 
 **ironic**:
 
@@ -80,22 +160,21 @@ For Ironic, it should be noted that:
 
 Ironic Ports:
 
-- Port `5049`: HTTP (Ironic Inspector API) replaceable with UNIX socket
-- Port `5050`: TLS 1.2, TLS 1.3 (httpd - Inspector endpoint)
 - Port `6180`: HTTP (httpd - serving IPA images) .
 - Port `80`: HTTP (httpd - deployed externally to the Ironic pod, hosts node
   images)
 - Port `8083`: TLS 1.2, TLS 1.3 (httpd - serving IPA via vmedia+TLS)
 - Port `8084`: TLS 1.2, TLS 1.3 (httpd - serving IPA via custom iPXE+TLS)
 - Port `6385`: TLS 1.2, TLS 1.3 (httpd - Ironic endpoint)
-- Port `6388`: HTTP (Ironic API) replaceable with UNIX socket
 
-Ironic endpoints support setting minimum and maximum TLS versions.
+Ironic endpoints implemented by `httpd` support setting minimum and maximum
+TLS versions via normal httpd configuration flags. Many Ironic ports have been
+removed during 2024 and replaced with Unix sockets for improved security.
 
 Ironic Python Agent ports:
 
-- Port `9999`: TLS 1.2/1.3 auto-negotiation by default,
-  TLS 1.3 exclusive connection can't be enforced
+- Port `9999`: TLS 1.2/1.3 auto-negotiation by default, TLS 1.3 exclusive
+  connection can't be enforced
 
 More info:
 
@@ -103,63 +182,21 @@ More info:
   officially does not mention TLS 1.3 support but by default TLS 1.2 and
   TLS 1.3 are enabled with auto negotiation ability thus TLS 1.3 is supported
   but can't be enforced.
+- Ironic Python Agent (IPA), where the Oslo library is not
+  supporting TLS 1.3 officially but because of implementation characteristics
+  of `oslo.service` and the nature of Python 3 (from 3.7 up to 3.12) TLS 1.3
+  and 1.2 auto-negotiation is enabled by default but TLS 1.3 exclusive
+  connection can't be enforced. Oslo service plans to get rid of the `eventlet`
+  dependency eventually.
 - [IPA TLS configuration documentation](https://docs.openstack.org//ironic-python-agent/latest/doc-ironic-python-agent.pdf)
-
-### CAPI
-
-All CAPI controllers support setting minimum and maximum TLS versions, with the
-exception of `CAPD` which is a test provider.
-
-**capi-kubeadm-bootstrap**:
-
-- Port `9443`: TLS 1.2, TLS 1.3
-- Port `9440`: HTTP (healthz)
-- Port `8080`: HTTP (metrics)
-
-**capi-kubeadm-control-plane**:
-
-- Port `9443`: TLS 1.2, TLS 1.3
-- Port `9440`: HTTP (healthz)
-- Port `8080`: HTTP (metrics)
-
-**capi-controller-manager**:
-
-- Port `9443`: TLS 1.2, TLS 1.3
-- Port `9440`: HTTP (healthz)
-- Port `8080`: HTTP (metrics)
-
-### CAPM3
-
-**capm3-controller-manager**:
-
-- Port `9443`: TLS 1.2, TLS 1.3
-- Port `9440`: HTTP (healthz)
-- Port `8080`: HTTP (metrics)
-
-TLS version is not configurable with flags.
-
-**ipam-controller-manager**:
-
-- Port `9443`: TLS 1.2, TLS 1.3
-- Port `9440`: HTTP (healthz)
-- Port `8080`: HTTP (metrics)
-
-TLS version is not configurable with flags.
-
-### cert-manager
-
-**cert-manager**:
-
-- Port `9402`: HTTP (metrics)
-
-**cert-manager-cainjector**:
-
-- no listening ports
-
-**cert-manager-webhook**:
-
-- Port `10250`: TLS 1.2, TLS 1.3
-- Port `6080`: HTTP (healthz)
+- httpd node image server (port `80`) doesn't support https but that is not an
+  inherent limitation of either the Ironic, IPA or httpd but only how
+  ironic-image httpd configuration is implemented as it expects the default IPA
+  to lack necessary certificates. In production environments node images can be
+  hosted from a https enabled server if the user builds and uses a custom IPA
+  and provides the necessary certificates during IPA build.
+- TLS support for virtual media and iPXE IPA boot process has to be enabled
+  manually.
 
 ### kube-system
 
@@ -186,33 +223,28 @@ case `3.5.x` series is used.
 
 - Port `8443`: TLS 1.2, TLS 1.3
 
-`apiserver` supports setting minimum and maximum TLS versions.
+`apiserver` supports setting minimum TLS version and cipher suites for TLS 1.2.
 
 **controller-manager**:
 
 - Port `8443`: TLS 1.2, TLS 1.3
 
-`controller-manager` supports setting minimum and maximum TLS versions.
-
-**kube-proxy**:
-
-- Port `8443`: TLS 1.2, TLS 1.3
-
-`kube-proxy` supports setting minimum and maximum TLS versions.
+`controller-manager` supports setting minimum TLS version and cipher suites for
+TLS 1.2.
 
 **scheduler**:
 
 - Port `8443`: TLS 1.2, TLS 1.3
 
-`scheduler` supports setting minimum and maximum TLS versions.
+`scheduler` supports setting minimum TLS version and cipher suites for TLS 1.2.
 
 **kubelet**:
 
 - Port `10250`: TLS 1.2, TLS 1.3
 
-`kubelet` supports setting minimum and maximum TLS versions.
+`kubelet` supports setting minimum TLS version and cipher suites for TLS 1.2.
 
-### Other (metal3-dev-env)
+### metal3-dev-env
 
 Tools in development environment are not secured, since hardening them would
 hinder developer experience. Development environment is not for production use.
@@ -241,25 +273,5 @@ hinder developer experience. Development environment is not for production use.
 
 ## Summary
 
-TLS 1.3 is well supported in Metal3 ecosystem, with a few caveats
-as of 29.1.2024:
-
-- Ironic Python Agent (IPA), where the Oslo library is not
-  supporting TLS 1.3 officially but because of implementation characteristics
-  of `oslo.service` and the nature of Python 3 (from 3.7 up to 3.12) TLS 1.3
-  and 1.2 auto-negotiation is enabled by default but TLS 1.3 exclusive
-  connection can't be enforced.
-
-- Ironic and Ironic Inspector internal ports are available via HTTP from
-  within the pod or the host machine by default, but could be switched to
-  utilize `UNIX sockets`.
-
-- httpd node image server doesn't support https but that is not an inherent
-  limitation of either the Ironic, IPA or httpd but only how ironic-image httpd
-  configuration is implemented as it expects the default IPA to lack
-  necessary certificates. In production environments node images can be
-  hosted from a https enabled server if the user builds and uses a custom IPA
-  and provides the necessary certificates during IPA build.
-
-- TLS support for virtual media and iPXE IPA boot process has to be enabled
-  manually.
+TLS 1.3 is well supported in Metal3 ecosystem, with some disclaimers on the
+Ironic side.
