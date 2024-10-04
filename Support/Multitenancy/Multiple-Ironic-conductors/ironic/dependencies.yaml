@@ -1,0 +1,17 @@
+dependencies:
+  - name: namespace
+    files:
+      - templates/namespace.yaml
+  - name: configmap
+    files:
+      - templates/configMap.yaml
+  - name: secrets
+    files:
+      - templates/secrets.yaml
+  - name: certificates
+    files:
+      - templates/certificates.yaml
+  - name: deployments
+    files:
+      - templates/deployments/ironic.yaml
+      - templates/deployments/common-ironic.yaml

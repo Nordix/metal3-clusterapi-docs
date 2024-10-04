@@ -1,0 +1,12 @@
+global:
+  namespace: baremetal-operator-system
+  ironicNodeLockedRetryInterval: "2"
+  ironicNodeLockedRetryAttempts: "15"
+sshKey: <fill-me>
+ironicReplicas: []
+mariadb:
+  max_connections: "300"
+secrets:
+  ironicAuthConfig: ""
+  ironicHtpasswd: ""
+  mariadb: "changeme"
