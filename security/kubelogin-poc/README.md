@@ -27,48 +27,6 @@ Kubelogin and Dex support following grant types:
 
 Grant type is specified with `--grant-type=<type>` on command line during setup.
 
-### Authcode
-
-Authcode is the default mode, where it brings up the browser and then after
-successful login it calls the callback to pass the token to kubelogin.
-
-Triggering it on a headless machine is problematic. You can workaround it by
-creating SSH forwarding from your desktop machine and that way circumvent the
-headless limitation.
-
-```console
-$ ssh -L 8000:127.0.0.1:8000 <host>
-...
-$ kubectl oidc-login setup \
-    --oidc-issuer-url=http://127.0.0.1:5556/dex \
-    --oidc-client-id=kubelogin-test \
-    --oidc-client-secret=kubelogin-test-secret
-
-authentication in progress...
-error: could not open the browser: exec: "xdg-open,x-www-browser,www-browser": executable file not found in $PATH
-
-Please visit the following URL in your browser manually: http://localhost:8000
-```
-
-### Authocde-Keyboard
-
-```console
-$ kubectl oidc-login setup --oidc-issuer-url=http://127.0.0.1:5556/dex \
-    --oidc-client-id=kubelogin-test --oidc-client-secret=kubelogin-test-secret \
-    --grant-type=authcode-keyboard
-authentication in progress...
-Please visit the following URL in your browser: http://127.0.0.1:5556/dex/auth?access_type=offline&client_id=kubelogin-test&code_challenge=86dPTBNva5aIaXvewKOSyw7P-URcw3Ap8SHtTnhBviA&code_challenge_method=S256&nonce=-Fep0vXzWv48P_u6Jk6BsuQhguRNMzCGByQnCpZ6JnQ&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&response_type=code&scope=openid&state=IRBxjcXHgcTz-IA8ws_045ktOSozc4s1ixj-ykNWyJ0
-Enter code:
-```
-
-Then you access that URL, and you get code like `b2ifzli5rdb3lsahxaqxxtklr`,
-which you can enter into the prompt. Requires browser.
-
-### Device-code
-
-Device code seems to be the same as AuthCode, except you need to enter the
-device-code for the device you're identifying for. Requires browser.
-
 ### Password
 
 Password flow is enabled only, if Dex config is set to allow it by setting one
@@ -89,9 +47,14 @@ Now that we know we can do `kubelogin` -> `Dex` -> `openLDAP`, we need to
 setup the final chain, where Dex is integrated with k8s apiserver, and it
 actually authenticates `kubectl` commands via Dex.
 
+TL;DR: `./run.sh` creates Kind cluster and will setup everything for you.
+Read [the script](./run.sh) before running it, or do the steps one by one
+following the steps below.
+
 ### Kind setup
 
-Setup Kind cluster with additional config in [kind.conf](k8s/kind.conf).
+In case you don't have a k8s cluster you want to test this in, you can setup
+Kind cluster with additional config in [kind.conf](kind.conf).
 
 Run: `kind create cluster --config=kind.conf`
 
@@ -101,9 +64,8 @@ users won't have any rights.
 
 For Kind setup, we also need to mount a directory holding a Dex generated CA
 cert, so apiserver will trust the Dex when connecting. Using [Dex's certificate
-generation script](https://github.com/dexidp/dex/blob/master/examples/k8s/gencert.sh),
-you get a CA cert, which should be mounted via directory
-`/etc/ssl/certs/dex-test` in the apiserver.
+generation script](gencert.sh), you get a CA cert, which should be mounted via
+directory `/etc/ssl/certs/dex-test` in the apiserver.
 
 ### Dex setup
 
@@ -148,6 +110,9 @@ We then set login credentials for user alias `oidc`. Here we have
 `--insecure-skip-tls-verify` since it is a test setup and no proper TLS certs
 are configured on the test host.
 
+Note that Dex CA needs to be trusted by kubelogin (client host) as well as
+Kubernetes Apiserver. Client can be configured to skip
+
 ```console
     kubectl config set-credentials oidc \
       --exec-api-version=client.authentication.k8s.io/v1beta1 \
@@ -164,7 +129,48 @@ are configured on the test host.
       --exec-arg=--insecure-skip-tls-verify
 ```
 
-and kubeconfig ends up looking like [this](k8s/kubeconfig).
+and kubeconfig ends up looking like [this](kubeconfig.example).
+
+```yaml
+apiVersion: v1
+# regular cluster configuration here
+clusters:
+- cluster:
+    certificate-authority-data: <cluster ca redacted>
+    server: https://<apiserver ip>:<port>
+  name: kind
+contexts:
+- context:
+    cluster: kind
+    user: oidc
+  name: kind-oidc
+current-context: kind-oidc
+kind: Config
+preferences: {}
+users:
+# in user section, use whatever user name you want, but the oidc-login setup
+# needs to match the OIDC config passed to the apiserver
+# insecure-skip-tls-verify is only here because of the test setup
+# issuer url needs to be accessible and match the Dex issuer config
+- name: oidc
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      args:
+      - oidc-login
+      - get-token
+      - --oidc-issuer-url=https://dex.example.com:32000
+      - --oidc-client-id=kubelogin-test
+      - --oidc-client-secret=kubelogin-test-secret
+      - --oidc-extra-scope=email
+      - --oidc-extra-scope=profile
+      - --oidc-extra-scope=groups
+      - --grant-type=password
+      - --insecure-skip-tls-verify
+      command: kubectl
+      env: null
+      provideClusterInfo: false
+```
 
 #### Cluster roles
 
@@ -182,8 +188,8 @@ or better, you should configure group claim so each individual user does not
 need separate role configured:
 
 ```yaml
-kubectl create clusterrolebinding oidc-cluster-admin-group \
-  --clusterrole=cluster-admin \  # whatever the role should be
+kubectl create clusterrolebinding oidc-dex-group \
+  --clusterrole=dex \  # whatever the role should be
   --group='readers'  # whatever the group-claim=groups field defines groups field is
 ```
 
