@@ -1,0 +1,60 @@
+apiVersion: kyverno.io/v2beta1
+kind: ClusterPolicy
+metadata:
+  name: check-image-cosign
+spec:
+  validationFailureAction: Enforce
+  webhookTimeoutSeconds: 30
+  failurePolicy: Fail
+  rules:
+  - name: verify-signature-cosign
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    verifyImages:
+    - type: Cosign
+      imageReferences:
+      - "172.18.0.2:*/alpine*"
+      attestors:
+      - count: 1
+        entries:
+        - certificates:
+            rekor:
+              ignoreTlog: true
+            ctlog:
+              ignoreSCT: true
+            cert: |-
+              -----BEGIN CERTIFICATE-----
+              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
+              -----END CERTIFICATE-----

@@ -1,0 +1,82 @@
+# cosign signing test
+
+TEST_REGISTRY := 127.0.0.1:5003
+TEST_REGISTRY_NAME := cosign-registry
+TEST_REGISTRY_IMAGE := registry:2
+TEST_IMAGE := alpine
+TEST_IMAGE_TAG := 3.20.3
+TEST_DIGEST := sha256:beefdbd8a1da6d2915566fde36db9db0b524eb737fc57cd1367effd16dc0d06d
+TEST_IMAGE_LOCAL := $(TEST_REGISTRY)/$(TEST_IMAGE):$(TEST_IMAGE_TAG)
+TEST_DIGEST_LOCAL := sha256:33735bd63cf84d7e388d9f6d297d348c523c044410f553bd878c6d7829612735
+TEST_IMAGE_SIGN := $(TEST_REGISTRY)/$(TEST_IMAGE)@$(TEST_DIGEST_LOCAL)
+EXAMPLES_DIR := examples
+
+SHELL := /bin/bash
+
+.PHONY: all clean registry test sign verify e2e clean-e2e check-tools save load
+
+all: check-tools
+	@echo "targets: test verify clean e2e clean-e2e"
+
+check-tools:
+	@type -a docker &>/dev/null || echo "error: Install docker: https://docs.docker.com/engine/install/"
+	@type -a cosign &>/dev/null || echo "error: Install cosign: https://docs.sigstore.dev/cosign/system_config/installation/"
+	@type -a openssl &>/dev/null || echo "error: openssl missing"
+
+clean:
+	rm -rf $(EXAMPLES_DIR)/$(TEST_IMAGE)-image
+	rm -f $(EXAMPLES_DIR)/*
+	docker rm -f $(TEST_REGISTRY_NAME) 2>/dev/null
+
+clean-e2e: clean
+
+registry:
+	docker run -d -p $(TEST_REGISTRY):5000 --name $(TEST_REGISTRY_NAME) $(TEST_REGISTRY_IMAGE)
+	docker pull $(TEST_IMAGE):$(TEST_IMAGE_TAG)@$(TEST_DIGEST)
+	docker tag $(TEST_IMAGE)@$(TEST_DIGEST) $(TEST_IMAGE_LOCAL)
+	docker push $(TEST_IMAGE_LOCAL)
+
+certificates:
+	./scripts/gencrt.sh
+
+test: check-tools registry certificates sign verify
+e2e: test save load
+
+sign:
+	cosign generate "$(TEST_IMAGE_SIGN)" > $(EXAMPLES_DIR)/payload.json
+	openssl dgst -sha256 -sign $(EXAMPLES_DIR)/leaf.key \
+		-out $(EXAMPLES_DIR)/payload.sig $(EXAMPLES_DIR)/payload.json
+	base64 $(EXAMPLES_DIR)/payload.sig > $(EXAMPLES_DIR)/payloadbase64.sig
+	cosign attach signature \
+		--payload $(EXAMPLES_DIR)/payload.json \
+		--signature $(EXAMPLES_DIR)/payloadbase64.sig \
+		$(TEST_IMAGE_SIGN)
+
+inspect:
+	cosign tree $(TEST_IMAGE_SIGN)
+
+verify: inspect
+	cosign verify \
+		--cert $(EXAMPLES_DIR)/leaf.crt \
+		--cert-chain $(EXAMPLES_DIR)/certificate_chain.pem \
+		--certificate-identity-regexp '.*' \
+		--certificate-oidc-issuer-regexp '.*' \
+		--private-infrastructure \
+		--insecure-ignore-sct \
+		$(TEST_IMAGE_SIGN)
+
+save:
+	cosign save \
+		--dir $(EXAMPLES_DIR)/$(TEST_IMAGE)-image \
+		--allow-insecure-registry=true \
+		$(TEST_IMAGE_SIGN)
+	tar cf $(EXAMPLES_DIR)/$(TEST_IMAGE).tar $(EXAMPLES_DIR)/$(TEST_IMAGE)-image
+	rm -rf $(EXAMPLES_DIR)/$(TEST_IMAGE)-image
+
+load:
+	tar xf $(EXAMPLES_DIR)/$(TEST_IMAGE).tar $(EXAMPLES_DIR)/$(TEST_IMAGE)-image
+	cosign load \
+		--allow-insecure-registry=true \
+		--dir $(EXAMPLES_DIR)/$(TEST_IMAGE)-image \
+		$(TEST_IMAGE_LOCAL)-loaded
+	cosign tree $(TEST_IMAGE_LOCAL)-loaded

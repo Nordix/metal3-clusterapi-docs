@@ -1,8 +1,9 @@
 <!-- markdownlint-disable line-length -->
+<!-- cSpell:ignore kyverno -->
 
 # Image signature verification
 
-Verifying image signatures runtime using Notation and Kyverno.
+Verifying image signatures runtime using Notation or Cosign, and Kyverno.
 
 ```mermaid
 flowchart TB
@@ -31,13 +32,18 @@ flowchart TB
 Verifying signatures with Notation "offline", please see
 [Notation External Signer documentation](../notation/README.md).
 
+Verifying signatures with Cosign "offline", please see
+[Cosign documentation](../cosign/README.md).
+
 ## Runtime verification
 
 For runtime signature verification, we use
-[Kyverno with Notation](https://kyverno.io/docs/writing-policies/verify-images/notary/).
+[Kyverno with Notation](https://kyverno.io/docs/writing-policies/verify-images/notary/),
+or [Kyverno with Cosign](https://kyverno.io/docs/writing-policies/verify-images/sigstore/)
 
-`make test` tests the full setup with Kind cluster, local registry, Notation
-external signer plugin etc. `make clean` to remove everything.
+`make test` tests the full setup with Kind cluster, local
+registry, Notation external signer plugin, or Cosign. `make clean` to remove
+everything.
 
 Run `make` to get all meaningful make targets, and check the Makefile itself
 for all targets.
@@ -64,23 +70,39 @@ for all targets.
    docker push 127.0.0.1:5001/busybox:1.36.0-glibc
    ```
 
-1. Sign image with Notation
+1. Sign image with Notation or Cosign
 
    Sign image with Notation and Custom plugin. [See here](../notation/README.md).
 
    ```bash
+   # notation
    $ make certificates
    $ export EXTERNAL_CERT_CHAIN=$(pwd)/examples/certificate_chain.pem
    $ export EXTERNAL_PRIVATE_KEY=$(pwd)/examples/leaf.key
    $ export EXTERNAL_SIGNER=../notation/examples/rsassa-pss-sha512.sh
    $ notation sign --insecure-registry --id "anything" --plugin "external-signer" 127.0.0.1:5001/busybox@sha256:d319b0e3e1745e504544e931cde012fc5470eba649acc8a7b3607402942e5db7
    Successfully signed 127.0.0.1:5001/busybox@sha256:d319b0e3e1745e504544e931cde012fc5470eba649acc8a7b3607402942e5db7
+
+   # cosign
+   $ make certificates
+   $ cosign generate 127.0.0.1:5003/alpine:3.20.3 > examples/payload.json
+   $ openssl dgst -sha256 -sign examples/leaf.key \
+      -out examples/payload.sig examples/payload.json
+   $ base64 examples/payload.sig > examples/payloadbase64.sig
+   $ cosign attach signature \
+      --payload examples/payload.json \
+      --signature examples/payloadbase64.sig \
+      127.0.0.1:5003/alpine:3.20.3
    ```
 
    When finished, you should be able to inspect the signatures.
 
    ```bash
-   notation inspect 127.0.0.1:5001/busybox@sha256:d319b0e3e1745e504544e931cde012fc5470eba649acc8a7b3607402942e5db7
+   # notation
+   $ notation inspect 127.0.0.1:5001/busybox@sha256:d319b0e3e1745e504544e931cde012fc5470eba649acc8a7b3607402942e5db7
+   ...
+   $ cosign tree 127.0.0.1:5003/alpine:3.20.3
+   ...
    ```
 
 1. Run Kyverno
@@ -104,8 +126,8 @@ for all targets.
 
    ```bash
    # NOTE: this has CA cert you need to replace with your signing CA cert
-   # NOTE: in Kind, the local registry is running as 172.19.0.3:5000
-   kubectl apply -n kyverno -f examples/kyverno-policy.yaml
+   # NOTE: in Kind, the local registry is running as 172.18.0.2:5000
+   kubectl apply -n kyverno -f examples/kyverno-policy-{notation,cosign}.yaml
    ```
 
 1. Test the policy with Pod
@@ -224,3 +246,6 @@ NOTE: the `pod-success` and `deployment-success` pods will show up as
 Kind is wonky. This does not mean anything bad in this POC context. Kind
 integration with registries is just not set up properly for pulling, even though
 the verification of signatures work as expected.
+
+Similar tests can be done with Cosign and `alpine:3.20.3` image (signed) and
+`alpine:3.20.2` (unsigned).
