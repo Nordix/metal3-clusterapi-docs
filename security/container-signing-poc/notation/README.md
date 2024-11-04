@@ -1,4 +1,5 @@
 <!-- markdownlint-disable line-length -->
+<!-- cSpell:ignore rsassa -->
 
 # External Signer Plugin for Notation
 

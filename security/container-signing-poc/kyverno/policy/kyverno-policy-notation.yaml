@@ -1,13 +1,13 @@
 apiVersion: kyverno.io/v2beta1
 kind: ClusterPolicy
 metadata:
-  name: check-image-notary
+  name: check-image-notation
 spec:
   validationFailureAction: Enforce
   webhookTimeoutSeconds: 30
   failurePolicy: Fail
   rules:
-  - name: verify-signature-notary
+  - name: verify-signature-notation
     match:
       any:
       - resources:
@@ -16,7 +16,7 @@ spec:
     verifyImages:
     - type: Notary
       imageReferences:
-      - "172.19.0.3:*/*"
+      - "172.18.0.2:*/busybox*"
       attestors:
       - count: 1
         entries:
