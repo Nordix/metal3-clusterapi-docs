@@ -4,27 +4,32 @@
 This experiment is three-fold:
 
 - [Signing images with Notation, especially with custom signers](notation/README.md)
-- [Moving signatures from one registry to another](oras/README.md)
+- [Moving signatures from one registry to another with Oras](oras/README.md)
 or
 - [Signing with Cosign](cosign/README.md)
+- Moving Cosign signatures from one registry to another with Cosign
 then
-- [Validating the signing with Kyverno, in a Kind cluster](kyverno/README.md)
+- [Validating the signing with Kyverno admission controller](kyverno/README.md)
 
 ```mermaid
 flowchart LR
    notation(Container signing with Notation)
    oras(Signature relocation with Oras)
    kyverno(Signature validation with Kyverno)
-   cosign(Container signing and relocation with Cosign)
+   cosign_signing(Container signing with Cosign)
+   cosign_relocation(Signature relocation with Cosign)
 
    notation-->oras
    oras-->kyverno
-   cosign->kyverno
+   cosign_signing-->cosign_relocation
+   cosign_relocation-->kyverno
 ```
 
 ## TL;DR of the POC
 
-Basically, the POC is finding the following related to Notation:
+Basically, the POC is finding the following:
+
+### Notation
 
 1. Notation is extendable with their plugin system
 1. Plugin that can call any external script or binary to produce a signature has
@@ -37,7 +42,7 @@ Basically, the POC is finding the following related to Notation:
    their admission controller and pluggable policies.
 1. Oras can be used to move containers and signatures from CI to production
 
-And related to Cosign:
+### Cosign
 
 1. Cosign does not need plugins as it can be operated via command line to
    achieve external signing.
@@ -51,20 +56,18 @@ And related to Cosign:
 
 ## e2e test
 
-End-to-end test for this POC can be run with `make e2e` from this directory.
-This does the following:
+End-to-end test for this POC can be run with `make notation` or `make cosign`
+from this directory.
 
-1. Build and install Notation plugin
-1. Sign busybox image on local registry at port `5002`
-1. Copy container and signature to another registry at port `5001`
-1. Launch Kind cluster, install Kyverno and add ClusterPolicy for signature
-   verification, and then run workloads that pass the verification and workloads
-   that fail the verification to check, if the signing works e2e
+This will setup Kyverno in Kind cluster, install required Kyverno ClusterPolicies
+and sign images, then try run them. Only pods with proper signatures will run
+and the ones without signature will fail. Same is done for deployments, to
+verify that as well.
 
-End-to-end test will use the same certificates and same signature through the
-whole chain for verify end-to-end functionality.
-
-Same happens with Cosign, with registry on port `5003`.
+Note: Due to issues with Kind cluster setup, pods do not end up running, but
+will show `ImagePullErr`. This is OK. As long as only pods with `success` in
+their name are created, POC is success. If no pods are created, or pods with
+`fail` in their name are created, then it is a failure.
 
 ## Notes
 
@@ -88,7 +91,7 @@ design aspect was not part of the audit based on the findings.
 ### Notes on Kyverno
 
 [Kyverno Image Signature verification](https://kyverno.io/docs/writing-policies/verify-images/)
-is in beta.
+is no longer in beta in v1.13.0 onwards.
 
 Kyverno can also verify Sigstore Cosign signatures.
 

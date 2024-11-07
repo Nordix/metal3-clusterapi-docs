@@ -25,7 +25,7 @@ spec:
               ignoreTlog: true
             ctlog:
               ignoreSCT: true
-            cert: |-
+            certChain: |-
               -----BEGIN CERTIFICATE-----
               MIIFjTCCA3WgAwIBAgIUeHtBTjMbNnQiHKLRxWgwbaVWKEAwDQYJKoZIhvcNAQEL
               BQAwEjEQMA4GA1UEAwwHUm9vdCBDQTAeFw0yNDExMDQxNTQzMzFaFw0yNTExMDQx

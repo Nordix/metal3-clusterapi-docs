@@ -10,31 +10,21 @@ COSIGN_DIR := cosign
 
 SHELL := /bin/bash
 
-.PHONY: all e2e clean notation-e2e cosign-e2e
+.PHONY: all notation cosign clean
 
 all:
-	@echo "targets: e2e clean"
+	@echo "targets: notation cosign clean"
 
-e2e:
-	make -C $(NOTATION_DIR) e2e
-	make -C $(ORAS_DIR) e2e
-	make -C $(COSIGN_DIR) e2e
-	make -C $(KYVERNO_DIR) e2e
-	@echo "e2e test done!"
+notation:
+	make -C $(KYVERNO_DIR) setup
+	make -C $(KYVERNO_DIR) -f notation.mk
 
-notation-e2e:
-	make -C $(NOTATION_DIR) e2e
-	make -C $(ORAS_DIR) e2e
-	make -C $(KYVERNO_DIR) notation-e2e
-	@echo "notation e2e test done!"
-
-cosign-e2e:
-	make -C $(COSIGN_DIR) e2e
-	make -C $(KYVERNO_DIR) cosign-e2e
-	@echo "cosign e2e test done!"
+cosign:
+	make -C $(KYVERNO_DIR) setup
+	make -C $(KYVERNO_DIR) -f cosign.mk
 
 clean:
-	make -C $(NOTATION_DIR) clean-e2e
-	make -C $(ORAS_DIR) clean-e2e
-	make -C $(COSIGN_DIR) clean-e2e
-	make -C $(KYVERNO_DIR) clean-e2e
+	make -C $(NOTATION_DIR) clean
+	make -C $(ORAS_DIR) clean
+	make -C $(COSIGN_DIR) clean
+	make -C $(KYVERNO_DIR) clean

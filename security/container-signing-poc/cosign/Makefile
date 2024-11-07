@@ -13,7 +13,7 @@ EXAMPLES_DIR := examples
 
 SHELL := /bin/bash
 
-.PHONY: all clean registry test sign verify e2e clean-e2e check-tools save load
+.PHONY: all clean registry test sign verify e2e clean-e2e check-tools save load pack unpack dump-sig
 
 all: check-tools
 	@echo "targets: test verify clean e2e clean-e2e"
@@ -37,7 +37,7 @@ registry:
 	docker push $(TEST_IMAGE_LOCAL)
 
 certificates:
-	./scripts/gencrt.sh
+	./gencrt.sh
 
 test: check-tools registry certificates sign verify
 e2e: test save load
@@ -47,36 +47,47 @@ sign:
 	openssl dgst -sha256 -sign $(EXAMPLES_DIR)/leaf.key \
 		-out $(EXAMPLES_DIR)/payload.sig $(EXAMPLES_DIR)/payload.json
 	base64 $(EXAMPLES_DIR)/payload.sig > $(EXAMPLES_DIR)/payloadbase64.sig
+
 	cosign attach signature \
 		--payload $(EXAMPLES_DIR)/payload.json \
 		--signature $(EXAMPLES_DIR)/payloadbase64.sig \
+		--certificate $(EXAMPLES_DIR)/leaf.crt \
+		--certificate-chain $(EXAMPLES_DIR)/certificate_chain.pem \
 		$(TEST_IMAGE_SIGN)
 
-inspect:
+verify:
 	cosign tree $(TEST_IMAGE_SIGN)
-
-verify: inspect
 	cosign verify \
-		--cert $(EXAMPLES_DIR)/leaf.crt \
-		--cert-chain $(EXAMPLES_DIR)/certificate_chain.pem \
-		--certificate-identity-regexp '.*' \
+		--ca-roots=$(EXAMPLES_DIR)/ca.crt \
+		--certificate-identity-regexp 'signing.example.com' \
 		--certificate-oidc-issuer-regexp '.*' \
 		--private-infrastructure \
 		--insecure-ignore-sct \
 		$(TEST_IMAGE_SIGN)
 
 save:
+	rm -rf $(EXAMPLES_DIR)/$(TEST_IMAGE)-image
 	cosign save \
 		--dir $(EXAMPLES_DIR)/$(TEST_IMAGE)-image \
 		--allow-insecure-registry=true \
 		$(TEST_IMAGE_SIGN)
+
+pack: save
 	tar cf $(EXAMPLES_DIR)/$(TEST_IMAGE).tar $(EXAMPLES_DIR)/$(TEST_IMAGE)-image
 	rm -rf $(EXAMPLES_DIR)/$(TEST_IMAGE)-image
 
-load:
+unpack:
+	rm -rf $(EXAMPLES_DIR)/$(TEST_IMAGE)-image
 	tar xf $(EXAMPLES_DIR)/$(TEST_IMAGE).tar $(EXAMPLES_DIR)/$(TEST_IMAGE)-image
+
+load: unpack
 	cosign load \
 		--allow-insecure-registry=true \
 		--dir $(EXAMPLES_DIR)/$(TEST_IMAGE)-image \
 		$(TEST_IMAGE_LOCAL)-loaded
 	cosign tree $(TEST_IMAGE_LOCAL)-loaded
+	rm -rf $(EXAMPLES_DIR)/$(TEST_IMAGE)-image
+
+dump-sig: save
+	DIGEST=$$(jq -r '.manifests[] | select(.annotations.kind == "dev.cosignproject.cosign/sigs") | .digest' $(EXAMPLES_DIR)/$(TEST_IMAGE)-image/index.json) && \
+	jq . $(EXAMPLES_DIR)/$(TEST_IMAGE)-image/blobs/"$${DIGEST/:/\/}"
