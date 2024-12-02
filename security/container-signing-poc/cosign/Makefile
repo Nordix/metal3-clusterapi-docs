@@ -10,10 +10,15 @@ TEST_IMAGE_LOCAL := $(TEST_REGISTRY)/$(TEST_IMAGE):$(TEST_IMAGE_TAG)
 TEST_DIGEST_LOCAL := sha256:33735bd63cf84d7e388d9f6d297d348c523c044410f553bd878c6d7829612735
 TEST_IMAGE_SIGN := $(TEST_REGISTRY)/$(TEST_IMAGE)@$(TEST_DIGEST_LOCAL)
 EXAMPLES_DIR := examples
-
 SHELL := /bin/bash
 
-.PHONY: all clean registry test sign verify e2e clean-e2e check-tools save load pack unpack dump-sig
+# set gencrt script (bring your own certificates) to yes to avoid generating new
+# ones each time. Must be executable (bash, python, binary) with +x bit.
+# must produce leaf.{crt,key},sub-ca.crt,root.crt and certificate_chain.pem
+# (sub-ca.crt + root.crt combined)
+CERT_SCRIPT := ./gencrt.sh
+
+.PHONY: all clean registry test certificates sign verify e2e clean-e2e check-tools save load pack unpack dump-sig
 
 all: check-tools
 	@echo "targets: test verify clean e2e clean-e2e"
@@ -37,7 +42,7 @@ registry:
 	docker push $(TEST_IMAGE_LOCAL)
 
 certificates:
-	./gencrt.sh
+	$(CERT_SCRIPT)
 
 test: check-tools registry certificates sign verify
 e2e: test save load
@@ -59,7 +64,7 @@ verify:
 	cosign tree $(TEST_IMAGE_SIGN)
 	cosign verify \
 		--ca-roots=$(EXAMPLES_DIR)/ca.crt \
-		--certificate-identity-regexp 'signing.example.com' \
+		--certificate-identity-regexp '.*' \
 		--certificate-oidc-issuer-regexp '.*' \
 		--private-infrastructure \
 		--insecure-ignore-sct \
