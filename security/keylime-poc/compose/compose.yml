@@ -1,0 +1,72 @@
+# need locally built keylime tenant,registrar,verifier images
+# see: https://github.com/keylime/keylime/blob/master/docker/release/build_locally.sh
+# agent image is built from custom Dockerfile in ../agent-with-swtpm
+
+services:
+  keylime-verifier:
+    image: keylime_verifier:latest  # locally built
+    hostname: keylime-verifier
+    volumes:
+      - ./verifier.conf:/etc/keylime/verifier.conf:ro
+      - ./logging.conf:/etc/keylime/logging.conf:ro
+      - secure_volume:/var/lib/keylime
+    ports:
+      - "8881:8881"
+    user: root
+
+  keylime-registrar:
+    image: keylime_registrar:latest  # locally built
+    hostname: keylime-registrar
+    depends_on:
+      - keylime-verifier
+    volumes:
+      - ./registrar.conf:/etc/keylime/registrar.conf:ro
+      - ./logging.conf:/etc/keylime/logging.conf:ro
+      - secure_volume:/var/lib/keylime
+    ports:
+      - "8891:8891"
+      - "8890:8890"
+    user: root
+    entrypoint: ["bash", "-c", "sleep 5; keylime_registrar"]
+
+  keylime-tenant:
+    image: keylime_tenant:latest  # locally built
+    hostname: keylime-tenant
+    network_mode: host
+    depends_on:
+      - keylime-verifier
+      - keylime-registrar
+    volumes:
+      - ./tenant.conf:/etc/keylime/tenant.conf:ro
+      - ./logging.conf:/etc/keylime/logging.conf:ro
+      - secure_volume:/var/lib/keylime
+    user: root
+    entrypoint: ["bash", "-c", "tail -f /dev/null"]
+
+  keylime-agent:
+    build:
+      # image: quay.io/keylime/keylime_agent:master + swtpm config
+      context: ../agent-with-swtpm
+      dockerfile: ../agent-with-swtpm/Dockerfile
+    hostname: keylime-agent
+    network_mode: host
+    user: root
+    depends_on:
+      - keylime-verifier
+      - keylime-registrar
+    environment:
+      - TPM2TOOLS_TCTI=tabrmd:bus_type=system
+      - TCTI=tabrmd:bus_type=system
+      - RUST_LOG=keylime_agent=debug
+    volumes:
+      - /sys/kernel/security:/sys/kernel/security:ro
+      - ./agent.conf:/etc/keylime/agent.conf:ro
+      - secure_volume:/var/lib/keylime
+      - agent_volume:/var/lib/keylime/secure
+
+volumes:
+  secure_volume:
+  agent_volume:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
