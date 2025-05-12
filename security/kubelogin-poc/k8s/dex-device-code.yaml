@@ -1,0 +1,268 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dex
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dex
+  name: dex
+  namespace: dex
+spec:
+  replicas: 1 # 3 normally, 1 for testing
+  selector:
+    matchLabels:
+      app: dex
+  template:
+    metadata:
+      labels:
+        app: dex
+    spec:
+      serviceAccountName: dex
+      containers:
+      - image: ghcr.io/dexidp/dex:v2.41.1
+        name: dex
+        command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
+
+        ports:
+        - name: https
+          containerPort: 5556
+
+        volumeMounts:
+        - name: config
+          mountPath: /etc/dex/cfg
+        - name: tls
+          mountPath: /etc/dex/tls
+
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 5556
+            scheme: HTTPS
+      volumes:
+      - name: config
+        configMap:
+          name: dex
+          items:
+          - key: config.yaml
+            path: config.yaml
+      - name: tls
+        secret:
+          secretName: dex.example.com.tls
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dex
+  namespace: dex
+data:
+  config.yaml: |
+    # issuer needs to match client's oidc-issuer-url
+    # If its a https endpoint, you need to have the CA cert trusted both for
+    # Dex and for the client, and also by Kubernetes Apiserver
+    # NOTE: Read up on Dex issue if you're using any .local addresses here or
+    # anywhere else in the config: https://github.com/dexidp/dex/issues/2469
+    issuer: https://dex.example.com:32000
+
+    storage:
+      type: kubernetes
+      config:
+        inCluster: true
+
+    web:
+      # configure https, and certs are coming from secrets
+      https: 0.0.0.0:5556
+      tlsCert: /etc/dex/tls/tls.crt
+      tlsKey: /etc/dex/tls/tls.key
+      allowedOrigins: ['*']
+
+    connectors:
+    # https://dexidp.io/docs/connectors/ldap/
+    - type: ldap
+      # Required field for connector id.
+      id: ldap
+      # Required field for connector name.
+      name: LDAP
+      config:
+        # Host and optional port of the LDAP server in the form "host:port".
+        # If the port is not supplied, it will be guessed based on "insecureNoSSL",
+        # and "startTLS" flags. 389 for insecure or StartTLS connections, 636
+        # otherwise.
+
+        # openLDAP is running in svc network on port 1389 in this testing setup
+        host: openldap.openldap:1389
+
+        # Following field is required if the LDAP host is not using TLS (port 389).
+        # Because this option inherently leaks passwords to anyone on the same network
+        # as dex, THIS OPTION MAY BE REMOVED WITHOUT WARNING IN A FUTURE RELEASE.
+        #
+        # openLDAP is running without TLS in this testing setup
+        insecureNoSSL: true
+
+        # If a custom certificate isn't provide, this option can be used to turn on
+        # TLS certificate checks. As noted, it is insecure and shouldn't be used outside
+        # of explorative phases.
+        #
+        # insecureSkipVerify: true
+
+        # When connecting to the server, connect using the ldap:// protocol then issue
+        # a StartTLS command. If unspecified, connections will use the ldaps:// protocol
+        #
+        # startTLS: true
+
+        # Path to a trusted root certificate file. Default: use the host's root CA.
+        # we don't use custom CA for this
+        # rootCA: /etc/dex/ldap.ca
+
+        # A raw certificate file can also be provided inline.
+        # rootCAData: ( base64 encoded PEM file )
+
+        # The DN and password for an application service account. The connector uses
+        # these credentials to search for users and groups. Not required if the LDAP
+        # server provides access for anonymous auth.
+        # Please note that if the bind password contains a `$`, it has to be saved in an
+        # environment variable which should be given as the value to `bindPW`.
+        #
+        # openLDAP testing admin creds, although read-only creds recommended
+        bindDN: cn=admin,dc=example,dc=org
+        bindPW: adminpassword
+
+        # The attribute to display in the provided password prompt. If unset, will
+        # display "Username"
+        # usernamePrompt: SSO Username
+
+        # User search maps a username and password entered by a user to a LDAP entry.
+        #
+        # This LDAP configuration needs to match the LDAP/AD config used in production
+        # It should be noted that if the groupSearch config is invalid, the user is
+        # not able to login, even if username/password would be correct as the token
+        # generation will fail!
+        userSearch:
+          # BaseDN to start the search from. It will translate to the query
+          # "(&(objectClass=person)(uid=<username>))".
+          baseDN: dc=example,dc=org
+          # Optional filter to apply when searching the directory.
+          # filter: "(objectClass=person)"
+
+          # username attribute used for comparing user entries. This will be translated
+          # and combined with the other filter as "(<attr>=<username>)".
+          username: uid
+          # The following three fields are direct mappings of attributes on the user entry.
+          # String representation of the user.
+          idAttr: uidNumber
+          # Required. Attribute to map to Email.
+          emailAttr: sn  # email is not available in openLDAP test server
+          # Maps to display name of users. No default value.
+          nameAttr: cn
+          # Maps to preferred username of users. No default value.
+          preferredUsernameAttr: uid
+
+        # Group search queries for groups given a user entry.
+        groupSearch:
+          # BaseDN to start the search from. It will translate to the query
+          # "(&(objectClass=group)(member=<user uid>))".
+          baseDN: ou=users,dc=example,dc=org
+          # Optional filter to apply when searching the directory.
+          filter: "(objectClass=groupOfNames)"
+
+          # Following list contains field pairs that are used to match a user to a group. It adds an additional
+          # requirement to the filter that an attribute in the group must match the user's
+          # attribute value.
+          userMatchers:
+          - userAttr: dn
+            groupAttr: member
+
+          # Represents group name.
+          nameAttr: cn
+
+    oauth2:
+      # passwordConnector is only supported for ldap and local backends.
+      # This means whenever client with --grant-type=password connects, Dex must
+      # pass that data to this connector. No password connectors are defined,
+      # using grant-type=password will fail right away.
+      passwordConnector: ldap
+      # Password grant type does not have approval screen, but could be useful
+      # for other grant types to avoid an extra click in the browser
+      skipApprovalScreen: true
+      responseTypes: ["code", "token", "id_token"]
+
+    # for static clients, we need to configure the id and secret which are then
+    # configured on the client side as oidc-client-id and oidc-client-secret.
+    # These values ensure that not anyone who has access to Dex API can issue
+    # tokens for your k8s cluster.
+    # For password connector, redirectURIs don't mean anything and can be left out.
+    staticClients:
+    - id: kubelogin-test
+      name: Kubelogin
+      # public client must be true or secret must be given to user
+      public: true
+      # secret: kubelogin-test-secret
+      # redirect uris are needed for device code flow
+      redirectURIs:
+      - 'http://127.0.0.1:8000'
+      - 'http://localhost:8000'
+      - 'urn:ietf:wg:oauth:2.0:oob'
+      - '/device/callback'
+
+    # password db is not necessary unless static passwords are used
+    # https://dexidp.io/docs/connectors/local/
+    enablePasswordDB: false
+
+    # static passwords are not really necessary for anything, they're Dex's local
+    # virtual connector users, ie you do not need other connectors
+    staticPasswords:
+    #- email: "admin@example.com"
+    #  hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    #  username: "staticadmin"
+    #  userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dex
+  namespace: dex
+spec:
+  type: NodePort
+  ports:
+  - name: dex
+    port: 5556
+    protocol: TCP
+    targetPort: 5556
+    nodePort: 32000
+  selector:
+    app: dex
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: dex
+  name: dex
+  namespace: dex
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dex
+rules:
+- apiGroups: ["dex.coreos.com"] # API group created by dex
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["create"] # To manage its own resources, dex must be able to create customresourcedefinitions
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dex
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: dex
+subjects:
+- kind: ServiceAccount
+  name: dex # Service account assigned to the dex pod, created above
+  namespace: dex # The namespace dex is running in
