@@ -57,6 +57,7 @@ if [[ "${TYPE}" == "password" ]]; then
         --exec-arg=--oidc-extra-scope=email \
         --exec-arg=--oidc-extra-scope=profile \
         --exec-arg=--oidc-extra-scope=groups \
+        --exec-arg=--oidc-extra-scope=offline_access \
         --exec-arg=--insecure-skip-tls-verify \
         --exec-arg=--oidc-client-secret=kubelogin-test-secret \
         --exec-arg=--grant-type=password \
@@ -72,6 +73,7 @@ else
         --exec-arg=--oidc-extra-scope=email \
         --exec-arg=--oidc-extra-scope=profile \
         --exec-arg=--oidc-extra-scope=groups \
+        --exec-arg=--oidc-extra-scope=offline_access \
         --exec-arg=--insecure-skip-tls-verify \
         --exec-arg=--oidc-pkce-method=S256 \
         --exec-arg=--grant-type=device-code \

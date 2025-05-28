@@ -132,6 +132,8 @@ look like:
       - --oidc-extra-scope=email
       - --oidc-extra-scope=profile
       - --oidc-extra-scope=groups
+      # if you want to use refresh tokens, add offline_access scope
+      - --oidc-extra-scope=offline_access
       - --grant-type=password
       - --insecure-skip-tls-verify
 ```
@@ -194,6 +196,8 @@ to look like:
       - --oidc-extra-scope=email
       - --oidc-extra-scope=profile
       - --oidc-extra-scope=groups
+      # if you want to use refresh tokens, add offline_access scope
+      - --oidc-extra-scope=offline_access
       - --insecure-skip-tls-verify
       - --use-device-code
 ```
