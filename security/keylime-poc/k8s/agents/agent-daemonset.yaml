@@ -1,0 +1,74 @@
+# Push Model Agent DaemonSet
+# Runs one agent per node, connects to infra cluster via host NodePorts
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: keylime-agent
+  namespace: keylime
+  labels:
+    app: keylime-agent
+spec:
+  selector:
+    matchLabels:
+      app: keylime-agent
+  template:
+    metadata:
+      labels:
+        app: keylime-agent
+    spec:
+      containers:
+      - name: agent
+        image: keylime-push-agent:__KEYLIME_VERSION__
+        imagePullPolicy: Never
+        securityContext:
+          privileged: true
+        env:
+        # Keylime agent config via env vars (KEYLIME_AGENT_ prefix)
+        - name: KEYLIME_AGENT_REGISTRAR_IP
+          valueFrom:
+            configMapKeyRef:
+              name: keylime-agent-config
+              key: registrar_host
+        - name: KEYLIME_AGENT_REGISTRAR_PORT
+          value: "30890"
+        - name: KEYLIME_AGENT_VERIFIER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: keylime-agent-config
+              key: verifier_url
+        - name: KEYLIME_AGENT_KEYLIME_DIR
+          value: "/var/lib/keylime"
+        # TLS settings - use certs directory
+        - name: KEYLIME_AGENT_SERVER_CERT
+          value: "/var/lib/keylime/certs/client-cert.crt"
+        - name: KEYLIME_AGENT_SERVER_KEY
+          value: "/var/lib/keylime/certs/client-private.pem"
+        - name: KEYLIME_AGENT_TRUSTED_CLIENT_CA
+          value: "/var/lib/keylime/certs/cacert.crt"
+        - name: RUST_LOG
+          value: "keylime_push_model_agent=info"
+        # Use swtpm directly via TCP (skip D-Bus/abrmd)
+        - name: TCTI
+          value: "swtpm:"
+        # Disable privilege drop for POC (swtpm state dir ownership issues)
+        - name: KEYLIME_AGENT_RUN_AS
+          value: ""
+        volumeMounts:
+        - name: certs
+          mountPath: /var/lib/keylime/certs
+          readOnly: true
+        - name: agent-config
+          mountPath: /etc/keylime/agent.conf
+          subPath: agent.conf
+          readOnly: true
+        - name: swtpm-state
+          mountPath: /var/lib/swtpm
+      volumes:
+      - name: certs
+        secret:
+          secretName: keylime-client-certs
+      - name: agent-config
+        configMap:
+          name: keylime-agent-config
+      - name: swtpm-state
+        emptyDir: {}

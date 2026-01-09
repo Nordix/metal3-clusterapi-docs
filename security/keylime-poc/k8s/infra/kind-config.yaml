@@ -1,0 +1,20 @@
+# Kind cluster configuration for keylime-infra
+# Exposes registrar and verifier via NodePorts
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: keylime-infra
+nodes:
+- role: control-plane
+  extraPortMappings:
+  # Registrar HTTP (for agent registration)
+  - containerPort: 30890
+    hostPort: 30890
+    protocol: TCP
+  # Registrar HTTPS (for tenant queries)
+  - containerPort: 30891
+    hostPort: 30891
+    protocol: TCP
+  # Verifier HTTPS
+  - containerPort: 30881
+    hostPort: 30881
+    protocol: TCP
