@@ -12,7 +12,7 @@ __dir__=$(realpath "$(dirname "$0")")
 ./install-ironic.sh
 ./install-bmo.sh
 ./generate_unique_nodes.sh
-python create-bmhs.py
+python3 create-bmhs.py
 ./start_containers.sh
 ./apply-bmhs.sh
 

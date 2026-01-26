@@ -43,7 +43,7 @@ if ! command -v clusterctl &>/dev/null; then
   clusterctl_api="https://api.github.com/repos/kubernetes-sigs/cluster-api/releases"
   clusterctl_release_tag="$(curl -sL "${clusterctl_api}" | jq -r ".[].tag_name" | head -n 1)"
   filename="clusterctl"
-  wget -O "${filename}" "https://github.com/kubernetes-sigs/cluster-api/releases/download/${clusterctl_release_tag}/clusterctl-linux-amd64"
+  wget -O "${filename}" "https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.9.11/clusterctl-linux-amd64"
   sudo install -o root -g root -m 0755 "${filename}" /usr/local/bin/"${filename}"
   rm "${filename}"
 fi

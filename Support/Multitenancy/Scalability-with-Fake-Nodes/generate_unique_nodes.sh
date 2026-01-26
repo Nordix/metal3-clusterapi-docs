@@ -38,7 +38,7 @@ for i in $(seq 1 "${N_NODES:-100}"); do
       "nics": [
 	{"mac": $macaddr, "ip": "192.168.0.100"}
       ]
-    }' nodes_template.json >node.json
+    }' nodes.json >node.json
 
   jq -s '.[0] + [.[1] ]' nodes.json node.json >tmp.json
   rm -f nodes.json

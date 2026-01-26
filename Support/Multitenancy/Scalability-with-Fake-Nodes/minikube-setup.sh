@@ -10,6 +10,7 @@ cd "${REPO_ROOT}" || exit 1
 # Set up minikube
 minikube config set memory "${MINIKUBE_MEMORY}"
 minikube config set cpus "${MINIKUBE_CPUS}"
+minikube config set disk-size "${MINIKUBE_DISK_SIZE}"
 minikube start --driver=kvm2 --wait-timeout 120s
 
 virsh -c qemu:///system net-define "${REPO_ROOT}/manifests/net.xml"

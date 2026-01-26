@@ -20,7 +20,7 @@ def generate_random_mac():
 def create_node(node):
     uuid = node["uuid"]
     name = node["name"]
-    port = 8001 + (int(name.strip("test")) - 1) % int(os.environ.get("N_FAKE_IPAS", 10))
+    port = 8001 + (int(name.strip("test")) - 1) % int(os.environ.get("N_FAKE_IPAS", 100))
     random_mac = generate_random_mac()
     manifest = f"""---
 apiVersion: v1

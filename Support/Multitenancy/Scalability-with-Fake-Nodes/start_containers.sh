@@ -20,7 +20,7 @@ mkdir -p "${SUSHY_CONF_DIR}/ssh"
 ports=(8000 80 6385 5050 6180 53 5000 69 547 546 68 67 5353 6230)
 echo "Starting sushy-tools containers"
 # Start sushy-tools
-for i in $(seq 1 "${N_FAKE_IPAS}"); do
+for i in $(seq 1 "${N_FAKE_IPAS}"+10); do
   container_conf_dir="${SUSHY_CONF_DIR}/sushy-${i}"
   fake_ipa_port=$((9900 + i))
   sushy_port=$((8000 + i))
