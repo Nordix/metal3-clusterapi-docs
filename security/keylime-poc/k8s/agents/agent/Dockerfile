@@ -52,14 +52,19 @@ COPY --from=builder /src/rust-keylime/target/release/keylime_push_model_agent /b
 # Copy D-Bus policy, config, and startup script
 COPY dbus-policy.conf /etc/dbus-1/system.d/
 COPY keylime-agent.conf /etc/keylime/agent.conf
+COPY swtpm-init.sh /swtpm-init.sh
 COPY start.sh /start.sh
-RUN chmod +x /start.sh
+RUN chmod +x /swtpm-init.sh /start.sh
 
-# Create keylime user
-RUN useradd -s /sbin/nologin -r -G tss keylime
+# Create keylime user with explicit UID/GID
+ARG KEYLIME_UID=490
+ARG KEYLIME_GID=490
+RUN groupadd -g "${KEYLIME_GID}" keylime && \
+    useradd -u "${KEYLIME_UID}" -g "${KEYLIME_GID}" -s /sbin/nologin -r -G tss keylime
 
-# Create directories
-RUN mkdir -p /var/lib/keylime/secure /var/lib/swtpm /run/swtpm
+# Create directories owned by keylime
+RUN mkdir -p /var/lib/keylime/secure /var/lib/swtpm /run/swtpm && \
+    chown -R keylime:keylime /var/lib/keylime /var/lib/swtpm /run/swtpm
 
 ENV RUST_LOG=keylime_push_model_agent=info
 

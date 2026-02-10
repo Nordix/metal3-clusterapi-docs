@@ -88,6 +88,9 @@ EOF
         echo "Adding host IP ${HOST_IP} to server certificate SANs"
     fi
 
+    # Add QEMU gateway IP for hwtpm VM access
+    echo "IP.3 = 10.0.2.2" >> "${CERTS_DIR}/server-ext.cnf"
+
     # Sign server cert with CA
     openssl x509 -req -days "${VALIDITY}" \
         -in "${CERTS_DIR}/server.csr" \

@@ -34,7 +34,7 @@ SUCCESS_COUNT=0
 PENDING_COUNT=0
 
 for uuid in ${AGENT_UUIDS}; do
-    STATUS=$(curl -sk "https://localhost:30881/v2.4/agents/${uuid}" 2>&1)
+    STATUS=$("${SCRIPT_DIR}/tenant.sh" -c status -u "${uuid}" --push-model 2>&1)
     ATT_COUNT=$(echo "${STATUS}" | grep -o '"attestation_count": [0-9]*' | grep -o '[0-9]*' || echo "0")
 
     if [[ -n "${ATT_COUNT}" ]] && [[ "${ATT_COUNT}" -gt 0 ]]; then
