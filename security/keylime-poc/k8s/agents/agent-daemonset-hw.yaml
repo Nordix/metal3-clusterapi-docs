@@ -1,5 +1,7 @@
-# Push Model Agent DaemonSet
-# Runs one agent per node, connects to infra cluster via host NodePorts
+# Push Model Agent DaemonSet (Hardware TPM)
+# Runs one agent per node using /dev/tpmrm0 via device plugin
+# Requires: device-plugin.yaml deployed, containerd configured with
+# device_ownership_from_security_context = true
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -16,21 +18,6 @@ spec:
       labels:
         app: keylime-agent
     spec:
-      initContainers:
-      - name: swtpm-init
-        image: keylime-push-agent:__KEYLIME_VERSION__
-        imagePullPolicy: Never
-        command: ["/swtpm-init.sh"]
-        securityContext:
-          runAsUser: 0
-        env:
-        - name: KEYLIME_UID
-          value: "__KEYLIME_UID__"
-        - name: KEYLIME_GID
-          value: "__KEYLIME_GID__"
-        volumeMounts:
-        - name: swtpm-state
-          mountPath: /var/lib/swtpm
       containers:
       - name: agent
         image: keylime-push-agent:__KEYLIME_VERSION__
@@ -44,7 +31,6 @@ spec:
             drop:
             - ALL
         env:
-        # Keylime agent config via env vars (KEYLIME_AGENT_ prefix)
         - name: KEYLIME_AGENT_REGISTRAR_IP
           valueFrom:
             configMapKeyRef:
@@ -59,7 +45,6 @@ spec:
               key: verifier_url
         - name: KEYLIME_AGENT_KEYLIME_DIR
           value: "/var/lib/keylime"
-        # TLS settings - use certs directory
         - name: KEYLIME_AGENT_SERVER_CERT
           value: "/var/lib/keylime/certs/client-cert.crt"
         - name: KEYLIME_AGENT_SERVER_KEY
@@ -68,12 +53,15 @@ spec:
           value: "/var/lib/keylime/certs/cacert.crt"
         - name: RUST_LOG
           value: "keylime_push_model_agent=info"
-        # Use swtpm directly via TCP (skip D-Bus/abrmd)
         - name: TCTI
-          value: "swtpm:"
-        # Disable privilege drop (K8s handles user context)
+          value: "device:/dev/tpmrm0"
         - name: KEYLIME_AGENT_RUN_AS
           value: ""
+        resources:
+          requests:
+            squat.ai/tpm: "1"
+          limits:
+            squat.ai/tpm: "1"
         volumeMounts:
         - name: certs
           mountPath: /var/lib/keylime/certs
@@ -82,8 +70,8 @@ spec:
           mountPath: /etc/keylime/agent.conf
           subPath: agent.conf
           readOnly: true
-        - name: swtpm-state
-          mountPath: /var/lib/swtpm
+        - name: keylime-data
+          mountPath: /var/lib/keylime
       volumes:
       - name: certs
         secret:
@@ -91,5 +79,5 @@ spec:
       - name: agent-config
         configMap:
           name: keylime-agent-config
-      - name: swtpm-state
+      - name: keylime-data
         emptyDir: {}

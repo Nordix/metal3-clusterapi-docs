@@ -1,16 +1,10 @@
 # Keylime Push Model POC
 
-A Proof-of-Concept demonstrating **Keylime 8.x Push Model** attestation running
-in Kubernetes.
-
-This setup uses two separate [Kind](https://kind.sigs.k8s.io/) clusters to
-simulate a real-world scenario where the **Agent** (workload) runs in a
-different network environment than the **Keylime Infrastructure**
-(Verifier/Registrar), connecting via standard egress (NodePorts).
+Proof-of-Concept: **Keylime 8.x push model agent** running as a non-root
+DaemonSet in Kubernetes, attesting to a Keylime server via hardware TPM
+or swtpm.
 
 ## Architecture
-
-The architecture consists of two clusters communicating via the host network.
 
 ```mermaid
 flowchart TB
@@ -31,136 +25,168 @@ flowchart TB
     agent -->|"2. Push Quote (mTLS)"| verifier
 ```
 
-- **Push Model**: The Agent initiates connections to the Verifier. No
-   Ingress/LoadBalancer is required for the Agent.
-- **mTLS**: All communication is secured using mutual TLS with certificates
-   generated in [scripts/generate-certs.sh](scripts/generate-certs.sh).
-- **TPM**: Uses `swtpm` to emulate a TPM 2.0 device for development.
+Two separate Kind clusters simulate cross-network attestation. The agent
+initiates all connections (egress only, no ingress needed). For hardware
+TPM mode, a QEMU VM with vTPM replaces the agent Kind cluster.
 
 ## Quick Start
 
-### Prerequisites
-
-- Docker, Kind, `kubectl`, `openssl`, `skopeo`
-- Keylime repositories cloned locally:
-   - `KEYLIME_GIT` (Python server, default: `~/git/keylime/keylime`)
-   - `RUST_KEYLIME_GIT` (Rust agent, default: `~/git/keylime/rust-keylime`)
-
-### 1. Setup (Build Images)
-
-Build the container images from your local Keylime sources. This builds the
-`keylime_push_model_agent` binary.
+Prerequisites: Docker, Kind, `kubectl`, `openssl`, `skopeo`, and
+keylime repos cloned locally (`KEYLIME_GIT`, `RUST_KEYLIME_GIT`).
 
 ```bash
-make setup
+make setup          # Build container images (one-time)
+make swtpm          # Full POC with software TPM (default)
+make hwtpm          # Full POC with hardware TPM (QEMU vTPM)
+make verify         # Re-check attestation status
+make clean          # Tear down everything
 ```
 
-*See [Makefile](Makefile) for build details.*
+`make swtpm` deploys 2 agent clusters (configurable: `AGENT_CLUSTERS=N`).
+`make hwtpm` boots a QEMU VM with vTPM, kubeadm, and device plugin.
 
-### 2. Run the POC
+A TPM policy with at least one PCR is required. With swtpm, PCR values
+are all zeros. With hardware TPM, use an unused PCR (e.g., PCR 8) for
+testing since PCRs 0-7 contain real boot measurements.
 
-Deploy both server and agent clusters, then verify attestation:
+## Production Deployment Guide
+
+Key learnings for deploying the push model agent as a non-root container
+with hardware TPM.
+
+### Container Runtime
+
+The runtime **must** set device ownership from the pod's security
+context. Without this, the non-root agent cannot access `/dev/tpmrm0`.
+
+containerd (v1.6+) -- change the existing key in `config.toml`
+(do not insert a duplicate, containerd will refuse to start):
+
+```toml
+# /etc/containerd/config.toml
+[plugins."io.containerd.grpc.v1.cri"]
+  device_ownership_from_security_context = true
+```
+
+CRI-O (v1.22+):
+
+```toml
+# /etc/crio/crio.conf
+[crio.runtime]
+device_ownership_from_security_context = true
+```
+
+This eliminates `supplementalGroups` hacks (where the `tss` GID varies
+by distro: 59 on SLES/Fedora, 106 on Debian).
+
+### Device Plugin
+
+Deploy [squat/generic-device-plugin][gdp] to expose `/dev/tpmrm0` as
+`squat.ai/tpm`. See [device-plugin.yaml](k8s/agents/device-plugin.yaml).
+Only the device plugin DaemonSet needs `privileged: true`.
+
+[gdp]: https://github.com/squat/generic-device-plugin
+
+### UID/GID Matching
+
+The agent UID/GID must be consistent across:
+
+| Layer | Where | How |
+| --- | --- | --- |
+| Container image | `Dockerfile` `groupadd`/`useradd` | `ARG KEYLIME_UID=490` / `ARG KEYLIME_GID=490` |
+| DaemonSet | `securityContext` | `runAsUser: 490` / `runAsGroup: 490` |
+| Node (if relevant) | `/etc/passwd`, `/etc/group` | Must match if sharing host paths |
+
+Default 490 matches the `keylime` system user on SLES. On SLES the `tss`
+group is GID 59; on Debian it is 106. With
+`device_ownership_from_security_context`, `tss` group membership is not
+required for hardware TPM mode.
+
+### Agent Security Context
+
+```yaml
+securityContext:
+  runAsUser: 490
+  runAsGroup: 490
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+```
+
+No `privileged`, no added capabilities, no `supplementalGroups`, no init
+container (unlike swtpm mode which needs a root init container).
+
+### Agent Environment Variables
+
+```yaml
+env:
+- name: TCTI
+  value: "device:/dev/tpmrm0"    # Use hardware TPM
+- name: KEYLIME_AGENT_RUN_AS
+  value: ""                       # Disable internal privilege drop
+```
+
+`KEYLIME_AGENT_RUN_AS=""` is critical. The agent's built-in `run_as`
+expects to start as root and drop privileges. When K8s already runs the
+container as non-root, the internal drop fails.
+
+### TPM Policy
+
+Hardware TPM PCR values contain real firmware/boot measurements (not
+all zeros). Keylime's `tpm_policy` uses **exact match**, not regex.
+Static PCR policies break on firmware or kernel updates.
+
+For production, use measured boot event log verification. For testing,
+use an unused PCR (e.g., PCR 8, typically all zeros):
 
 ```bash
-make run
+tpm2_pcrread sha256:0,1,2,3,4,5,6,7,8
+--tpm_policy '{"8":"000...000"}'
 ```
 
-This runs:
+### TLS Certificate SANs
 
-- `make server` - Creates keylime-infra cluster with registrar/verifier
-- `make test` - Creates keylime-agents cluster with agent, adds to verifier,
-  verifies attestation
+The server cert must include **every IP** the agent uses to reach the
+registrar/verifier. Missing SANs cause silent mTLS failure at
+capabilities negotiation (agent logs show Phase 1, then nothing).
 
-### 3. Verify Attestation
+### UUID Strategy
 
-To re-check attestation status without redeploying:
+Use `uuid = "hash_ek"` (SHA-256 of TPM Endorsement Key) for stable
+per-node identity that survives pod restarts.
 
-```bash
-make verify
-```
+### swtpm vs Hardware TPM
 
-To run a fresh test iteration (recreates agent cluster):
-
-```bash
-make test
-```
-
-**Important**: A TPM policy with at least one PCR is required for attestation.
-With `swtpm`, PCR values are all zeros since no real boot measurements exist.
-
-## Configuration
-
-### Certificates
-
-Certificates are generated automatically by
-[scripts/generate-certs.sh](scripts/generate-certs.sh) into the `certs/`
-directory and mounted as Kubernetes Secrets.
-
-- **CA**: Shared root of trust for both clusters.
-- **Server Certs**: Used by Registrar and Verifier.
-- **Client Certs**: Used by Agent and Tenant.
-
-### Infrastructure Configuration
-
-The infrastructure components are configured via ConfigMaps in
-[k8s/infra/configmaps/](k8s/infra/configmaps/).
-
-- **Verifier**: [verifier.conf](k8s/infra/configmaps/verifier.conf) sets
-  `mode = push` and `require_ek_cert = False` (for swtpm).
-- **Registrar**: [registrar.conf](k8s/infra/configmaps/registrar.conf)
-  configures TLS and database.
-
-### Agent Configuration
-
-The Agent is configured via a ConfigMap in
-[k8s/agents/agent-configmap.yaml](k8s/agents/agent-configmap.yaml).
-
-- **UUID**: Generated dynamically on each agent start.
-- **Registrar/Verifier**: Point to the host IP (via `host.docker.internal` or
-  gateway) on NodePorts `30890` and `30881`.
+| Aspect | swtpm (dev/POC) | Hardware TPM (production) |
+| --- | --- | --- |
+| Init container | Required (root, initializes state) | Not needed |
+| Device plugin | Not needed | Required (exposes `/dev/tpmrm0`) |
+| `TCTI` env var | `swtpm:host=localhost,port=2321` | `device:/dev/tpmrm0` |
+| PCR values | All zeros | Real boot measurements |
+| EK certificate | Self-signed by swtpm | Manufacturer-signed (TPM vendor CA) |
+| `require_ek_cert` | `False` (verifier config) | `True` for production |
+| Measured boot log | Not available | `/sys/kernel/security/tpm0/binary_bios_measurements` |
+| IMA log | Not available | Available if IMA enabled in kernel |
 
 ## Troubleshooting
 
-### PCR Mismatch
+- **PCR mismatch**: Check verifier logs (`kubectl logs -n keylime
+  -l app=keylime-verifier --tail=20`) for the actual PCR value and
+  update the policy.
+- **Agent cannot connect**: Check agent logs. Ensure NodePorts are
+  reachable and server cert SANs include the agent's target IP.
+- **"challenges expired" (403)**: No TPM policy configured. You must
+  specify `--tpm_policy` with at least one PCR when adding the agent.
 
-If the agent fails attestation with a PCR mismatch error in the Verifier logs:
+## References
 
-1. Check the actual PCR value in the logs:
+- [Keylime Documentation](https://keylime.dev/)
+- [Keylime GitHub](https://github.com/keylime/keylime)
+- [Keylime Rust Agent](https://github.com/keylime/rust-keylime)
+- [squat/generic-device-plugin][gdp]
+- [Kubernetes: Non-root Containers and Devices](https://kubernetes.io/blog/2021/11/09/non-root-containers-and-devices/)
+- [SUSE Keylime Docs](https://documentation.suse.com/sle-micro/6.0/html/Micro-keylime/index.html)
 
-   ```bash
-   kubectl logs -n keylime -l app=keylime-verifier --tail=20
-   ```
-
-2. Update the policy in your `tenant add` command to match the value reported
-   by `swtpm`.
-
-### Networking Issues
-
-If the Agent cannot connect to the Registrar/Verifier:
-
-1. Check Agent logs:
-
-   ```bash
-   kubectl logs -n keylime -l app=keylime-agent
-   ```
-
-2. Ensure the NodePorts are accessible from the Agent container. The `start.sh`
-   script attempts to resolve the host IP.
-
-### "Challenges Expired"
-
-If you see `challenges_expired` (403) in Agent logs:
-
-- **Most likely cause**: No TPM policy configured. When adding the agent to
-  the verifier, you must specify `--tpm_policy` with at least one PCR.
-  Without a policy, no TPM quote is requested, so no challenge is generated.
-- Can also happen if the Agent takes too long to respond, or during rapid
-  restart loops.
-
-## Source Reference
-
-- **Agent Deployment**:
-  [k8s/agents/agent-daemonset.yaml](k8s/agents/agent-daemonset.yaml)
-- **Verifier Deployment**:
-  [k8s/infra/verifier-deployment.yaml](k8s/infra/verifier-deployment.yaml)
-- **Agent Dockerfile**: [k8s/agents/agent/Dockerfile](k8s/agents/agent/Dockerfile)
+<!-- cSpell:ignore keylime,swtpm,sles -->
