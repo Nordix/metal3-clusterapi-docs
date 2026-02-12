@@ -74,6 +74,12 @@ spec:
         # Disable privilege drop (K8s handles user context)
         - name: KEYLIME_AGENT_RUN_AS
           value: ""
+        # Enable PoP token auth (required by verifier authorization framework)
+        - name: KEYLIME_AGENT_ENABLE_AUTHENTICATION
+          value: "true"
+        # Auth client uses system trust store; point it at our CA cert
+        - name: SSL_CERT_FILE
+          value: "/var/lib/keylime/certs/cacert.crt"
         volumeMounts:
         - name: certs
           mountPath: /var/lib/keylime/certs
